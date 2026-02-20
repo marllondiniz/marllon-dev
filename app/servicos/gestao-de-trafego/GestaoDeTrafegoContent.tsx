@@ -21,7 +21,6 @@ export default function GestaoDeTrafegoContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">SRV://GESTÃO_DE_TRÁFEGO</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Gestão de tráfego focada em resultado, não em cliques."

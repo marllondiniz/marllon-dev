@@ -33,7 +33,6 @@ export default function Content() {
           className="mb-4 flex items-center gap-3"
         >
           <span className="hex-badge flicker">HUB://TECH_IA</span>
-          <span className="status-dot" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">carregando...</span>
         </motion.div>
 

@@ -217,7 +217,6 @@ export default function About() {
               className="mb-4 flex items-center gap-3"
             >
               <span className="hex-badge flicker">ID://MARLLON_DINIZ</span>
-              <span className="status-dot" />
               <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">online</span>
             </motion.div>
 

@@ -64,10 +64,16 @@ const TIMELINE = [
   { n: "03", time: "+1", label: "Rodada de ajustes", sub: "Inclusa no pacote" },
 ];
 
-const BONUS = [
-  "Kit de Anúncios para rodar junto com a landing",
-  "Checklist de qualidade (mobile, CTA, rastreio, clareza)",
-  "Mapa de Seções para escalar a página depois",
+const EXTRAS_PREMIUM = {
+  title: "Tráfego pago",
+  tagline: "Você desenvolve o produto, o resto deixa comigo.",
+  note: "Serviço à parte: estratégia e gestão de tráfego de ponta a ponta.",
+};
+
+const EXTRAS_LIST = [
+  "Relatório de SEO e GEO (Generative Engine Optimization) para ranqueamento no Google e IAs + certificado de garantia",
+  "Otimização para PWA",
+  "Configuração anti-crawler e compliance LGPD",
 ];
 
 const PLANS_72 = [
@@ -92,6 +98,8 @@ const PLANS_72 = [
       "1 rodada de ajustes",
     ],
     quote: "72h ou você não paga.",
+    price: "A partir de R$ 497",
+    priceRange: "R$ 497 – R$ 997",
     featured: true,
     whatsapp: "https://wa.me/5527999999999?text=Quero%20a%20Landing%20Express%2072h",
   },
@@ -115,6 +123,8 @@ const PLANS_72 = [
       "Vídeo de treinamento pra você editar depois",
     ],
     quote: "Mini-site com cara de agência.",
+    price: "A partir de R$ 1.297",
+    priceRange: "R$ 1.297 – R$ 1.997",
     featured: false,
     whatsapp: "https://wa.me/5527999999999?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)",
   },
@@ -141,13 +151,15 @@ const PLANS_72 = [
       "Checklist de qualidade antes de publicar",
     ],
     quote: "Um ativo digital, não só um site.",
+    price: "A partir de R$ 2.997",
+    priceRange: "R$ 2.997 – R$ 4.997",
     featured: false,
     whatsapp: "https://wa.me/5527999999999?text=Quero%20o%20Empresa%20Pro",
   },
 ];
 
 const ADDONS = [
-  { label: "Textos premium (copy completa / storytelling / oferta)", range: "R$ 497 a R$ 2.000" },
+  { label: "Sessão de estratégia (1h de call — oferta, mensagem e CTA alinhados)", range: "R$ 297 a R$ 597" },
   { label: "Página extra", range: "R$ 300 a R$ 800" },
   { label: "Manutenção mensal (ajustes + melhorias + suporte)", range: "R$ 197 a R$ 997/mês" },
   { label: "A/B de seção (2 variações)", range: "R$ 397 a R$ 997" },
@@ -177,7 +189,6 @@ export default function Landing72hContent() {
           className="relative z-10 mb-5 flex items-center justify-center gap-3"
         >
           <span className="hex-badge flicker">LANDING://72H</span>
-          <span className="status-dot" />
         </motion.div>
 
         <motion.div
@@ -283,7 +294,6 @@ export default function Landing72hContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">PROBLEMA</span>
-            <span className="status-dot" />
           </motion.div>
 
           {/* Headline forte */}
@@ -380,7 +390,6 @@ export default function Landing72hContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">EXEMPLOS</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Veja a diferença"
@@ -410,7 +419,6 @@ export default function Landing72hContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">SOLUÇÃO</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="IA pra acelerar. Estratégia pra vender."
@@ -462,7 +470,6 @@ export default function Landing72hContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">ENTREGA</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Do briefing ao ar em 72h"
@@ -503,7 +510,7 @@ export default function Landing72hContent() {
             </div>
           </div>
 
-          {/* Bônus */}
+          {/* Extras: produto premium (tráfego) + outros */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -525,11 +532,25 @@ export default function Landing72hContent() {
                   <p className="font-mono text-[10px] text-zinc-500">a combinar, conforme o projeto</p>
                 </div>
               </div>
+
+              {/* Produto premium: Tráfego */}
+              <div className="mb-5 rounded-xl border border-[#22c55e]/30 bg-[#22c55e]/5 p-4">
+                <p className="font-[family-name:var(--font-space)] font-bold text-[#22c55e]">
+                  {EXTRAS_PREMIUM.title}
+                </p>
+                <p className="mt-1 text-sm font-medium text-white">
+                  {EXTRAS_PREMIUM.tagline}
+                </p>
+                <p className="mt-1 font-mono text-[10px] text-zinc-500">
+                  {EXTRAS_PREMIUM.note}
+                </p>
+              </div>
+
               <ul className="space-y-3">
-                {BONUS.map((b) => (
-                  <li key={b} className="flex items-start gap-2.5 font-mono text-sm text-zinc-300">
+                {EXTRAS_LIST.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 font-mono text-sm text-zinc-300">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#22c55e]" />
-                    {b}
+                    {item}
                   </li>
                 ))}
               </ul>
@@ -548,7 +569,6 @@ export default function Landing72hContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">PLANOS</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Planos"
@@ -684,7 +704,6 @@ export default function Landing72hContent() {
               <Clock className="h-3 w-3" />
               INIT://CONTATO_72H
             </span>
-            <span className="status-dot" />
           </motion.div>
 
           <BlurText
@@ -824,6 +843,20 @@ function Plan72Card({
         {plan.title}
       </h3>
       <p className="mt-1 text-sm text-zinc-500">{plan.subtitle}</p>
+
+      {/* Preço */}
+      {"price" in plan && plan.price && (
+        <div className="mt-3 flex flex-wrap items-baseline gap-2">
+          <span className="font-[family-name:var(--font-space)] text-lg font-bold text-[#22c55e]">
+            {plan.price}
+          </span>
+          {"priceRange" in plan && plan.priceRange && (
+            <span className="font-mono text-[10px] text-zinc-500">
+              ({plan.priceRange})
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Ideal para */}
       <div className="mt-5">

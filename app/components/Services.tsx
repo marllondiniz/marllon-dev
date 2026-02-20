@@ -110,7 +110,6 @@ export default function Services() {
           className="mb-2 flex items-center gap-3"
         >
           <span className="hex-badge flicker">SRV://STACK</span>
-          <span className="status-dot" />
         </motion.div>
 
         <BlurText

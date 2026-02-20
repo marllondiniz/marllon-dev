@@ -4,7 +4,18 @@ const nextConfig: NextConfig = {
   // Otimizações de performance e SEO
   compress: true,
   poweredByHeader: false,
-  
+
+  // Evita o servidor cair ao salvar arquivos (polling em vez do file watcher do sistema)
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
+
   // Otimização de imagens
   images: {
     formats: ["image/avif", "image/webp"],

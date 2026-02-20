@@ -23,7 +23,6 @@ export default function CTA() {
             <Terminal className="h-3 w-3" />
             INIT://CONTACT_SESSION
           </span>
-          <span className="status-dot" />
         </motion.div>
 
         <BlurText

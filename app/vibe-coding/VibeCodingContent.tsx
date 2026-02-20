@@ -147,7 +147,6 @@ export default function VibeCodingContent() {
             className="mb-6 flex items-center justify-center gap-3"
           >
             <span className="hex-badge flicker">VIBE_CODING://DIRECAO</span>
-            <span className="status-dot" />
           </motion.div>
 
           <motion.div
@@ -271,7 +270,6 @@ export default function VibeCodingContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">COMPARE://OUTPUT</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="O problema não é a IA."
@@ -307,7 +305,6 @@ export default function VibeCodingContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">DEF://VIBE_CODING</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="O que a IA acelera"
@@ -375,7 +372,6 @@ export default function VibeCodingContent() {
             className="mb-8 flex items-center gap-3"
           >
             <span className="hex-badge flicker">PROS//CONTRAS</span>
-            <span className="status-dot" />
           </motion.div>
 
           <motion.div
@@ -445,7 +441,6 @@ export default function VibeCodingContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">DIFERENCIAL</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Nosso Diferencial"
@@ -563,7 +558,6 @@ export default function VibeCodingContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">PLANOS</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Planos"
@@ -663,7 +657,6 @@ export default function VibeCodingContent() {
               <Terminal className="h-3 w-3" />
               INIT://CONTACT_SESSION
             </span>
-            <span className="status-dot" />
           </motion.div>
 
           <BlurText

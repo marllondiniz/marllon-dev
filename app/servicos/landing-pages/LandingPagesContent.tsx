@@ -21,7 +21,6 @@ export default function LandingPagesContent() {
             className="mb-4 flex items-center gap-3"
           >
             <span className="hex-badge flicker">SRV://LANDING_PAGES</span>
-            <span className="status-dot" />
           </motion.div>
           <BlurText
             text="Landing pages que convertem junto com seu tráfego."

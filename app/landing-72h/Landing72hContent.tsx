@@ -306,7 +306,7 @@ export default function Landing72hContent() {
             transition={{ delay: 0.1 }}
             className="mb-10 max-w-2xl text-base text-zinc-500"
           >
-            Não é o produto. Não é o preço. Provavelmente é a página.
+            Não é o produto. Não é o preço. É a página.
           </motion.p>
 
           {/* Itens de dor */}

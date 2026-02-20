@@ -59,7 +59,7 @@ const services = [
   {
     title: "Vibe Coding com Direção",
     description:
-      "Sites rápidos com design exclusivo e artesanal. Velocidade de IA com direção estratégica — sem cara de IA, sem layouts genéricos.",
+      "Sites rápidos com design exclusivo e artesanal. Velocidade de IA com direção estratégica, sem cara de IA, sem layouts genéricos.",
     items: [
       "One Page, 3 Páginas ou Site Corporativo",
       "Design exclusivo e identidade de marca",

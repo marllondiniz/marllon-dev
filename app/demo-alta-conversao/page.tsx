@@ -253,7 +253,7 @@ export default function DemoAltaConversaoPage() {
             </a>
             <a
               href="#como-funciona"
-              className="inline-flex flex-shrink-0 items-center justify-center rounded-xl border-2 border-white/20 bg-white/5 px-4 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-white sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-base"
+              className="inline-flex flex-shrink-0 items-center justify-center rounded-xl border border-zinc-600/70 bg-white/5 px-4 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-white sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-base"
             >
               Como funciona
             </a>

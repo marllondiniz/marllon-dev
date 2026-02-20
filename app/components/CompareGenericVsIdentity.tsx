@@ -120,7 +120,7 @@ export default function CompareGenericVsIdentity({
           </div>
         </div>
         <div className="p-3">
-          <div className="overflow-hidden rounded-xl border-2 border-[#22c55e]/30 bg-white shadow-[0_0_24px_rgba(34,197,94,0.06)]">
+          <div className="overflow-hidden rounded-xl border border-zinc-700/80 bg-[#09090b] shadow-[0_0_24px_rgba(34,197,94,0.06)]">
             <iframe
               src={IDENTITY_URL}
               title="Exemplo: landing com identidade (alta conversão)"

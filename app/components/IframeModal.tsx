@@ -68,7 +68,7 @@ export default function IframeModal({ url, title, onClose }: Props) {
               </div>
             </div>
             <div className="p-3">
-              <div className="overflow-hidden rounded-xl border border-zinc-800 bg-white">
+              <div className="overflow-hidden rounded-xl border border-zinc-800 bg-[#09090b]">
                 <iframe
                   src={url}
                   title={title}

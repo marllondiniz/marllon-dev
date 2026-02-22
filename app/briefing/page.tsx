@@ -3,34 +3,21 @@
 import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  ChevronRight,
-  Zap,
-  Users,
-  Target,
-  Clock,
-  Layers,
-  Send,
-  MessageCircle,
+  ArrowRight, ArrowLeft, Check, ChevronRight,
+  Target, Zap, Layers, Clock, Users,
 } from "lucide-react";
 import BlurText from "@/app/components/BlurText";
 import Magnet from "@/app/components/Magnet";
 import CyberBackground from "@/app/components/CyberBackground";
 
-/* ────────────────────────────────────────────────────────── */
-/*  Estrutura dos passos                                       */
-/* ────────────────────────────────────────────────────────── */
-
 const STEPS = [
-  { id: 1, icon: Target, title: "Negócio e produto", desc: "O que você vende e para quem" },
-  { id: 2, icon: Zap, title: "Oferta e CTA", desc: "O que a pessoa faz na página" },
-  { id: 3, icon: Layers, title: "Material existente", desc: "O que você já tem" },
-  { id: 4, icon: Clock, title: "Prazo e uso", desc: "Quando e como a página será usada" },
-  { id: 5, icon: Users, title: "Extras", desc: "Referências e restrições" },
+  { id: 1, icon: Target,  title: "Sua oferta",         desc: "O que você vende e para quem" },
+  { id: 2, icon: Zap,     title: "A página",            desc: "Ação, preço e objeções" },
+  { id: 3, icon: Layers,  title: "Material e contexto", desc: "O que você tem e onde vai usar" },
+  { id: 4, icon: Clock,   title: "Prazo e técnico",     desc: "Quando, tráfego e integrações" },
+  { id: 5, icon: Users,   title: "Contato",             desc: "Para eu te chamar em breve" },
 ];
 
 type FormData = {
@@ -53,81 +40,27 @@ type FormData = {
 };
 
 const INITIAL: FormData = {
-  product: "",
-  audience: "",
-  benefit: "",
-  cta: "",
-  pricing: "",
-  objections: "",
-  materials: "",
-  brandLinks: "",
-  pageLocation: "",
-  deadline: "",
-  traffic: "",
-  integration: "",
-  references: "",
-  restrictions: "",
-  name: "",
-  whatsapp: "",
+  product: "", audience: "", benefit: "", cta: "", pricing: "",
+  objections: "", materials: "", brandLinks: "", pageLocation: "",
+  deadline: "", traffic: "", integration: "", references: "",
+  restrictions: "", name: "", whatsapp: "",
 };
 
-function buildWhatsAppMessage(f: FormData): string {
-  const lines = [
-    `*Briefing Landing Page*`,
-    ``,
-    `*Nome:* ${f.name}`,
-    ``,
-    `*1. Negócio e produto*`,
-    `• O que vende: ${f.product}`,
-    `• Para quem: ${f.audience}`,
-    `• Resultado principal: ${f.benefit}`,
-    ``,
-    `*2. Oferta e CTA*`,
-    `• Ação principal: ${f.cta}`,
-    `• Preço/condições: ${f.pricing}`,
-    `• Objeções frequentes: ${f.objections}`,
-    ``,
-    `*3. Material existente*`,
-    `• Materiais: ${f.materials || "Não informado"}`,
-    `• Links da marca: ${f.brandLinks || "Não informado"}`,
-    `• Onde a página ficará: ${f.pageLocation}`,
-    ``,
-    `*4. Prazo e uso*`,
-    `• Prazo: ${f.deadline}`,
-    `• Tráfego: ${f.traffic}`,
-    `• Integração de leads: ${f.integration || "Não informado"}`,
-    ``,
-    `*5. Extras*`,
-    `• Referências: ${f.references || "Não informado"}`,
-    `• Restrições: ${f.restrictions || "Não informado"}`,
-  ];
-  return lines.join("\n");
-}
-
-/** Valida número de telefone brasileiro: 10 dígitos (fixo) ou 11 (celular com 9). */
 function isValidBrazilianPhone(value: string): boolean {
   const digits = value.replace(/\D/g, "");
-  if (digits.length === 10) {
-    const ddd = digits.slice(0, 2);
-    return /^[1-9]\d$/.test(ddd);
-  }
-  if (digits.length === 11) {
-    const ddd = digits.slice(0, 2);
-    const nine = digits[2] === "9";
-    return /^[1-9]\d$/.test(ddd) && nine;
-  }
+  if (digits.length === 10) return /^[1-9]\d$/.test(digits.slice(0, 2));
+  if (digits.length === 11) return /^[1-9]\d$/.test(digits.slice(0, 2)) && digits[2] === "9";
   return false;
 }
 
-/** Formata o valor digitado: celular (XX) 9 XXXX-XXXX ou fixo (XX) XXXX-XXXX. */
 function formatBrazilianPhone(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length === 0) return "";
+  if (!digits.length) return "";
   if (digits.length <= 2) return `(${digits}`;
   const ddd = digits.slice(0, 2);
   const rest = digits.slice(2);
-  const isCelular = rest[0] === "9";
-  if (isCelular) {
+  const cel = rest[0] === "9";
+  if (cel) {
     if (rest.length <= 1) return `(${ddd}) ${rest}`;
     if (rest.length <= 5) return `(${ddd}) ${rest[0]} ${rest.slice(1)}`;
     return `(${ddd}) ${rest[0]} ${rest.slice(1, 5)}-${rest.slice(5, 9)}`;
@@ -136,42 +69,34 @@ function formatBrazilianPhone(value: string): string {
   return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4, 8)}`;
 }
 
-function Field({
-  label,
-  hint,
-  required,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <div>
-        <label className="text-sm font-semibold text-white">
-          {label}
-          {required && <span className="ml-1 text-[#22c55e]">*</span>}
-        </label>
-        {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-const inputCls =
-  "w-full rounded-xl border border-zinc-700/80 bg-[#111113] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/30";
-
-const textareaCls =
-  "w-full resize-none rounded-xl border border-zinc-700/80 bg-[#111113] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/30";
-
 const PLAN_LABELS: Record<string, string> = {
   express: "Site Express 72h",
   start: "Site Start",
   pro: "Empresa Pro",
 };
+
+const inputCls =
+  "w-full rounded-xl border border-zinc-700/80 bg-[#111113] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/30";
+const textareaCls =
+  "w-full resize-y min-h-[90px] rounded-xl border border-zinc-700/80 bg-[#111113] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/30";
+
+function Field({ label, hint, required, optional, children }: {
+  label: string; hint?: string; required?: boolean; optional?: boolean; children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-baseline gap-2">
+        <label className="block text-sm font-semibold text-white">
+          {label}
+          {required && <span className="ml-1 text-[#22c55e]">*</span>}
+        </label>
+        {optional && <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-600">opcional</span>}
+      </div>
+      {hint && <p className="text-xs text-zinc-500 leading-relaxed">{hint}</p>}
+      {children}
+    </div>
+  );
+}
 
 function BriefingContent() {
   const searchParams = useSearchParams();
@@ -186,56 +111,34 @@ function BriefingContent() {
   const [whatsappError, setWhatsappError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const set = (key: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
-    if (key === "whatsapp") setWhatsappError("");
-  };
+  const set = (key: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
+      if (key === "whatsapp") setWhatsappError("");
+    };
 
   function canAdvance() {
-    if (step === 1) return form.product && form.audience && form.benefit;
-    if (step === 2) return form.cta && form.pricing;
-    if (step === 3) return form.pageLocation;
-    if (step === 4) return form.deadline && form.traffic;
-    if (step === 5) {
-      if (!form.name || !form.whatsapp) return false;
-      return isValidBrazilianPhone(form.whatsapp);
-    }
-    return true;
+    if (step === 1) return !!(form.product && form.audience && form.benefit);
+    if (step === 2) return !!(form.cta && form.pricing);
+    if (step === 3) return !!form.pageLocation;
+    if (step === 4) return !!(form.deadline && form.traffic);
+    if (step === 5) return !!(form.name && form.whatsapp && isValidBrazilianPhone(form.whatsapp));
+    return false;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (step === 5 && form.whatsapp && !isValidBrazilianPhone(form.whatsapp)) {
-      setWhatsappError("Informe um número válido com DDD. Ex.: (27) 9 9999-9999");
+    if (step !== 5) return;
+    if (!isValidBrazilianPhone(form.whatsapp)) {
+      setWhatsappError("Número inválido. Use DDD + número. Ex.: (27) 9 9999-9999");
       return;
     }
-    if (!canAdvance()) return;
     setSubmitting(true);
     try {
       const res = await fetch("/api/briefing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          whatsapp: form.whatsapp.trim(),
-          product: form.product.trim(),
-          audience: form.audience.trim(),
-          benefit: form.benefit.trim(),
-          cta: form.cta.trim(),
-          pricing: form.pricing.trim(),
-          objections: form.objections?.trim() ?? "",
-          materials: form.materials?.trim() ?? "",
-          brandLinks: form.brandLinks?.trim() ?? "",
-          pageLocation: form.pageLocation.trim(),
-          deadline: form.deadline.trim(),
-          traffic: form.traffic.trim(),
-          integration: form.integration?.trim() ?? "",
-          references: form.references?.trim() ?? "",
-          restrictions: form.restrictions?.trim() ?? "",
-          plan: selectedPlan || undefined,
-        }),
+        body: JSON.stringify({ ...form, plan: selectedPlan || undefined }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Erro ao enviar.");
@@ -247,318 +150,290 @@ function BriefingContent() {
     }
   }
 
-  const progress = ((step - 1) / (STEPS.length - 1)) * 100;
-
-  /* ─── Tela de sucesso ─── */
   if (done) {
     return (
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-16">
         <CyberBackground />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(34,197,94,0.07),transparent)]" />
-        <div className="pointer-events-none absolute inset-0 cyber-grid-bg opacity-20" />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="relative z-10 mx-auto max-w-md text-center"
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 mx-auto max-w-md text-center">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-[#22c55e]/40 bg-[#22c55e]/10">
             <Check className="h-10 w-10 text-[#22c55e]" />
           </div>
-          <h1 className="font-[family-name:var(--font-space)] text-3xl font-bold text-white">
-            Briefing enviado
-          </h1>
+          <h1 className="font-[family-name:var(--font-space)] text-3xl font-bold text-white">Briefing enviado!</h1>
           <p className="mt-4 text-zinc-400">
-            Recebi suas respostas. Entro em contato em breve para confirmar os detalhes e enviar a proposta.
+            Recebi tudo. Já estou analisando e entro em contato em até 2h pelo WhatsApp com a proposta da sua página.
           </p>
-          <Magnet padding={50} magnetStrength={2}>
-            <Link
-              href="/site-72h"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-6 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
-            >
-              Ver pacotes e preços
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Magnet>
+          {selectedPlan && (
+            <p className="mt-3 font-mono text-xs text-[#22c55e]">Plano: {selectedPlan}</p>
+          )}
+          <Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-xl border border-zinc-600 px-6 py-3.5 font-semibold text-zinc-300 transition hover:border-[#22c55e]/40 hover:text-white">
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao site
+          </Link>
         </motion.div>
       </main>
     );
   }
 
-  /* ─── Formulário multi-step ─── */
+  const currentStep = STEPS[step - 1];
+  const StepIcon = currentStep.icon;
+
   return (
     <main className="relative overflow-hidden pb-20">
       <CyberBackground />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,197,94,0.06),transparent)]" />
-      <div className="pointer-events-none absolute inset-0 cyber-grid-bg opacity-20" />
 
-      {/* Hero do briefing */}
-      <section className="relative flex flex-col items-center overflow-hidden px-6 pb-6 pt-10 text-center sm:pt-12">
-        <div className="relative z-10 mb-4 flex items-center justify-center gap-3">
-          <span className="hex-badge flicker">BRIEFING://LANDING</span>
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative z-10 mx-auto max-w-2xl"
-        >
+      <section className="cyber-section relative px-6 pt-10 pb-4">
+        <div className="section-container relative mx-auto max-w-xl">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex justify-center">
+            <span className="hex-badge flicker">BRIEFING://SITE</span>
+          </motion.div>
           <BlurText
-            text="Briefing rápido para sua landing page."
+            text="Briefing para sua página"
             as="h1"
             animateBy="words"
             delay={80}
             stepDuration={0.35}
-            className="justify-center font-[family-name:var(--font-space)] text-3xl font-bold leading-tight text-white sm:text-4xl [&>span:nth-child(n+4)]:text-[#22c55e] [&>span:nth-child(n+4)]:cyber-text-glow"
+            className="flex justify-center text-center font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl [&>span:nth-child(n+3)]:text-[#22c55e]"
           />
-          <span className="mx-auto mt-2 block h-px w-48 bg-gradient-to-r from-transparent via-[#22c55e]/50 to-transparent" />
-        </motion.div>
-        {selectedPlan && (
-          <motion.p
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative z-10 mt-3 rounded-lg border border-[#22c55e]/30 bg-[#22c55e]/10 px-4 py-2 font-mono text-xs text-[#22c55e]"
-          >
-            Plano escolhido: <strong>{selectedPlan}</strong>
-          </motion.p>
-        )}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="relative z-10 mt-4"
-        >
-          <Link
-            href="/site-72h"
-            className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-zinc-600 transition hover:text-zinc-400"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Voltar ao site 72h
-          </Link>
-        </motion.div>
+          <p className="mt-2 text-center text-sm text-zinc-500">
+            Preencha em poucos minutos e receba sua proposta em até 2h.
+          </p>
+          {selectedPlan && (
+            <div className="mt-3 flex justify-center">
+              <span className="rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1 font-mono text-xs text-[#22c55e]">
+                Plano: {selectedPlan}
+              </span>
+            </div>
+          )}
+          <div className="mt-5 flex justify-center">
+            <Link href="/site-72h" className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-zinc-600 transition hover:text-zinc-400">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Voltar aos planos
+            </Link>
+          </div>
+        </div>
       </section>
 
-      {/* Form card */}
-      <section className="cyber-section relative px-6 pt-4 pb-12 sm:px-6 md:pt-6 md:pb-16">
-        <div className="section-container relative max-w-2xl">
-          {/* Progress + steps */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-5"
-          >
-            <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
-              <motion.div
-                className="h-full rounded-full bg-[#22c55e]"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              {STEPS.map(({ id, icon: Icon }) => (
+      <section className="cyber-section relative px-6 pt-2 pb-12">
+        <div className="section-container relative mx-auto max-w-xl">
+
+          {/* Progress */}
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between gap-1">
+              {STEPS.map((s) => (
                 <button
-                  key={id}
+                  key={s.id}
                   type="button"
-                  onClick={() => id < step && setStep(id)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full border font-mono text-[10px] transition-all ${
-                    id < step
-                      ? "border-[#22c55e]/50 bg-[#22c55e]/15 text-[#22c55e] cursor-pointer hover:bg-[#22c55e]/25"
-                      : id === step
-                        ? "border-[#22c55e] bg-[#22c55e]/20 text-[#22c55e] shadow-[0_0_16px_rgba(34,197,94,0.25)]"
-                        : "border-zinc-700 bg-zinc-900 text-zinc-600 cursor-default"
+                  onClick={() => step > s.id && setStep(s.id)}
+                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
+                    step === s.id
+                      ? "bg-[#22c55e] text-black shadow-[0_0_12px_rgba(34,197,94,0.4)]"
+                      : step > s.id
+                        ? "cursor-pointer bg-[#22c55e]/25 text-[#22c55e] hover:bg-[#22c55e]/40"
+                        : "bg-zinc-800 text-zinc-600 cursor-default"
                   }`}
-                  title={STEPS[id - 1].title}
                 >
-                  {id < step ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                  {step > s.id ? <Check className="h-3.5 w-3.5" /> : s.id}
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-wider text-zinc-600">
-              Etapa {step} — {STEPS[step - 1].title}
-            </p>
-          </motion.div>
-
-          {/* Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113]"
-          >
-            <div className="border-b border-zinc-800 bg-[#0d0d0f] px-6 py-4">
-              <div className="flex items-center gap-3">
-                {(() => {
-                  const Icon = STEPS[step - 1].icon;
-                  return (
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-[#22c55e]/30 bg-[#22c55e]/10">
-                      <Icon className="h-5 w-5 text-[#22c55e]" />
-                    </div>
-                  );
-                })()}
-                <div>
-                  <h2 className="font-[family-name:var(--font-space)] font-bold text-white">
-                    {STEPS[step - 1].title}
-                  </h2>
-                  <p className="text-xs text-zinc-500">{STEPS[step - 1].desc}</p>
-                </div>
-              </div>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-800">
+              <motion.div
+                className="h-full bg-[#22c55e]"
+                animate={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
             </div>
+            <div className="mt-2 flex items-center gap-2">
+              <StepIcon className="h-3.5 w-3.5 text-[#22c55e]" />
+              <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+                Passo {step} de {STEPS.length} — {currentStep.title}
+              </p>
+            </div>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 p-6">
-              {step === 1 && (
-                <>
-                  <Field label="O que você vende/oferece?" hint="Produto, serviço, curso, mentoria, assinatura, evento etc." required>
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: Mentoria de marketing digital para pequenos negócios locais" value={form.product} onChange={set("product")} required />
-                  </Field>
-                  <Field label="Para quem é?" hint="1 frase: quem é a pessoa, principal dor e em que momento ela está." required>
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: Dono de restaurante que quer lotar as mesas no fim de semana mas não sabe como atrair clientes online" value={form.audience} onChange={set("audience")} required />
-                  </Field>
-                  <Field label="Qual é o principal resultado/transformação?" hint="O que a pessoa ganha ao contratar/comprar?" required>
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: Sair de 2 para 20 agendamentos por semana em 30 dias" value={form.benefit} onChange={set("benefit")} required />
-                  </Field>
-                </>
-              )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113] p-6 sm:p-8"
+            >
+              <div className="mb-6 border-b border-zinc-800 pb-4">
+                <h2 className="font-[family-name:var(--font-space)] text-base font-bold text-white">{currentStep.title}</h2>
+                <p className="mt-0.5 text-xs text-zinc-500">{currentStep.desc}</p>
+              </div>
 
-              {step === 2 && (
-                <>
-                  <Field label="Qual ação principal você quer que a pessoa faça na página?" hint="Ex.: comprar, pedir orçamento, agendar call, chamar no WhatsApp" required>
-                    <input type="text" className={inputCls} placeholder="Ex.: Clicar em 'Agendar consulta' e cair no WhatsApp" value={form.cta} onChange={set("cta")} required />
-                  </Field>
-                  <Field label="Qual é o preço ou condições da oferta?" hint="Desconto, bônus, parcelamento, garantia" required>
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: R$ 997 à vista ou 3x. Bônus: planilha. Garantia 7 dias." value={form.pricing} onChange={set("pricing")} required />
-                  </Field>
-                  <Field label="Quais objeções aparecem com frequência?">
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: 'Está caro', 'Vou pensar', 'Já tentei e não funcionou'" value={form.objections} onChange={set("objections")} />
-                  </Field>
-                </>
-              )}
+              <form onSubmit={handleSubmit} className="space-y-5">
 
-              {step === 3 && (
-                <>
-                  <Field label="Você já tem algum material de base?" hint="Textos, vídeos, páginas antigas, depoimentos, FAQs">
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: Apresentação em PDF, 3 depoimentos em vídeo" value={form.materials} onChange={set("materials")} />
-                  </Field>
-                  <Field label="Tem site, redes ou links da sua marca?" hint="Para seguir tom de voz, cores, logo">
-                    <textarea rows={2} className={textareaCls} placeholder="Ex.: instagram.com/minha_marca — fundo escuro, tom informal" value={form.brandLinks} onChange={set("brandLinks")} />
-                  </Field>
-                  <Field label="Onde essa página vai ficar?" hint="Domínio, subdomínio, link de campanha" required>
-                    <input type="text" className={inputCls} placeholder="Ex.: meusite.com.br/oferta" value={form.pageLocation} onChange={set("pageLocation")} required />
-                  </Field>
-                </>
-              )}
+                {step === 1 && (
+                  <>
+                    <Field label="O que você vende?" required hint="Produto, serviço, curso, consultoria… seja específico.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: Mentoria individual para coaches que querem ter agenda cheia"
+                        value={form.product} onChange={set("product")} required />
+                    </Field>
+                    <Field label="Quem é seu cliente ideal?" required hint="Perfil, cargo, situação de vida ou problema principal que ele tem.">
+                      <textarea className={textareaCls}
+                        placeholder="Ex.: Mulheres de 30 a 45 anos, coaches em início de carreira, que têm dificuldade de fechar clientes pelo Instagram"
+                        value={form.audience} onChange={set("audience")} required />
+                    </Field>
+                    <Field label="Qual a principal transformação ou resultado que você entrega?" required hint="O 'antes e depois' do seu cliente.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: Sai sem clientes e chega a R$ 10k/mês em 90 dias"
+                        value={form.benefit} onChange={set("benefit")} required />
+                    </Field>
+                  </>
+                )}
 
-              {step === 4 && (
-                <>
-                  <Field label="Quando você precisa que a página esteja no ar?" required>
-                    <input type="text" className={inputCls} placeholder="Ex.: Até 28/02 (data limite)" value={form.deadline} onChange={set("deadline")} required />
-                  </Field>
-                  <Field label="Essa página será usada em qual tipo de tráfego?" hint="Meta Ads, Google, e-mail, WhatsApp, Instagram…" required>
-                    <textarea rows={2} className={textareaCls} placeholder="Ex.: Meta Ads + stories no Instagram" value={form.traffic} onChange={set("traffic")} required />
-                  </Field>
-                  <Field label="Precisa de formulário integrado? Para onde vão os leads?">
-                    <input type="text" className={inputCls} placeholder="Ex.: E-mail + ActiveCampaign" value={form.integration} onChange={set("integration")} />
-                  </Field>
-                </>
-              )}
+                {step === 2 && (
+                  <>
+                    <Field label="Qual ação você quer que a pessoa faça na página?" required hint="Seja direto: o que acontece ao clicar no botão principal?">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: Clicar em 'Agendar conversa gratuita' e cair no meu WhatsApp"
+                        value={form.cta} onChange={set("cta")} required />
+                    </Field>
+                    <Field label="Qual o preço e condições de pagamento?" required hint="Informe o valor, parcelamento e destaque se houver desconto ou bônus.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: R$ 1.497 à vista ou 6x de R$ 269 — bônus para quem pagar hoje"
+                        value={form.pricing} onChange={set("pricing")} required />
+                    </Field>
+                    <Field label="Quais as principais objeções do seu cliente antes de comprar?" optional hint="O que as pessoas falam para não comprar? Isso vai para a copy da página.">
+                      <textarea className={textareaCls}
+                        placeholder="Ex.: 'Não tenho tempo', 'Já tentei outras mentorias', 'É caro para mim agora'…"
+                        value={form.objections} onChange={set("objections")} />
+                    </Field>
+                  </>
+                )}
 
-              {step === 5 && (
-                <>
-                  <Field label="Tem alguma landing ou site que você gosta como referência?">
-                    <textarea rows={3} className={textareaCls} placeholder="Ex.: gosto de páginas diretas, fundo escuro, destaque em verde" value={form.references} onChange={set("references")} />
-                  </Field>
-                  <Field label="Existe alguma restrição? Cores, palavras, promessas que não podem aparecer?">
-                    <textarea rows={2} className={textareaCls} placeholder="Ex.: Não usar vermelho, não prometer resultado em X dias" value={form.restrictions} onChange={set("restrictions")} />
-                  </Field>
-                  <div className="border-t border-zinc-800 pt-4">
-                    <p className="mb-4 text-xs text-zinc-500">Para eu entrar em contato com a proposta:</p>
-                    <div className="space-y-4">
-                      <Field label="Seu nome" required>
-                        <input type="text" className={inputCls} placeholder="João Silva" value={form.name} onChange={set("name")} required />
-                      </Field>
-                      <Field label="WhatsApp" required hint="O número é formatado automaticamente enquanto você digita.">
-                        <input
-                          type="tel"
-                          inputMode="numeric"
-                          autoComplete="tel"
-                          className={`${inputCls} ${whatsappError ? "border-red-500/60 focus:border-red-500/80 focus:ring-red-500/30" : ""}`}
-                          placeholder="(27) 9 9999-9999"
-                          value={form.whatsapp}
-                          onChange={(e) => {
-                            const formatted = formatBrazilianPhone(e.target.value);
-                            setForm((prev) => ({ ...prev, whatsapp: formatted }));
-                            setWhatsappError("");
-                          }}
-                          onBlur={() => {
-                            if (form.whatsapp.trim() && !isValidBrazilianPhone(form.whatsapp)) {
-                              setWhatsappError("Número inválido. Use DDD + número. Ex.: (27) 9 9999-9999");
-                            } else {
-                              setWhatsappError("");
-                            }
-                          }}
-                          required
-                        />
-                        {whatsappError && (
-                          <p className="mt-1.5 text-xs text-red-400" role="alert">
-                            {whatsappError}
-                          </p>
-                        )}
-                      </Field>
-                    </div>
-                  </div>
-                </>
-              )}
+                {step === 3 && (
+                  <>
+                    <Field label="O que você já tem disponível?" optional hint="Logo, fotos profissionais, vídeo de apresentação, textos, depoimentos, prints de resultados...">
+                      <textarea className={textareaCls}
+                        placeholder="Ex.: Tenho logo no Canva, 3 fotos profissionais, 12 depoimentos em texto e 2 vídeos de clientes"
+                        value={form.materials} onChange={set("materials")} />
+                    </Field>
+                    <Field label="Links do seu negócio" optional hint="Instagram, site atual, LinkedIn, Google Meu Negócio...">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: instagram.com/seunome | linktr.ee/seunome"
+                        value={form.brandLinks} onChange={set("brandLinks")} />
+                    </Field>
+                    <Field label="Onde essa página será usada?" required hint="De onde virá o tráfego para essa página?">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: Meta Ads (Facebook/Instagram), link na bio, e-mail marketing, Google Ads"
+                        value={form.pageLocation} onChange={set("pageLocation")} required />
+                    </Field>
+                  </>
+                )}
 
-              {/* Navegação — no mobile empilhados e com área de toque maior */}
-              <div className="flex flex-col gap-3 border-t border-zinc-800 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => setStep((s) => Math.max(1, s - 1))}
-                  disabled={step === 1}
-                  className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800/50 px-4 py-3 font-mono text-sm text-zinc-400 transition hover:border-zinc-600 hover:text-white disabled:pointer-events-none disabled:opacity-30 sm:flex-none sm:min-h-0 sm:py-2.5"
-                >
-                  <ArrowLeft className="h-4 w-4 flex-shrink-0" />
-                  Anterior
-                </button>
+                {step === 4 && (
+                  <>
+                    <Field label="Qual o prazo que você precisa?" required hint="Lembre que o prazo começa após o briefing aprovado.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: 72h (urgente), 1 semana, até dia 15"
+                        value={form.deadline} onChange={set("deadline")} required />
+                    </Field>
+                    <Field label="Qual fonte de tráfego você vai usar?" required hint="Isso impacta no design e nas chamadas da página.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: Meta Ads (tráfego frio), Google Ads, WhatsApp (tráfego quente)"
+                        value={form.traffic} onChange={set("traffic")} required />
+                    </Field>
+                    <Field label="Precisa integrar com alguma ferramenta?" optional hint="Para captar leads, disparar e-mails ou acionar automações.">
+                      <input type="text" className={inputCls}
+                        placeholder="Ex.: RD Station, Mailchimp, ActiveCampaign, WhatsApp Business API, sem integração"
+                        value={form.integration} onChange={set("integration")} />
+                    </Field>
+                  </>
+                )}
 
-                {step < STEPS.length ? (
-                  <Magnet padding={40} magnetStrength={2} className="w-full sm:w-auto">
+                {step === 5 && (
+                  <>
+                    <Field label="Seu nome completo" required>
+                      <input type="text" className={inputCls}
+                        placeholder="Como devo te chamar?"
+                        value={form.name} onChange={set("name")} required />
+                    </Field>
+                    <Field label="Seu WhatsApp" required hint="Vou enviar a proposta por aqui.">
+                      <input
+                        type="tel"
+                        required
+                        placeholder="(27) 9 9999-9999"
+                        value={form.whatsapp}
+                        onChange={(e) => {
+                          setForm((p) => ({ ...p, whatsapp: formatBrazilianPhone(e.target.value) }));
+                          setWhatsappError("");
+                        }}
+                        onBlur={() => {
+                          if (form.whatsapp.trim() && !isValidBrazilianPhone(form.whatsapp)) {
+                            setWhatsappError("Número inválido. Use DDD + número. Ex.: (27) 9 9999-9999");
+                          } else setWhatsappError("");
+                        }}
+                        className={`${inputCls} ${whatsappError ? "!border-red-500/60" : ""}`}
+                      />
+                      {whatsappError && <p className="text-xs text-red-400">{whatsappError}</p>}
+                    </Field>
+                    <Field label="Referências de páginas que você admira" optional hint="Links de landing pages, sites ou anúncios que você gosta do estilo.">
+                      <textarea className={textareaCls}
+                        placeholder="Ex.: buylist.com.br, empresa.com/pagina — o que te atrai nelas?"
+                        value={form.references} onChange={set("references")} />
+                    </Field>
+                    <Field label="Restrições ou observações importantes" optional hint="O que evitar no design, copy ou estrutura? Alguma informação extra?">
+                      <textarea className={textareaCls}
+                        placeholder="Ex.: Não usar a cor azul, minha concorrente já usa. Quero um tom mais direto, sem enrolação."
+                        value={form.restrictions} onChange={set("restrictions")} />
+                    </Field>
+                  </>
+                )}
+
+                <div className="flex items-center justify-between gap-3 pt-4">
+                  {step > 1 ? (
                     <button
                       type="button"
-                      onClick={() => canAdvance() && setStep((s) => s + 1)}
-                      disabled={!canAdvance()}
-                      className="group inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-xl bg-[#22c55e] px-5 py-3 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_32px_rgba(34,197,94,0.4)] disabled:pointer-events-none disabled:opacity-40 sm:min-h-0 sm:w-auto sm:flex-none sm:py-2.5"
+                      onClick={() => setStep(step - 1)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 px-5 py-3 text-sm font-medium text-zinc-400 transition hover:border-[#22c55e]/40 hover:text-white"
                     >
-                      Próxima etapa
-                      <ChevronRight className="h-4 w-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowLeft className="h-4 w-4" />
+                      Voltar
                     </button>
-                  </Magnet>
-                ) : (
-                  <Magnet padding={40} magnetStrength={2} className="w-full sm:w-auto">
+                  ) : <div />}
+                  {step < 5 ? (
                     <button
-                      type="submit"
-                      disabled={!canAdvance() || submitting}
-                      className="group inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-xl bg-[#22c55e] px-5 py-3 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_32px_rgba(34,197,94,0.4)] disabled:pointer-events-none disabled:opacity-40 sm:min-h-0 sm:w-auto sm:flex-none sm:py-2.5"
+                      type="button"
+                      onClick={() => setStep(step + 1)}
+                      disabled={!canAdvance()}
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-6 py-3 text-sm font-semibold text-black transition hover:bg-[#16a34a] disabled:opacity-40"
                     >
-                      {submitting ? (
-                        <>
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" aria-hidden />
-                          Enviando...
-                        </>
-                      ) : (
-                        <>
-                          Enviar briefing
-                          <MessageCircle className="h-4 w-4 flex-shrink-0" />
-                        </>
-                      )}
+                      Próximo
+                      <ChevronRight className="h-4 w-4" />
                     </button>
-                  </Magnet>
-                )}
-              </div>
-            </form>
-          </motion.div>
+                  ) : (
+                    <Magnet padding={40} magnetStrength={2}>
+                      <button
+                        type="submit"
+                        disabled={submitting || !canAdvance()}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-6 py-3.5 text-sm font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.25)] transition hover:bg-[#16a34a] disabled:opacity-40"
+                      >
+                        {submitting ? (
+                          <>
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            Enviar briefing
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </button>
+                    </Magnet>
+                  )}
+                </div>
+              </form>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
     </main>
@@ -567,13 +442,7 @@ function BriefingContent() {
 
 export default function BriefingPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#0a0a0b]">
-          <span className="text-zinc-500">Carregando...</span>
-        </main>
-      }
-    >
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-zinc-500">Carregando...</div>}>
       <BriefingContent />
     </Suspense>
   );

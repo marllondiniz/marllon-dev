@@ -251,7 +251,7 @@ export default function Site72hContent() {
         >
           <Magnet padding={60} magnetStrength={3}>
             <Link
-              href="/briefing"
+              href="#planos"
               className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-7 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
             >
               Quero meu site em 72h

@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Target, AlertCircle, ListOrdered, CheckSquare, HelpCircle, Mail, ArrowLeft, BookOpen, Store, Briefcase, BarChart3, Palette, FileText, Zap, TrendingUp } from "lucide-react";
+import { Target, AlertCircle, ListOrdered, CheckSquare, HelpCircle, ArrowLeft, BookOpen, Store, Briefcase, BarChart3, Palette, FileText, Zap, TrendingUp } from "lucide-react";
 import BlurText from "@/app/components/BlurText";
 import Magnet from "@/app/components/Magnet";
 import SpotlightCard from "@/app/components/SpotlightCard";
-
-const EMAIL = "marllonzinid@gmail.com";
 
 export default function GestaoDeTrafegoContent() {
   return (
@@ -384,13 +382,13 @@ export default function GestaoDeTrafegoContent() {
             className="mt-8 flex flex-wrap items-center justify-center gap-4"
           >
             <Magnet padding={60} magnetStrength={3}>
-              <a
-                href={`mailto:${EMAIL}?subject=Gestão de tráfego - Contato site`}
+              <Link
+                href="/briefing-trafego"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-6 py-3.5 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
               >
-                <Mail className="h-5 w-5" />
-                Quero falar sobre gestão de tráfego
-              </a>
+                <TrendingUp className="h-5 w-5" />
+                Preencher briefing de tráfego
+              </Link>
             </Magnet>
             <Link
               href="/#servicos"

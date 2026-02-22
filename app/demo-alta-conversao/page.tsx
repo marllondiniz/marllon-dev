@@ -257,20 +257,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 /* ────────────────────────────────────────────────────────── */
 
 export default function DemoAltaConversaoPage() {
-  const [form, setForm] = useState({ name: "", whatsapp: "", email: "", goal: "" });
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    // Simula envio (em produção viria de uma API)
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-    }, 800);
-  }
-
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#0a0a0b] font-sans text-white">
       {/* ─── HERO ─────────────────────────────────────────── */}
@@ -609,7 +595,7 @@ export default function DemoAltaConversaoPage() {
             Dúvidas frequentes
           </h2>
           <p className="mt-4 text-sm text-zinc-500">
-            Não encontrou? Fale direto pelo formulário abaixo.
+            Não encontrou? Preencha o briefing abaixo e receba sua proposta.
           </p>
           <div className="mt-10 space-y-3">
             {FAQS.map((f) => (
@@ -619,7 +605,7 @@ export default function DemoAltaConversaoPage() {
         </div>
       </section>
 
-      {/* ─── CTA + FORM ────────────────────────────────────── */}
+      {/* ─── CTA para briefing ───────────────────────────────── */}
       <section id="cta" className="cyber-section relative border-t border-zinc-800/50 section-padding">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,197,94,0.05),transparent)]" />
         <div className="section-container relative max-w-xl">
@@ -635,121 +621,24 @@ export default function DemoAltaConversaoPage() {
             Sua página pronta em <span className="text-[#22c55e]">72 horas</span>
           </h2>
           <p className="mx-auto mt-4 text-center text-sm text-zinc-500">
-            Preencha o formulário e entrarei em contato em até 2h para alinharmos o briefing.
+            Preencha o briefing rápido e entrarei em contato em até 2h com a proposta.
           </p>
 
           <div className="mt-10 overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113] shadow-[0_0_0_1px_rgba(34,197,94,0.06)]">
-            <div className="border-b border-zinc-800/80 bg-[#0d0d0f]/80 px-6 py-4 sm:px-8">
-              <p className="flex items-center gap-2 font-mono text-xs text-zinc-500">
-                <MessageCircle className="h-4 w-4 text-[#22c55e]/70" aria-hidden />
-                Preencha os campos abaixo — resposta em até 2h.
+            <div className="flex flex-col items-center gap-6 px-8 py-12 text-center sm:px-12 sm:py-16">
+              <p className="max-w-md text-sm leading-relaxed text-zinc-400">
+                Em poucos passos você me conta o que vende, para quem e o que precisa na página. Com isso monto sua proposta e sua página em 72h.
               </p>
+              <Magnet padding={50} magnetStrength={2}>
+                <Link
+                  href="/briefing"
+                  className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-[#22c55e] px-8 py-4 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.25)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)]"
+                >
+                  Ir para o briefing
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Magnet>
             </div>
-            {sent ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35 }}
-                className="flex flex-col items-center gap-5 px-8 py-16 text-center sm:px-12"
-              >
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#22c55e]/40 bg-[#22c55e]/10">
-                  <Check className="h-10 w-10 text-[#22c55e]" aria-hidden />
-                </div>
-                <h3 className="font-[family-name:var(--font-space)] text-2xl font-bold text-white">
-                  Mensagem recebida!
-                </h3>
-                <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
-                  Entrarei em contato em até 2h no WhatsApp ou e-mail que você informou.
-                </p>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="p-6 sm:p-8" noValidate>
-                <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <label htmlFor="demo-name" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                      Nome <span className="text-[#22c55e]">*</span>
-                    </label>
-                    <input
-                      id="demo-name"
-                      required
-                      type="text"
-                      placeholder="Seu nome completo"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
-                      autoComplete="name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="demo-whatsapp" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                      WhatsApp <span className="text-[#22c55e]">*</span>
-                    </label>
-                    <input
-                      id="demo-whatsapp"
-                      required
-                      type="tel"
-                      placeholder="(27) 9 9999-9999"
-                      value={form.whatsapp}
-                      onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                      className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
-                      autoComplete="tel"
-                    />
-                    <p className="font-mono text-[11px] text-zinc-600">Com DDD. Ex.: (27) 9 9999-9999</p>
-                  </div>
-                </div>
-                <div className="mt-5 space-y-2 sm:mt-6">
-                  <label htmlFor="demo-email" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                    E-mail <span className="text-[#22c55e]">*</span>
-                  </label>
-                  <input
-                    id="demo-email"
-                    required
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="mt-5 space-y-2 sm:mt-6">
-                  <label htmlFor="demo-goal" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                    O que você quer vender ou promover? <span className="text-[#22c55e]">*</span>
-                  </label>
-                  <textarea
-                    id="demo-goal"
-                    required
-                    rows={4}
-                    placeholder="Ex.: Curso de marketing digital para PMEs, consultoria de vendas, e-commerce de moda..."
-                    value={form.goal}
-                    onChange={(e) => setForm({ ...form, goal: e.target.value })}
-                    className="w-full resize-y min-h-[100px] rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
-                  />
-                </div>
-                <div className="mt-8">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#22c55e] py-4 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.25)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-[#22c55e]"
-                  >
-                    {loading ? (
-                      <>
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" aria-hidden />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        Quero minha página agora
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </>
-                    )}
-                  </button>
-                </div>
-                <p className="mt-4 text-center font-mono text-[11px] text-zinc-600">
-                  Sem spam. Entro em contato só para alinhar o projeto.
-                </p>
-              </form>
-            )}
           </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 font-mono text-xs text-zinc-600">

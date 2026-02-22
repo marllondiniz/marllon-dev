@@ -171,6 +171,7 @@ export default function BriefingPage() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [done, setDone] = useState(false);
   const [whatsappError, setWhatsappError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const set = (key: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -191,18 +192,45 @@ export default function BriefingPage() {
     return true;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (step === 5 && form.whatsapp && !isValidBrazilianPhone(form.whatsapp)) {
       setWhatsappError("Informe um número válido com DDD. Ex.: (27) 9 9999-9999");
       return;
     }
     if (!canAdvance()) return;
-    const msg = buildWhatsAppMessage(form);
-    const encoded = encodeURIComponent(msg);
-    const phone = "5527992338038";
-    window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
-    setDone(true);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/briefing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          whatsapp: form.whatsapp.trim(),
+          product: form.product.trim(),
+          audience: form.audience.trim(),
+          benefit: form.benefit.trim(),
+          cta: form.cta.trim(),
+          pricing: form.pricing.trim(),
+          objections: form.objections?.trim() ?? "",
+          materials: form.materials?.trim() ?? "",
+          brandLinks: form.brandLinks?.trim() ?? "",
+          pageLocation: form.pageLocation.trim(),
+          deadline: form.deadline.trim(),
+          traffic: form.traffic.trim(),
+          integration: form.integration?.trim() ?? "",
+          references: form.references?.trim() ?? "",
+          restrictions: form.restrictions?.trim() ?? "",
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Erro ao enviar.");
+      setDone(true);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao enviar. Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const progress = ((step - 1) / (STEPS.length - 1)) * 100;
@@ -228,8 +256,7 @@ export default function BriefingPage() {
             Briefing enviado
           </h1>
           <p className="mt-4 text-zinc-400">
-            O WhatsApp foi aberto com todas as suas respostas. Entro em contato em breve para
-            confirmar os detalhes e enviar a proposta.
+            Recebi suas respostas. Entro em contato em breve para confirmar os detalhes e enviar a proposta.
           </p>
           <Magnet padding={50} magnetStrength={2}>
             <Link
@@ -273,14 +300,6 @@ export default function BriefingPage() {
           />
           <span className="mx-auto mt-2 block h-px w-48 bg-gradient-to-r from-transparent via-[#22c55e]/50 to-transparent" />
         </motion.div>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="relative z-10 mt-4 text-sm text-zinc-500"
-        >
-          5 etapas · suas respostas vão direto para o WhatsApp
-        </motion.p>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -497,26 +516,26 @@ export default function BriefingPage() {
                   <Magnet padding={40} magnetStrength={2} className="w-full sm:w-auto">
                     <button
                       type="submit"
-                      disabled={!canAdvance()}
+                      disabled={!canAdvance() || submitting}
                       className="group inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-xl bg-[#22c55e] px-5 py-3 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_32px_rgba(34,197,94,0.4)] disabled:pointer-events-none disabled:opacity-40 sm:min-h-0 sm:w-auto sm:flex-none sm:py-2.5"
                     >
-                      Enviar para WhatsApp
-                      <MessageCircle className="h-4 w-4 flex-shrink-0" />
+                      {submitting ? (
+                        <>
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" aria-hidden />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          Enviar briefing
+                          <MessageCircle className="h-4 w-4 flex-shrink-0" />
+                        </>
+                      )}
                     </button>
                   </Magnet>
                 )}
               </div>
             </form>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 text-center font-mono text-[10px] uppercase tracking-widest text-zinc-700 flicker"
-          >
-            // respostas enviadas direto ao WhatsApp · sem armazenamento
-          </motion.p>
         </div>
       </section>
     </main>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header";
+import ConditionalHeader from "./components/ConditionalHeader";
+import MainPadding from "./components/MainPadding";
 import CookieConsentOnlyHome from "./components/CookieConsentOnlyHome";
 import BodyOverlayControl from "./components/BodyOverlayControl";
 import { Analytics } from "@vercel/analytics/next";
@@ -162,10 +163,8 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${inter.className} antialiased`}>
         <BodyOverlayControl />
-        <Header />
-        <div className="pt-[4.5rem]">
-          {children}
-        </div>
+        <ConditionalHeader />
+        <MainPadding>{children}</MainPadding>
         <CookieConsentOnlyHome />
         <Analytics />
       </body>

@@ -272,7 +272,7 @@ export default function DemoAltaConversaoPage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0a0a0b] pt-[4.5rem] font-sans text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#0a0a0b] font-sans text-white">
       {/* ─── HERO ─────────────────────────────────────────── */}
       <section className="relative flex min-h-[min(100vh,780px)] flex-col items-center justify-center overflow-hidden px-3 pt-12 pb-20 text-center sm:px-6 sm:pt-16 sm:pb-24 md:pt-20 md:pb-28">
         <CyberBackground />

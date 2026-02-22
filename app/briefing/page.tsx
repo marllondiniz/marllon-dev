@@ -247,7 +247,7 @@ export default function BriefingPage() {
 
   /* ─── Formulário multi-step ─── */
   return (
-    <main className="relative overflow-hidden pb-20 pt-[4.5rem]">
+    <main className="relative overflow-hidden pb-20">
       <CyberBackground />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,197,94,0.06),transparent)]" />
       <div className="pointer-events-none absolute inset-0 cyber-grid-bg opacity-20" />

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Zap, TrendingUp, LayoutTemplate, ArrowRight } from "lucide-react";
 
@@ -17,8 +18,10 @@ const links = [
 ];
 
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [servicosOpen, setServicosOpen] = useState(false);
+  const isHome = pathname === "/";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800/50 bg-[#0a0a0b]/85 backdrop-blur-xl">
@@ -94,23 +97,27 @@ export default function Header() {
             </Link>
           ))}
 
-          <Link
-            href="/site-72h"
-            className="ml-2 inline-flex items-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#16a34a]"
-          >
-            <Zap className="h-4 w-4" />
-            Seu site em 72h
-          </Link>
+          {isHome && (
+            <Link
+              href="/site-72h"
+              className="ml-2 inline-flex items-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#16a34a]"
+            >
+              <Zap className="h-4 w-4" />
+              Seu site em 72h
+            </Link>
+          )}
         </div>
 
         {/* Mobile: menu button */}
         <div className="flex items-center gap-2 md:hidden">
-          <Link
-            href="/site-72h"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#22c55e]/40 bg-[#22c55e]/10 px-3 py-2 text-xs font-semibold text-[#22c55e]"
-          >
-            Site em 72h
-          </Link>
+          {isHome && (
+            <Link
+              href="/site-72h"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#22c55e]/40 bg-[#22c55e]/10 px-3 py-2 text-xs font-semibold text-[#22c55e]"
+            >
+              Site em 72h
+            </Link>
+          )}
           <button
             type="button"
             aria-label="Abrir menu"

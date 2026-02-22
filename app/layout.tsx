@@ -163,7 +163,9 @@ export default function RootLayout({
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${inter.className} antialiased`}>
         <BodyOverlayControl />
         <Header />
-        {children}
+        <div className="pt-[4.5rem]">
+          {children}
+        </div>
         <CookieConsentOnlyHome />
         <Analytics />
       </body>

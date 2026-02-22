@@ -42,6 +42,8 @@ create policy "Acesso apenas via service role"
 
 **Coluna "atendido"** — para marcar clientes como atendidos no admin, execute `supabase/migrations/003_briefing_attended.sql` (adiciona a coluna `attended`).
 
+**Coluna "plan"** — para registrar qual plano a pessoa escolheu (Site Express 72h, Site Start, Empresa Pro), execute `supabase/migrations/004_briefing_plan.sql`.
+
 ## 3. Variáveis de ambiente
 
 Crie `.env.local` na raiz do projeto (copie de `.env.local.example`):

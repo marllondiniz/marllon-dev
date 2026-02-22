@@ -22,6 +22,7 @@ type Briefing = {
   integration: string | null;
   refs: string | null;
   restrictions: string | null;
+  plan: string | null;
   attended: boolean;
   created_at: string;
 };
@@ -194,6 +195,7 @@ export default function AdminLeadsPage() {
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">WhatsApp</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">O que vende</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">Prazo</th>
+                              <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">Plano</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6 text-center">Atendido</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6"></th>
                             </tr>
@@ -215,6 +217,13 @@ export default function AdminLeadsPage() {
                                   </td>
                                   <td className="max-w-[200px] truncate px-4 py-3 text-zinc-400 sm:px-6" title={b.product}>{b.product}</td>
                                   <td className="px-4 py-3 text-zinc-500 sm:px-6">{b.deadline}</td>
+                                  <td className="px-4 py-3 sm:px-6">
+                                    {b.plan ? (
+                                      <span className="rounded bg-[#22c55e]/20 px-2 py-0.5 font-mono text-xs text-[#22c55e]">{b.plan}</span>
+                                    ) : (
+                                      <span className="text-zinc-600">—</span>
+                                    )}
+                                  </td>
                                   <td className="px-4 py-3 text-center sm:px-6" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       type="button"
@@ -240,8 +249,9 @@ export default function AdminLeadsPage() {
                                 </tr>
                                 {expandedBriefingId === b.id && (
                                   <tr className="border-b border-zinc-800/80 bg-zinc-900/30">
-                                    <td colSpan={7} className="px-4 py-4 sm:px-6">
+                                    <td colSpan={8} className="px-4 py-4 sm:px-6">
                                       <div className="grid gap-2 text-xs sm:grid-cols-2">
+                                        {b.plan && <p><span className="text-zinc-500">Plano:</span> <span className="text-[#22c55e]">{b.plan}</span></p>}
                                         <p><span className="text-zinc-500">Produto:</span> {b.product}</p>
                                         <p><span className="text-zinc-500">Público:</span> {b.audience}</p>
                                         <p><span className="text-zinc-500">Benefício:</span> {b.benefit}</p>

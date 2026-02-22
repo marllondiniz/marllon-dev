@@ -142,8 +142,8 @@ const PLANS = [
     price: "R$ 497",
     priceFrom: "R$ 997",
     featured: true,
-    ctaHref: "/briefing",
-    ctaLabel: "Quero começar agora",
+    ctaHref: "/briefing?plano=express",
+    ctaLabel: "Quero esse plano",
   },
   {
     id: "start",
@@ -163,7 +163,7 @@ const PLANS = [
     price: "R$ 1.297",
     priceFrom: "R$ 1.997",
     featured: false,
-    ctaHref: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)`,
+    ctaHref: "/briefing?plano=start",
     ctaLabel: "Quero esse plano",
   },
   {
@@ -185,7 +185,7 @@ const PLANS = [
     price: "R$ 2.997",
     priceFrom: "R$ 4.997",
     featured: false,
-    ctaHref: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Empresa%20Pro`,
+    ctaHref: "/briefing?plano=pro",
     ctaLabel: "Quero esse plano",
   },
 ];

@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       integration = "",
       references: refs = "",
       restrictions = "",
+      plan = "",
     } = body;
 
     if (!name || !whatsapp || !product || !audience || !benefit || !cta || !pricing || !pageLocation || !deadline || !traffic) {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
         integration,
         refs,
         restrictions,
+        plan: plan || null,
       })
       .select("id, created_at")
       .single();

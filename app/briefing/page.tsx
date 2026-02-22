@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -166,7 +167,19 @@ const inputCls =
 const textareaCls =
   "w-full resize-none rounded-xl border border-zinc-700/80 bg-[#111113] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/30";
 
-export default function BriefingPage() {
+const PLAN_LABELS: Record<string, string> = {
+  express: "Site Express 72h",
+  start: "Site Start",
+  pro: "Empresa Pro",
+};
+
+function BriefingContent() {
+  const searchParams = useSearchParams();
+  const selectedPlan = useMemo(() => {
+    const id = searchParams.get("plano");
+    return id && PLAN_LABELS[id] ? PLAN_LABELS[id] : "";
+  }, [searchParams]);
+
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(INITIAL);
   const [done, setDone] = useState(false);
@@ -221,6 +234,7 @@ export default function BriefingPage() {
           integration: form.integration?.trim() ?? "",
           references: form.references?.trim() ?? "",
           restrictions: form.restrictions?.trim() ?? "",
+          plan: selectedPlan || undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -300,6 +314,15 @@ export default function BriefingPage() {
           />
           <span className="mx-auto mt-2 block h-px w-48 bg-gradient-to-r from-transparent via-[#22c55e]/50 to-transparent" />
         </motion.div>
+        {selectedPlan && (
+          <motion.p
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10 mt-3 rounded-lg border border-[#22c55e]/30 bg-[#22c55e]/10 px-4 py-2 font-mono text-xs text-[#22c55e]"
+          >
+            Plano escolhido: <strong>{selectedPlan}</strong>
+          </motion.p>
+        )}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -539,5 +562,19 @@ export default function BriefingPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function BriefingPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#0a0a0b]">
+          <span className="text-zinc-500">Carregando...</span>
+        </main>
+      }
+    >
+      <BriefingContent />
+    </Suspense>
   );
 }

@@ -103,7 +103,6 @@ const PLANS_72 = [
     price: "A partir de R$ 497",
     priceRange: "R$ 497 – R$ 997",
     featured: true,
-    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Express%2072h`,
   },
   {
     id: "start",
@@ -129,7 +128,6 @@ const PLANS_72 = [
     price: "A partir de R$ 1.297",
     priceRange: "R$ 1.297 – R$ 1.997",
     featured: false,
-    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)`,
   },
   {
     id: "pro",
@@ -158,7 +156,6 @@ const PLANS_72 = [
     price: "A partir de R$ 2.997",
     priceRange: "R$ 2.997 – R$ 4.997",
     featured: false,
-    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Empresa%20Pro`,
   },
 ];
 
@@ -907,19 +904,17 @@ function Plan72Card({
         <p className="font-[family-name:var(--font-space)] text-sm font-semibold text-zinc-300">
           {plan.quote}
         </p>
-        <a
-          href={plan.whatsapp}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={`/briefing?plano=${plan.id}`}
           className={`mt-4 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-sm transition-all ${
             plan.featured
               ? "bg-[#22c55e] text-black shadow-[0_0_16px_rgba(34,197,94,0.3)] hover:bg-[#16a34a] hover:shadow-[0_0_28px_rgba(34,197,94,0.5)]"
               : "border border-zinc-700 text-zinc-300 hover:border-[#22c55e]/40 hover:text-white"
           }`}
         >
-          <MessageCircle className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
           Quero esse plano
-        </a>
+        </Link>
       </div>
     </SpotlightCard>
   );

@@ -40,6 +40,8 @@ create policy "Acesso apenas via service role"
 
 **Tabela de briefings** — execute também o conteúdo de `supabase/migrations/002_briefing_submissions.sql`.
 
+**Coluna "atendido"** — para marcar clientes como atendidos no admin, execute `supabase/migrations/003_briefing_attended.sql` (adiciona a coluna `attended`).
+
 ## 3. Variáveis de ambiente
 
 Crie `.env.local` na raiz do projeto (copie de `.env.local.example`):

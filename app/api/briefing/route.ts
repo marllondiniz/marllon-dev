@@ -108,3 +108,43 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  const authHeader = request.headers.get("x-admin-secret");
+  if (!ADMIN_SECRET || authHeader !== ADMIN_SECRET) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id, attended } = body;
+    if (!id || typeof attended !== "boolean") {
+      return NextResponse.json(
+        { error: "Envie id e attended (boolean)." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase
+      .from("briefing_submissions")
+      .update({ attended })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[api/briefing] PATCH error:", error);
+      return NextResponse.json(
+        { error: "Erro ao atualizar." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[api/briefing] PATCH error:", e);
+    return NextResponse.json(
+      { error: "Erro interno." },
+      { status: 500 }
+    );
+  }
+}

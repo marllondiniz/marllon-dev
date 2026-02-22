@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Fragment } from "react";
 import Link from "next/link";
-import { ArrowLeft, Lock, RefreshCw, MessageSquare, LogOut } from "lucide-react";
+import { ArrowLeft, Lock, RefreshCw, MessageSquare, LogOut, Check, Circle } from "lucide-react";
 
 type Briefing = {
   id: string;
@@ -22,6 +22,7 @@ type Briefing = {
   integration: string | null;
   refs: string | null;
   restrictions: string | null;
+  attended: boolean;
   created_at: string;
 };
 
@@ -33,6 +34,7 @@ export default function AdminLeadsPage() {
   const [briefings, setBriefings] = useState<Briefing[]>([]);
   const [loadingBriefings, setLoadingBriefings] = useState(false);
   const [expandedBriefingId, setExpandedBriefingId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const fetchBriefings = useCallback(async (adminSecret: string) => {
     setLoadingBriefings(true);
@@ -89,6 +91,29 @@ export default function AdminLeadsPage() {
 
   function handleRefresh() {
     if (secret) fetchBriefings(secret);
+  }
+
+  async function handleToggleAttended(b: Briefing, e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!secret || updatingId) return;
+    setUpdatingId(b.id);
+    setError("");
+    try {
+      const res = await fetch("/api/briefing", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        body: JSON.stringify({ id: b.id, attended: !(b.attended ?? false) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Erro ao atualizar.");
+      setBriefings((prev) =>
+        prev.map((x) => (x.id === b.id ? { ...x, attended: !(x.attended ?? false) } : x))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao atualizar.");
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
   useEffect(() => {
@@ -169,6 +194,7 @@ export default function AdminLeadsPage() {
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">WhatsApp</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">O que vende</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6">Prazo</th>
+                              <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6 text-center">Atendido</th>
                               <th className="px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:px-6"></th>
                             </tr>
                           </thead>
@@ -189,11 +215,32 @@ export default function AdminLeadsPage() {
                                   </td>
                                   <td className="max-w-[200px] truncate px-4 py-3 text-zinc-400 sm:px-6" title={b.product}>{b.product}</td>
                                   <td className="px-4 py-3 text-zinc-500 sm:px-6">{b.deadline}</td>
+                                  <td className="px-4 py-3 text-center sm:px-6" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleToggleAttended(b, e)}
+                                      disabled={updatingId === b.id}
+                                      title={b.attended ? "Desmarcar atendido" : "Marcar como atendido"}
+                                      className={`inline-flex items-center justify-center rounded-lg p-2 transition ${
+                                        b.attended ?? false
+                                          ? "bg-[#22c55e]/20 text-[#22c55e] hover:bg-[#22c55e]/30"
+                                          : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400"
+                                      } disabled:opacity-50`}
+                                    >
+                                      {updatingId === b.id ? (
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                      ) : (b.attended ?? false) ? (
+                                        <Check className="h-4 w-4" />
+                                      ) : (
+                                        <Circle className="h-4 w-4" />
+                                      )}
+                                    </button>
+                                  </td>
                                   <td className="px-4 py-3 text-zinc-500 sm:px-6">{expandedBriefingId === b.id ? "▲ Ocultar" : "▼ Ver detalhes"}</td>
                                 </tr>
                                 {expandedBriefingId === b.id && (
                                   <tr className="border-b border-zinc-800/80 bg-zinc-900/30">
-                                    <td colSpan={6} className="px-4 py-4 sm:px-6">
+                                    <td colSpan={7} className="px-4 py-4 sm:px-6">
                                       <div className="grid gap-2 text-xs sm:grid-cols-2">
                                         <p><span className="text-zinc-500">Produto:</span> {b.product}</p>
                                         <p><span className="text-zinc-500">Público:</span> {b.audience}</p>

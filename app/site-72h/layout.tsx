@@ -1,4 +1,4 @@
-export default function ServicosLayout({
+export default function Site72hLayout({
   children,
 }: {
   children: React.ReactNode;

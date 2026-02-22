@@ -1,9 +1,9 @@
-import { Mail, Linkedin, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Mail, Linkedin, MapPin, ArrowRight } from "lucide-react";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Services from "./components/Services";
 import Content from "./components/Content";
-import Partners from "./components/Partners";
 import CTA from "./components/CTA";
 
 export default function Home() {
@@ -12,7 +12,6 @@ export default function Home() {
       <main itemScope itemType="https://schema.org/Person">
         <Hero />
         <About />
-        <Partners />
         <Services />
         <Content />
         <CTA />
@@ -28,7 +27,15 @@ export default function Home() {
               <span itemProp="addressRegion">Espírito Santo</span>, <span itemProp="addressCountry">Brasil</span>
             </span>
           </address>
-          <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1" aria-label="Contato e redes sociais">
+          <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1" aria-label="Contato, redes e serviços">
+            <Link
+              href="/site-72h"
+              className="inline-flex items-center gap-1.5 text-[#22c55e] hover:text-[#22c55e]/80 font-medium"
+              aria-label="Seu site pronto em 72h"
+            >
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Seu site pronto em 72h
+            </Link>
             <a 
               href="mailto:marllonzinid@gmail.com" 
               className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-white"

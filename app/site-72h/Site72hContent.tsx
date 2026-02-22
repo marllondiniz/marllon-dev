@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   Check,
   ArrowLeft,
+  ArrowRight,
   MessageCircle,
   ChevronDown,
   Clock,
@@ -27,8 +28,8 @@ import CountUp from "@/app/components/CountUp";
 import CompareGenericVsIdentity from "@/app/components/CompareGenericVsIdentity";
 import IframeModal from "@/app/components/IframeModal";
 
-const WHATSAPP_LINK =
-  "https://wa.me/5527999999999?text=Quero%20minha%20landing%20em%2072h";
+const WHATSAPP_NUMBER = "5527992338038";
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20meu%20site%20em%2072h`;
 
 const PROBLEMS = [
   {
@@ -45,8 +46,8 @@ const PROBLEMS = [
   },
   {
     n: "03",
-    headline: "O tráfego chega. A página não segura.",
-    sub: 'Você investe em anúncio, paga por cada clique e a página não converte. Aí parece que "tráfego não funciona". Não é o tráfego.',
+    headline: "O tráfego chega. O site não segura.",
+    sub: 'Você investe em anúncio, paga por cada clique e o site não converte. Aí parece que "tráfego não funciona". Não é o tráfego.',
     tag: "Página sem rastreio",
   },
 ];
@@ -81,8 +82,9 @@ const PLANS_72 = [
     id: "express",
     icon: Zap,
     badge: "01",
-    title: "Landing Express 72h",
+    title: "Site Express 72h",
     subtitle: "1 página, entrega rápida",
+    prazo: "Entrega em até 72h",
     ideal: [
       "Tráfego pago",
       "Captação no orgânico",
@@ -90,7 +92,7 @@ const PLANS_72 = [
       "Validação de oferta",
     ],
     inclui: [
-      "1 landing com estrutura de conversão (headline, prova, CTA, FAQ)",
+      "1 página com estrutura de conversão (headline, prova, CTA, FAQ)",
       "Copy base sem enrolação",
       "Design premium, mobile perfeito",
       "WhatsApp + formulário + Calendly (se tiver)",
@@ -101,7 +103,7 @@ const PLANS_72 = [
     price: "A partir de R$ 497",
     priceRange: "R$ 497 – R$ 997",
     featured: true,
-    whatsapp: "https://wa.me/5527999999999?text=Quero%20a%20Landing%20Express%2072h",
+    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Express%2072h`,
   },
   {
     id: "start",
@@ -109,6 +111,7 @@ const PLANS_72 = [
     badge: "02",
     title: "Site Start",
     subtitle: "3 páginas, mini-site profissional",
+    prazo: "Entrega em 10 a 15 dias úteis",
     ideal: [
       "Home (oferta + prova + CTA)",
       "Serviços ou Produtos",
@@ -126,7 +129,7 @@ const PLANS_72 = [
     price: "A partir de R$ 1.297",
     priceRange: "R$ 1.297 – R$ 1.997",
     featured: false,
-    whatsapp: "https://wa.me/5527999999999?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)",
+    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)`,
   },
   {
     id: "pro",
@@ -134,6 +137,7 @@ const PLANS_72 = [
     badge: "03",
     title: "Empresa Pro",
     subtitle: "Até 8 páginas, institucional",
+    prazo: "Entrega em 20 a 30 dias úteis",
     ideal: [
       "Empresas consolidadas",
       "Múltiplos serviços ou soluções",
@@ -154,7 +158,7 @@ const PLANS_72 = [
     price: "A partir de R$ 2.997",
     priceRange: "R$ 2.997 – R$ 4.997",
     featured: false,
-    whatsapp: "https://wa.me/5527999999999?text=Quero%20o%20Empresa%20Pro",
+    whatsapp: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Empresa%20Pro`,
   },
 ];
 
@@ -165,7 +169,7 @@ const ADDONS = [
   { label: "A/B de seção (2 variações)", range: "R$ 397 a R$ 997" },
 ];
 
-export default function Landing72hContent() {
+export default function Site72hContent() {
   const [iframeModal, setIframeModal] = useState<{
     url: string;
     title: string;
@@ -188,7 +192,7 @@ export default function Landing72hContent() {
           transition={{ duration: 0.5 }}
           className="relative z-10 mb-5 flex items-center justify-center gap-3"
         >
-          <span className="hex-badge flicker">LANDING://72H</span>
+          <span className="hex-badge flicker">SITE://72H</span>
         </motion.div>
 
         <motion.div
@@ -198,7 +202,7 @@ export default function Landing72hContent() {
           className="relative z-10 mx-auto max-w-4xl"
         >
           <BlurText
-            text="Sua landing page premium pronta em 72h."
+            text="Seu site premium pronto em 72h."
             as="h1"
             animateBy="words"
             delay={100}
@@ -214,7 +218,7 @@ export default function Landing72hContent() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="relative z-10 mx-auto mt-5 max-w-xl text-lg text-zinc-400 leading-relaxed"
         >
-          Copy, design, rastreamento e integrações prontas.{" "}
+          Copy, design, rastreamento e integrações prontas para o seu site.{" "}
           <span className="text-zinc-300 font-medium">Você manda o link do Instagram e eu faço o resto.</span>
         </motion.p>
 
@@ -249,21 +253,22 @@ export default function Landing72hContent() {
           className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-4"
         >
           <Magnet padding={60} magnetStrength={3}>
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/briefing"
               className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-7 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
             >
-              <MessageCircle className="h-5 w-5" />
-              Quero minha landing em 72h
-            </a>
+              Quero meu site em 72h
+              <ArrowRight className="h-5 w-5" />
+            </Link>
           </Magnet>
           <a
-            href="#exemplos"
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/50 px-7 py-3.5 font-semibold text-zinc-300 backdrop-blur-sm transition hover:border-[#22c55e]/50 hover:text-white"
           >
-            Ver exemplos
+            <MessageCircle className="h-5 w-5" />
+            Falar no WhatsApp
           </a>
         </motion.div>
 
@@ -304,7 +309,7 @@ export default function Landing72hContent() {
             className="mb-4"
           >
             <h2 className="font-[family-name:var(--font-space)] text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
-              Sua página está{" "}
+              Seu site está{" "}
               <span className="text-red-400">afugentando</span>{" "}
               quem poderia comprar.
             </h2>
@@ -316,7 +321,7 @@ export default function Landing72hContent() {
             transition={{ delay: 0.1 }}
             className="mb-10 max-w-2xl text-base text-zinc-500"
           >
-            Não é o produto. Não é o preço. É a página.
+            Não é o produto. Não é o preço. É o site.
           </motion.p>
 
           {/* Itens de dor */}
@@ -374,7 +379,7 @@ export default function Landing72hContent() {
             <p className="font-mono text-sm text-zinc-400">
               Em todos os casos,{" "}
               <strong className="text-white">o problema não é o tráfego, o produto nem o preço.</strong>{" "}
-              É a página que não foi feita pra converter.
+              É o site que não foi feito pra converter.
             </p>
           </motion.div>
         </div>
@@ -588,15 +593,20 @@ export default function Landing72hContent() {
             className="mb-12 max-w-2xl font-mono text-sm text-zinc-400"
           />
 
-          {/* Mobile: carousel */}
-          <div className="block md:hidden">
-            <div className="carousel-mobile">
-              {PLANS_72.map((plan, i) => (
-                <div key={plan.id} className="carousel-card">
-                  <Plan72Card plan={plan} index={i} />
-                </div>
-              ))}
-            </div>
+          {/* Mobile: coluna vertical (cada plano 100% da largura, sem cortar) */}
+          <div className="flex flex-col gap-5 md:hidden">
+            {PLANS_72.map((plan, i) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className={plan.featured ? "pt-6" : ""}
+              >
+                <Plan72Card plan={plan} index={i} />
+              </motion.div>
+            ))}
           </div>
 
           {/* Desktop: grid — featured elevado (pt para o badge "mais escolhido" não cortar) */}
@@ -670,7 +680,7 @@ export default function Landing72hContent() {
                   72h ou você não paga.
                 </h2>
                 <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-zinc-400">
-                  Se a landing não passar no checklist (mobile, CTA, rastreio, clareza), eu ajusto até passar. Sem custo extra.
+                  Se o site não passar no checklist (mobile, CTA, rastreio, clareza), eu ajusto até passar. Sem custo extra.
                 </p>
                 <div className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-3">
                   {["Mobile aprovado", "CTA claro", "Rastreio instalado", "Clareza de oferta"].map(
@@ -702,7 +712,7 @@ export default function Landing72hContent() {
           >
             <span className="hex-badge flicker">
               <Clock className="h-3 w-3" />
-              INIT://CONTATO_72H
+              INIT://SITE_72H
             </span>
           </motion.div>
 
@@ -730,8 +740,8 @@ export default function Landing72hContent() {
             transition={{ delay: 0.1 }}
             className="mb-10 text-sm font-medium"
           >
-            <span className="shiny-text" data-text="Sua landing premium em até 72h.">
-              Sua landing premium em até 72h.
+            <span className="shiny-text" data-text="Seu site premium em até 72h.">
+              Seu site premium em até 72h.
             </span>
           </motion.p>
 
@@ -751,23 +761,23 @@ export default function Landing72hContent() {
             className="flex flex-wrap items-center justify-center gap-4"
           >
             <Magnet padding={60} magnetStrength={3}>
-              <a
-                href={WHATSAPP_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/briefing"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-7 py-3.5 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
               >
-                <MessageCircle className="h-5 w-5" />
-                Chamar no WhatsApp
-              </a>
+                Preencher briefing
+                <ArrowRight className="h-5 w-5" />
+              </Link>
             </Magnet>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/50 px-7 py-3.5 font-semibold text-zinc-300 backdrop-blur-sm transition hover:border-[#22c55e]/50 hover:text-white"
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/10 px-7 py-3.5 font-semibold text-[#22c55e] backdrop-blur-sm transition hover:border-[#22c55e]/70 hover:bg-[#22c55e]/20"
             >
-              <ArrowLeft className="h-5 w-5" />
-              Voltar ao início
-            </Link>
+              <MessageCircle className="h-5 w-5" />
+              Chamar no WhatsApp
+            </a>
           </motion.div>
 
           <motion.p
@@ -843,6 +853,9 @@ function Plan72Card({
         {plan.title}
       </h3>
       <p className="mt-1 text-sm text-zinc-500">{plan.subtitle}</p>
+      {"prazo" in plan && plan.prazo && (
+        <p className="mt-2 font-mono text-[10px] text-[#22c55e]/90">{plan.prazo}</p>
+      )}
 
       {/* Preço */}
       {"price" in plan && plan.price && (

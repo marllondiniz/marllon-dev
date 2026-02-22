@@ -371,9 +371,7 @@ body.no-global-overlay::after {
   -webkit-overflow-scrolling: touch;
   gap: 1rem;
   padding-bottom: 0.5rem;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
-  padding-left: 1.5rem;
+  padding-left: 0;
   padding-right: 1.5rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(34, 197, 94, 0.3) transparent;
@@ -392,19 +390,22 @@ body.no-global-overlay::after {
 .carousel-card {
   flex-shrink: 0;
   scroll-snap-align: start;
-  width: 85vw;
-  max-width: 320px;
+  width: min(82vw, 300px);
+}
+.carousel-card:first-child {
+  scroll-margin-left: 0;
+}
+.carousel-card:last-child {
+  scroll-margin-right: 1.5rem;
 }
 @media (min-width: 768px) {
   .carousel-mobile {
     gap: 1.5rem;
-    margin-left: 0;
-    margin-right: 0;
+    padding-right: 1.5rem;
     padding-bottom: 0.75rem;
   }
   .carousel-card {
     width: 340px;
-    max-width: none;
   }
 }
 .carousel-card-wide {

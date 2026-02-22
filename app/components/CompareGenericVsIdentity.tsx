@@ -88,10 +88,7 @@ export default function CompareGenericVsIdentity({
 
       {/* Card com identidade — mais impacto visual */}
       <div className="relative overflow-hidden rounded-2xl border-2 border-[#22c55e]/50 bg-[#111113] shadow-[0_0_40px_rgba(34,197,94,0.08)] ring-2 ring-[#22c55e]/20">
-        <div className="absolute left-3 top-3 z-10 rounded-md border border-[#22c55e]/40 bg-[#0a0a0b]/90 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-[#22c55e] backdrop-blur-sm">
-          Alta conversão
-        </div>
-        <div className="flex items-center justify-between border-b border-[#22c55e]/20 bg-[#0d0d0f] px-4 py-3 pt-10">
+        <div className="flex items-center justify-between border-b border-[#22c55e]/20 bg-[#0d0d0f] px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
             <span className="font-mono text-[10px] uppercase tracking-wider text-[#22c55e] font-semibold">

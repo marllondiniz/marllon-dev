@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
@@ -16,7 +18,12 @@ import {
   TrendingUp,
   Users,
   Award,
+  Layers,
+  Building2,
 } from "lucide-react";
+import CyberBackground from "@/app/components/CyberBackground";
+import BlurText from "@/app/components/BlurText";
+import Magnet from "@/app/components/Magnet";
 
 /* ────────────────────────────────────────────────────────── */
 /*  Dados                                                      */
@@ -113,6 +120,76 @@ const STEPS = [
   },
 ];
 
+const WHATSAPP_NUMBER = "5527992338038";
+
+const PLANS = [
+  {
+    id: "express",
+    icon: Zap,
+    badge: "01",
+    title: "Site Express 72h",
+    subtitle: "1 página, entrega rápida",
+    prazo: "Entrega em até 72h",
+    inclui: [
+      "Página completa com copy estratégico",
+      "Design exclusivo e responsivo",
+      "Rastreio (Pixel + GA4) configurado",
+      "Formulário conectado ao seu CRM/e-mail",
+      "Entrega em até 72h",
+      "1 rodada de ajustes incluída",
+      "Garantia de satisfação",
+    ],
+    price: "R$ 497",
+    priceFrom: "R$ 997",
+    featured: true,
+    ctaHref: "/briefing",
+    ctaLabel: "Quero começar agora",
+  },
+  {
+    id: "start",
+    icon: Layers,
+    badge: "02",
+    title: "Site Start",
+    subtitle: "3 páginas, mini-site profissional",
+    prazo: "Entrega em 10 a 15 dias úteis",
+    inclui: [
+      "3 páginas com design consistente",
+      "Copy ajustada por página",
+      "SEO básico (títulos, headings, indexação)",
+      "Pixel + GA4",
+      "2 rodadas de ajustes",
+      "Vídeo de treinamento pra você editar depois",
+    ],
+    price: "R$ 1.297",
+    priceFrom: "R$ 1.997",
+    featured: false,
+    ctaHref: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Site%20Start%20(3%20p%C3%A1ginas)`,
+    ctaLabel: "Quero esse plano",
+  },
+  {
+    id: "pro",
+    icon: Building2,
+    badge: "03",
+    title: "Empresa Pro",
+    subtitle: "Até 8 páginas, institucional",
+    prazo: "Entrega em 20 a 30 dias úteis",
+    inclui: [
+      "Até 8 páginas (expansível)",
+      "Design corporate + identidade aplicada",
+      "SEO on-page completo",
+      "Performance e otimização mobile",
+      "LGPD básico (banner + políticas)",
+      "Integrações (CRM, RD/HubSpot, e-mail)",
+      "3 rodadas de ajustes",
+    ],
+    price: "R$ 2.997",
+    priceFrom: "R$ 4.997",
+    featured: false,
+    ctaHref: `https://wa.me/${WHATSAPP_NUMBER}?text=Quero%20o%20Empresa%20Pro`,
+    ctaLabel: "Quero esse plano",
+  },
+];
+
 const FAQS = [
   {
     q: "Quanto tempo leva para ter minha página pronta?",
@@ -144,7 +221,7 @@ function StarRating({ count }: { count: number }) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+        <Star key={i} className="h-4 w-4 fill-[#22c55e] text-[#22c55e]" />
       ))}
     </div>
   );
@@ -153,7 +230,7 @@ function StarRating({ count }: { count: number }) {
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm transition-all">
+    <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113] transition-all hover:border-[#22c55e]/30">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -161,14 +238,14 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       >
         <span className="pr-4 font-semibold text-white">{q}</span>
         <ChevronDown
-          className={`h-5 w-5 flex-shrink-0 text-amber-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`h-5 w-5 flex-shrink-0 text-[#22c55e] transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       <div
         className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
-          <p className="px-6 pb-5 text-sm leading-relaxed text-white/70">{a}</p>
+          <p className="px-6 pb-5 text-sm leading-relaxed text-zinc-400">{a}</p>
         </div>
       </div>
     </div>
@@ -182,188 +259,203 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function DemoAltaConversaoPage() {
   const [form, setForm] = useState({ name: "", whatsapp: "", email: "", goal: "" });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSent(true);
+    setLoading(true);
+    // Simula envio (em produção viria de uma API)
+    setTimeout(() => {
+      setLoading(false);
+      setSent(true);
+    }, 800);
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#09090b] font-sans text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#0a0a0b] pt-[4.5rem] font-sans text-white">
       {/* ─── HERO ─────────────────────────────────────────── */}
-      <section className="relative flex min-h-[min(100vh,780px)] flex-col items-center justify-center overflow-hidden px-3 py-20 text-center sm:px-6 sm:py-24 md:py-28">
-        {/* Gradients de fundo */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[800px] -translate-x-1/2 rounded-full bg-amber-500/12 blur-[100px] sm:h-[500px] sm:w-[900px] sm:blur-[120px]" />
-          <div className="absolute bottom-0 left-0 h-[280px] w-[400px] rounded-full bg-orange-600/10 blur-[80px]" />
-          <div className="absolute bottom-0 right-0 h-[280px] w-[400px] rounded-full bg-amber-400/8 blur-[80px]" />
-        </div>
+      <section className="relative flex min-h-[min(100vh,780px)] flex-col items-center justify-center overflow-hidden px-3 pt-12 pb-20 text-center sm:px-6 sm:pt-16 sm:pb-24 md:pt-20 md:pb-28">
+        <CyberBackground />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(34,197,94,0.07),transparent)]" />
+        <div className="pointer-events-none absolute inset-0 cyber-grid-bg opacity-20" />
 
-        {/* Container com mais distância entre os blocos */}
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-10 sm:gap-12 md:gap-14">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300 sm:text-xs">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-            Alta conversão · Entrega em 72h
-          </div>
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-10 sm:gap-12 md:gap-14">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-center gap-3"
+          >
+            <span className="hex-badge flicker">CONVERSÃO://72H</span>
+          </motion.div>
 
-          {/* Headline */}
-          <h1 className="relative text-[2.25rem] font-extrabold leading-[1.12] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[3.5rem]">
-            Sua página vendendo{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-amber-300 via-orange-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                todo dia
-              </span>
-              <svg
-                viewBox="0 0 260 10"
-                className="absolute -bottom-0.5 left-0 w-full max-w-[260px] sm:max-w-none"
-                aria-hidden="true"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mx-auto max-w-4xl"
+          >
+            <BlurText
+              text="Sua página vendendo todo dia, com identidade."
+              as="h1"
+              animateBy="words"
+              delay={80}
+              stepDuration={0.35}
+              className="justify-center font-[family-name:var(--font-space)] text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl md:text-6xl [&>span:nth-child(n+5)]:text-[#22c55e] [&>span:nth-child(n+5)]:cyber-text-glow"
+            />
+            <span className="mx-auto mt-2 block h-px w-48 bg-gradient-to-r from-transparent via-[#22c55e]/50 to-transparent" />
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="relative mx-auto max-w-xl text-base leading-relaxed text-zinc-400 sm:max-w-2xl sm:text-lg"
+          >
+            Copy estratégico, design com identidade e performance. Entrega em 72h, rastreio completo. Mesma proposta da sua página principal.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+          >
+            <Magnet padding={50} magnetStrength={2}>
+              <Link
+                href="/briefing"
+                className="group inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-5 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] sm:rounded-2xl sm:px-6"
               >
-                <path
-                  d="M2 8 Q65 2 130 6 Q195 10 258 4"
-                  stroke="url(#hero-underline)"
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                <defs>
-                  <linearGradient id="hero-underline" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#fcd34d" />
-                    <stop offset="100%" stopColor="#fb923c" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </span>
-            , enquanto você foca no negócio.
-          </h1>
-
-          {/* Subheadline */}
-          <p className="relative mx-auto max-w-xl text-base leading-relaxed text-white/80 sm:max-w-2xl sm:text-lg md:text-xl">
-            Landing com identidade, copy estratégico e performance. Entrega em 72h, rastreio completo.
-          </p>
-
-          {/* CTAs — sempre lado a lado (flex-row), compactos no iframe para caberem */}
-          <div className="relative flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <a
-              href="#cta"
-              className="group inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-bold text-white shadow-[0_0_24px_rgba(245,158,11,0.35)] transition-all hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] hover:scale-[1.02] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-base sm:gap-2"
-            >
-              Quero minha página
-              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
+                Quero minha página
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Magnet>
             <a
               href="#como-funciona"
-              className="inline-flex flex-shrink-0 items-center justify-center rounded-xl border border-zinc-600/70 bg-white/5 px-4 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-white sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-base"
+              className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 px-5 py-3.5 font-semibold text-zinc-400 transition hover:border-[#22c55e]/40 hover:text-white sm:rounded-2xl sm:px-6"
             >
               Como funciona
             </a>
-          </div>
+          </motion.div>
 
-          {/* Mini prova social */}
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/70 sm:gap-x-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-zinc-500 sm:gap-x-6"
+          >
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-amber-400" />
+              <Check className="h-4 w-4 text-[#22c55e]" />
               Sem taxa oculta
             </span>
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-amber-400" />
+              <Check className="h-4 w-4 text-[#22c55e]" />
               Entrega garantida
             </span>
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-amber-400" />
+              <Check className="h-4 w-4 text-[#22c55e]" />
               130+ projetos
             </span>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Scroll hint — só em telas maiores */}
-        <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 animate-bounce text-white/25 md:block">
-          <ChevronDown className="h-6 w-6" />
+        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-zinc-600">
+          <span className="font-mono text-[10px] uppercase tracking-widest">scroll</span>
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+            <ChevronDown className="h-5 w-5" />
+          </motion.div>
         </div>
       </section>
 
       {/* ─── STATS BAR ─────────────────────────────────────── */}
-      <section className="border-y border-white/8 bg-white/[0.03] px-6 py-10">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 sm:grid-cols-4">
+      <section className="cyber-section border-t border-zinc-800/50 section-padding">
+        <div className="section-container-wide mx-auto grid grid-cols-2 gap-8 sm:grid-cols-4">
           {STATS.map(({ value, label, icon: Icon }) => (
             <div key={label} className="flex flex-col items-center gap-2 text-center">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15">
-                <Icon className="h-5 w-5 text-amber-400" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/10">
+                <Icon className="h-5 w-5 text-[#22c55e]" />
               </div>
-              <span className="text-3xl font-extrabold tracking-tight text-white">{value}</span>
-              <span className="text-xs text-white/50 leading-snug">{label}</span>
+              <span className="font-[family-name:var(--font-space)] text-3xl font-bold tracking-tight text-white">{value}</span>
+              <span className="text-xs text-zinc-500 leading-snug">{label}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* ─── BENEFITS ──────────────────────────────────────── */}
-      <section className="px-6 py-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-4 text-center">
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-amber-400">
-              O que está incluso
-            </span>
-          </div>
-          <h2 className="mx-auto max-w-2xl text-center text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Tudo que sua página precisa para{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              converter de verdade
-            </span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-center text-white/50">
+      <section className="cyber-section border-t border-zinc-800/50 section-padding bg-[#0a0a0b]">
+        <div className="section-container-wide">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 flex items-center gap-3"
+          >
+            <span className="hex-badge flicker">INCLUSO</span>
+          </motion.div>
+          <BlurText
+            text="Tudo que sua página precisa para converter de verdade"
+            as="h2"
+            animateBy="words"
+            delay={60}
+            stepDuration={0.3}
+            className="mb-4 font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl md:text-4xl [&>span:nth-child(n+6)]:text-[#22c55e]"
+          />
+          <p className="mb-12 max-w-xl text-zinc-500 text-sm">
             Não é template, não é IA sem direção. É estratégia real aplicada ao seu negócio.
           </p>
 
-          <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {BENEFITS.map(({ icon: Icon, title, desc, tag }) => (
-              <div
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {BENEFITS.map(({ icon: Icon, title, desc, tag }, i) => (
+              <motion.div
                 key={title}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-all hover:border-amber-500/30 hover:bg-white/[0.07]"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113] p-6 transition-all hover:border-[#22c55e]/40 hover:shadow-[0_0_24px_rgba(34,197,94,0.08)]"
               >
-                <div className="absolute right-4 top-4 rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                <div className="absolute right-4 top-4 rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#22c55e]">
                   {tag}
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10">
-                  <Icon className="h-6 w-6 text-amber-400" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/10">
+                  <Icon className="h-6 w-6 text-[#22c55e]" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-white">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{desc}</p>
-              </div>
+                <h3 className="mt-4 font-[family-name:var(--font-space)] text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-500">{desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ─── TESTIMONIALS ──────────────────────────────────── */}
-      <section className="relative overflow-hidden px-6 py-24">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-[100px]" />
-        </div>
-        <div className="relative mx-auto max-w-6xl">
-          <div className="mb-4 text-center">
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-amber-400">
-              Resultados reais
-            </span>
-          </div>
-          <h2 className="text-center text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Quem usou,{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              voltou.
-            </span>
+      <section className="cyber-section relative border-t border-zinc-800/50 section-padding">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(34,197,94,0.04),transparent)]" />
+        <div className="section-container-wide relative">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 flex items-center gap-3"
+          >
+            <span className="hex-badge flicker">RESULTADOS</span>
+          </motion.div>
+          <h2 className="mb-12 font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            Quem usou, <span className="text-[#22c55e]">voltou.</span>
           </h2>
 
-          <div className="mt-16 grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-3">
             {TESTIMONIALS.map(({ name, role, rating, text, avatar, color }) => (
               <div
                 key={name}
-                className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm"
+                className="flex flex-col justify-between rounded-2xl border border-zinc-800 bg-[#111113] p-6 transition-colors hover:border-[#22c55e]/30"
               >
                 <div>
                   <StarRating count={rating} />
-                  <p className="mt-4 text-sm leading-relaxed text-white/75">&ldquo;{text}&rdquo;</p>
+                  <p className="mt-4 text-sm leading-relaxed text-zinc-400">&ldquo;{text}&rdquo;</p>
                 </div>
-                <div className="mt-6 flex items-center gap-3 border-t border-white/8 pt-4">
+                <div className="mt-6 flex items-center gap-3 border-t border-zinc-800 pt-4">
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${color} text-xs font-bold text-white`}
                   >
@@ -371,7 +463,7 @@ export default function DemoAltaConversaoPage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">{name}</p>
-                    <p className="text-xs text-white/45">{role}</p>
+                    <p className="text-xs text-zinc-500">{role}</p>
                   </div>
                 </div>
               </div>
@@ -381,32 +473,31 @@ export default function DemoAltaConversaoPage() {
       </section>
 
       {/* ─── COMO FUNCIONA ─────────────────────────────────── */}
-      <section id="como-funciona" className="px-6 py-24">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-4 text-center">
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-amber-400">
-              Processo
-            </span>
-          </div>
-          <h2 className="text-center text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Da ideia à página em{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              3 passos
-            </span>
+      <section id="como-funciona" className="cyber-section border-t border-zinc-800/50 section-padding bg-[#0a0a0b]">
+        <div className="section-container max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 flex items-center gap-3"
+          >
+            <span className="hex-badge flicker">PROCESSO</span>
+          </motion.div>
+          <h2 className="mb-12 font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            Da ideia à página em <span className="text-[#22c55e]">3 passos</span>
           </h2>
 
-          <div className="relative mt-16 space-y-4">
-            {/* Linha vertical */}
-            <div className="absolute left-7 top-12 h-[calc(100%-6rem)] w-px bg-gradient-to-b from-amber-500/40 via-amber-500/20 to-transparent" />
+          <div className="relative space-y-4">
+            <div className="absolute left-7 top-12 h-[calc(100%-6rem)] w-px bg-gradient-to-b from-[#22c55e]/40 via-[#22c55e]/20 to-transparent" />
 
             {STEPS.map(({ num, title, desc }) => (
               <div key={num} className="relative flex gap-6">
-                <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/20 to-orange-500/10 font-mono text-sm font-bold text-amber-400">
+                <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-[#22c55e]/40 bg-[#22c55e]/10 font-mono text-sm font-bold text-[#22c55e]">
                   {num}
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 flex-1">
-                  <h3 className="font-bold text-white">{title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-white/55">{desc}</p>
+                <div className="flex-1 rounded-2xl border border-zinc-800 bg-[#111113] p-5">
+                  <h3 className="font-[family-name:var(--font-space)] font-bold text-white">{title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-zinc-500">{desc}</p>
                 </div>
               </div>
             ))}
@@ -414,57 +505,110 @@ export default function DemoAltaConversaoPage() {
         </div>
       </section>
 
-      {/* ─── OFFER CARD ────────────────────────────────────── */}
-      <section className="px-6 py-16">
-        <div className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-3xl border border-amber-500/25 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent p-8 sm:p-10">
-            <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-amber-400/10 blur-[80px]" />
-            <div className="relative">
-              <span className="rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                Landing Express
-              </span>
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold text-white">R$ 497</span>
-                <span className="text-white/40 line-through">R$ 897</span>
-              </div>
-              <p className="mt-1 text-sm text-white/50">Pagamento único — sem mensalidade</p>
-              <ul className="mt-6 space-y-3">
-                {[
-                  "Página completa com copy estratégico",
-                  "Design exclusivo e responsivo",
-                  "Rastreio (Pixel + GA4) configurado",
-                  "Formulário conectado ao seu CRM/e-mail",
-                  "Entrega em até 72h",
-                  "1 rodada de ajustes incluída",
-                  "Garantia de satisfação",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-white/75">
-                    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20">
-                      <Check className="h-3 w-3 text-amber-400" />
+      {/* ─── PLANOS ─────────────────────────────────────────── */}
+      <section id="planos" className="cyber-section border-t border-zinc-800/50 section-padding bg-[#0a0a0b]">
+        <div className="section-container-wide">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 flex items-center gap-3"
+          >
+            <span className="hex-badge flicker">PLANOS</span>
+          </motion.div>
+          <BlurText
+            text="Escolha o que cabe no seu momento"
+            as="h2"
+            animateBy="words"
+            delay={60}
+            stepDuration={0.3}
+            className="mb-2 font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl md:text-4xl [&>span:last-child]:text-[#22c55e]"
+          />
+          <p className="mb-12 max-w-xl text-sm text-zinc-500">
+            Entrega com identidade, não com cara de template. Pagamento único — sem mensalidade.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {PLANS.map((plan, i) => {
+              const Icon = plan.icon;
+              const isLink = plan.ctaHref.startsWith("/");
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`relative flex flex-col overflow-hidden rounded-2xl border bg-[#111113] p-6 transition-all sm:p-8 ${
+                    plan.featured
+                      ? "border-[#22c55e]/40 shadow-[0_0_28px_rgba(34,197,94,0.08)] hover:border-[#22c55e]/60 md:-mt-2 md:pt-10"
+                      : "border-zinc-800 hover:border-[#22c55e]/30"
+                  }`}
+                >
+                  {plan.featured && (
+                    <span className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full border border-[#22c55e]/40 bg-[#0a0a0b] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#22c55e]">
+                      mais escolhido
                     </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="#cta"
-                className="group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 py-4 font-bold text-white shadow-[0_0_40px_rgba(245,158,11,0.3)] transition-all hover:shadow-[0_0_60px_rgba(245,158,11,0.5)] hover:scale-[1.02]"
-              >
-                Quero começar agora
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </a>
-            </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/10">
+                      <Icon className="h-5 w-5 text-[#22c55e]" />
+                    </div>
+                    <span className="font-mono text-[10px] text-zinc-600 uppercase tracking-wider">{plan.badge}</span>
+                  </div>
+                  <h3 className="mt-4 font-[family-name:var(--font-space)] text-xl font-bold text-white">
+                    {plan.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-zinc-500">{plan.subtitle}</p>
+                  <p className="mt-2 font-mono text-xs text-[#22c55e]/90">{plan.prazo}</p>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="font-[family-name:var(--font-space)] text-2xl font-bold text-[#22c55e]">
+                      {plan.price}
+                    </span>
+                    <span className="text-sm text-zinc-500 line-through">{plan.priceFrom}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-600">Pagamento único — sem mensalidade</p>
+                  <ul className="mt-6 flex-1 space-y-2">
+                    {plan.inclui.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-zinc-400">
+                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#22c55e]" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  {isLink ? (
+                    <Link
+                      href={plan.ctaHref}
+                      className="group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#22c55e] py-3.5 font-semibold text-black shadow-[0_0_20px_rgba(34,197,94,0.25)] transition hover:bg-[#16a34a] hover:shadow-[0_0_32px_rgba(34,197,94,0.4)]"
+                    >
+                      {plan.ctaLabel}
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                  ) : (
+                    <a
+                      href={plan.ctaHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 py-3.5 font-semibold text-zinc-300 transition hover:border-[#22c55e]/50 hover:text-white"
+                    >
+                      {plan.ctaLabel}
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </a>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ─── FAQ ───────────────────────────────────────────── */}
-      <section className="px-6 py-24">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="text-center text-3xl font-extrabold tracking-tight sm:text-4xl">
+      <section className="cyber-section border-t border-zinc-800/50 section-padding bg-[#0a0a0b]">
+        <div className="section-container max-w-2xl">
+          <h2 className="font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl">
             Dúvidas frequentes
           </h2>
-          <p className="mx-auto mt-4 text-center text-sm text-white/45">
+          <p className="mt-4 text-sm text-zinc-500">
             Não encontrou? Fale direto pelo formulário abaixo.
           </p>
           <div className="mt-10 space-y-3">
@@ -476,123 +620,180 @@ export default function DemoAltaConversaoPage() {
       </section>
 
       {/* ─── CTA + FORM ────────────────────────────────────── */}
-      <section id="cta" className="relative overflow-hidden px-6 py-24">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-amber-500/8 blur-[100px]" />
-        </div>
-        <div className="relative mx-auto max-w-xl">
-          <div className="mb-4 text-center">
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-amber-400">
-              Começar agora
-            </span>
-          </div>
-          <h2 className="text-center text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Sua página pronta em{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              72 horas
-            </span>
+      <section id="cta" className="cyber-section relative border-t border-zinc-800/50 section-padding">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,197,94,0.05),transparent)]" />
+        <div className="section-container relative max-w-xl">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 flex items-center justify-center gap-3"
+          >
+            <span className="hex-badge flicker">CONTATO</span>
+          </motion.div>
+          <h2 className="text-center font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            Sua página pronta em <span className="text-[#22c55e]">72 horas</span>
           </h2>
-          <p className="mx-auto mt-4 text-center text-sm text-white/50">
+          <p className="mx-auto mt-4 text-center text-sm text-zinc-500">
             Preencha o formulário e entrarei em contato em até 2h para alinharmos o briefing.
           </p>
 
-          <div className="mt-10 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-sm">
+          <div className="mt-10 overflow-hidden rounded-2xl border border-zinc-800 bg-[#111113] shadow-[0_0_0_1px_rgba(34,197,94,0.06)]">
+            <div className="border-b border-zinc-800/80 bg-[#0d0d0f]/80 px-6 py-4 sm:px-8">
+              <p className="flex items-center gap-2 font-mono text-xs text-zinc-500">
+                <MessageCircle className="h-4 w-4 text-[#22c55e]/70" aria-hidden />
+                Preencha os campos abaixo — resposta em até 2h.
+              </p>
+            </div>
             {sent ? (
-              <div className="flex flex-col items-center gap-4 px-8 py-16 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/20">
-                  <Check className="h-8 w-8 text-amber-400" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35 }}
+                className="flex flex-col items-center gap-5 px-8 py-16 text-center sm:px-12"
+              >
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#22c55e]/40 bg-[#22c55e]/10">
+                  <Check className="h-10 w-10 text-[#22c55e]" aria-hidden />
                 </div>
-                <h3 className="text-xl font-bold text-white">Mensagem recebida!</h3>
-                <p className="text-sm text-white/55">
+                <h3 className="font-[family-name:var(--font-space)] text-2xl font-bold text-white">
+                  Mensagem recebida!
+                </h3>
+                <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
                   Entrarei em contato em até 2h no WhatsApp ou e-mail que você informou.
                 </p>
-              </div>
+              </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4 p-8">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                    Seu nome
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    placeholder="João Silva"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
-                  />
+              <form onSubmit={handleSubmit} className="p-6 sm:p-8" noValidate>
+                <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="demo-name" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                      Nome <span className="text-[#22c55e]">*</span>
+                    </label>
+                    <input
+                      id="demo-name"
+                      required
+                      type="text"
+                      placeholder="Seu nome completo"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
+                      autoComplete="name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="demo-whatsapp" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                      WhatsApp <span className="text-[#22c55e]">*</span>
+                    </label>
+                    <input
+                      id="demo-whatsapp"
+                      required
+                      type="tel"
+                      placeholder="(27) 9 9999-9999"
+                      value={form.whatsapp}
+                      onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+                      className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
+                      autoComplete="tel"
+                    />
+                    <p className="font-mono text-[11px] text-zinc-600">Com DDD. Ex.: (27) 9 9999-9999</p>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                    WhatsApp
+                <div className="mt-5 space-y-2 sm:mt-6">
+                  <label htmlFor="demo-email" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    E-mail <span className="text-[#22c55e]">*</span>
                   </label>
                   <input
-                    required
-                    type="tel"
-                    placeholder="(11) 9 1234-5678"
-                    value={form.whatsapp}
-                    onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                    E-mail
-                  </label>
-                  <input
+                    id="demo-email"
                     required
                     type="email"
-                    placeholder="voce@empresa.com"
+                    placeholder="seu@email.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
+                    autoComplete="email"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                    O que você quer vender / promover?
+                <div className="mt-5 space-y-2 sm:mt-6">
+                  <label htmlFor="demo-goal" className="block font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    O que você quer vender ou promover? <span className="text-[#22c55e]">*</span>
                   </label>
                   <textarea
+                    id="demo-goal"
                     required
-                    rows={3}
-                    placeholder="Ex.: Curso de marketing digital para PMEs..."
+                    rows={4}
+                    placeholder="Ex.: Curso de marketing digital para PMEs, consultoria de vendas, e-commerce de moda..."
                     value={form.goal}
                     onChange={(e) => setForm({ ...form, goal: e.target.value })}
-                    className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full resize-y min-h-[100px] rounded-xl border border-zinc-700 bg-[#0a0a0b] px-4 py-3.5 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-[#22c55e]/50 focus:ring-2 focus:ring-[#22c55e]/20"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="group mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 py-4 font-bold text-white shadow-[0_0_40px_rgba(245,158,11,0.25)] transition-all hover:shadow-[0_0_60px_rgba(245,158,11,0.45)] hover:scale-[1.02]"
-                >
-                  Quero minha página agora
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </button>
-                <p className="text-center text-[11px] text-white/30">
+                <div className="mt-8">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#22c55e] py-4 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.25)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-[#22c55e]"
+                  >
+                    {loading ? (
+                      <>
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" aria-hidden />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        Quero minha página agora
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="mt-4 text-center font-mono text-[11px] text-zinc-600">
                   Sem spam. Entro em contato só para alinhar o projeto.
                 </p>
               </form>
             )}
           </div>
 
-          {/* Trust badges */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-white/35">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 font-mono text-xs text-zinc-600">
             <span className="flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-amber-500/70" /> Dados seguros
+              <Shield className="h-3.5 w-3.5 text-[#22c55e]/70" /> Dados seguros
             </span>
             <span className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-amber-500/70" /> Sem compromisso
+              <Check className="h-3.5 w-3.5 text-[#22c55e]/70" /> Sem compromisso
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-amber-500/70" /> Resposta em até 2h
+              <Clock className="h-3.5 w-3.5 text-[#22c55e]/70" /> Resposta em até 2h
             </span>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ────────────────────────────────────────── */}
-      <footer className="border-t border-white/8 px-6 py-8 text-center text-xs text-white/25">
-        © {new Date().getFullYear()} zinid.tech — Todos os direitos reservados.
+      {/* ─── FOOTER (identidade da página principal) ───────── */}
+      <footer className="border-t border-zinc-800 py-8 text-center text-sm text-zinc-500" role="contentinfo">
+        <div className="mx-auto max-w-5xl px-6">
+          <p className="font-medium text-zinc-400">
+            Marllon Diniz · zinid.tech
+          </p>
+          <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1" aria-label="Serviços e contato">
+            <Link
+              href="/site-72h"
+              className="inline-flex items-center gap-1.5 text-[#22c55e] hover:text-[#22c55e]/80 font-medium"
+            >
+              <ArrowRight className="h-4 w-4" aria-hidden />
+              Seu site pronto em 72h
+            </Link>
+            <Link
+              href="/briefing"
+              className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-white"
+            >
+              Briefing rápido
+            </Link>
+          </nav>
+          <p className="mt-3 text-[#22c55e]/90 font-medium text-sm">
+            Início de um futuro próspero
+          </p>
+          <p className="mt-2 text-zinc-500">
+            <small>© {new Date().getFullYear()} Marllon Diniz · zinid.tech</small>
+          </p>
+        </div>
       </footer>
     </main>
   );

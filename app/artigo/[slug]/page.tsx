@@ -26,25 +26,6 @@ export default async function ArtigoPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0a0a0b]">
-      {/* Top bar */}
-      <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-[#0a0a0b]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link
-            href="/#conteudo"
-            className="inline-flex items-center gap-2 font-mono text-sm text-zinc-400 transition hover:text-[#22c55e]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Tech & IA
-          </Link>
-          <Link
-            href="/"
-            className="font-mono text-xs text-zinc-500 transition hover:text-white"
-          >
-            Início
-          </Link>
-        </div>
-      </header>
-
       <article className="mx-auto max-w-3xl px-6 py-12 md:py-16">
         {/* Theme + date */}
         <div className="mb-6 flex flex-wrap items-center gap-4">

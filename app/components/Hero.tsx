@@ -2,7 +2,8 @@
 
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ChevronDown, Wrench, Sparkles, Terminal, Cpu, Zap } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Wrench, Sparkles, Terminal, Cpu, Zap, ArrowRight } from "lucide-react";
 import CyberBackground from "./CyberBackground";
 import BlurText from "./BlurText";
 import CountUp from "./CountUp";
@@ -167,15 +168,13 @@ export default function Hero() {
               Serviços e Soluções
             </a>
           </Magnet>
-          <Magnet padding={60} magnetStrength={3}>
-            <a
-              href="#conteudo"
-              className="inline-flex items-center gap-2 rounded-xl border border-zinc-600 bg-zinc-900/50 px-6 py-3.5 font-semibold text-zinc-300 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white"
-            >
-              <Sparkles className="h-5 w-5" />
-              Tech & IA
-            </a>
-          </Magnet>
+          <Link
+            href="/site-72h"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/10 px-6 py-3.5 font-semibold text-[#22c55e] backdrop-blur-sm transition hover:border-[#22c55e]/60 hover:bg-[#22c55e]/20 hover:text-[#22c55e]"
+          >
+            Seu site pronto em 72h
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </motion.div>
 
         {/* Stats com CountUp */}

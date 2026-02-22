@@ -2,47 +2,11 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Code2, Plug, Workflow, TrendingUp, BarChart3, LayoutTemplate, ArrowRight, Zap } from "lucide-react";
+import { TrendingUp, BarChart3, LayoutTemplate, ArrowRight } from "lucide-react";
 import SpotlightCard from "./SpotlightCard";
 import BlurText from "./BlurText";
 
 const services = [
-  {
-    title: "Back-end e Web",
-    description:
-      "Desenvolvimento de sistemas back-end e web, modelagem e evolução de bancos de dados, interfaces e lógica de negócio.",
-    items: [
-      "Sistemas corporativos e web",
-      "APIs e serviços",
-      "Modelagem de dados",
-      "Front-end e back-end integrados",
-    ],
-    icon: Code2,
-  },
-  {
-    title: "Integrações e APIs",
-    description:
-      "Integração com APIs externas, captura e estruturação de dados, sistemas que se conectam a outros serviços.",
-    items: [
-      "Integrações com APIs externas",
-      "Estruturação e fluxo de dados",
-      "Webhooks e eventos",
-      "Consumo e exposição de APIs",
-    ],
-    icon: Plug,
-  },
-  {
-    title: "Automação de Processos",
-    description:
-      "Automação de processos internos, redução de trabalho manual, fluxos que escalam e garantem estabilidade.",
-    items: [
-      "Automação de processos internos",
-      "Fluxos e pipelines",
-      "Redução de trabalho manual",
-      "Estabilidade e evolução contínua",
-    ],
-    icon: Workflow,
-  },
   {
     title: "Gestão de tráfego",
     description:
@@ -57,30 +21,17 @@ const services = [
     href: "/servicos/gestao-de-trafego",
   },
   {
-    title: "Vibe Coding com Direção",
+    title: "Seu site em 72h",
     description:
-      "Sites rápidos com design exclusivo e artesanal. Velocidade de IA com direção estratégica, sem cara de IA, sem layouts genéricos.",
+      "Seu site premium pronto em 72h: copy, design, rastreamento e integrações. Sem preço de agência, com identidade e foco em conversão.",
     items: [
-      "One Page, 3 Páginas ou Site Corporativo",
-      "Design exclusivo e identidade de marca",
-      "Código limpo e performance otimizada",
-      "Entrega rápida sem perder personalidade",
-    ],
-    icon: Zap,
-    href: "/vibe-coding",
-  },
-  {
-    title: "Criação de Landing Pages",
-    description:
-      "Estrutura, copy e tecnologia para landing pages focadas em conversão, integradas com tráfego e ferramentas do negócio.",
-    items: [
-      "Landing pages de alta conversão",
-      "Copy alinhada com anúncios e oferta",
-      "Formulários e integrações (CRM, pixel, eventos)",
-      "Testes e evolução contínua das LPs",
+      "Seu site pronto em 72h ou não paga",
+      "Copy + design + Pixel e GA4 no seu site",
+      "WhatsApp, formulário e integrações",
+      "Briefing rápido e proposta para o seu site",
     ],
     icon: LayoutTemplate,
-    href: "/servicos/landing-pages",
+    href: "/site-72h",
   },
   {
     title: "Dashboards para acompanhar dados",
@@ -132,23 +83,25 @@ export default function Services() {
         />
 
         {/* Mobile: carrossel horizontal — oculto no desktop (max-md) */}
-        <div className="hidden max-md:block">
-          <div
-            className="carousel-mobile"
-            role="region"
-            aria-label="Serviços e soluções"
-          >
-            {services.map((service, idx) => (
-            <div key={service.title} className="carousel-card">
-              {service.href ? (
-                <Link href={service.href} className="block h-full">
-                  <Card service={service} index={idx} />
-                </Link>
-              ) : (
-                <Card service={service} index={idx} />
-              )}
+        <div className="hidden max-md:block overflow-visible">
+          <div className="w-screen relative left-1/2 -translate-x-1/2 overflow-visible px-4 sm:px-6">
+            <div
+              className="carousel-mobile"
+              role="region"
+              aria-label="Serviços e soluções"
+            >
+              {services.map((service, idx) => (
+                <div key={service.title} className="carousel-card">
+                  {service.href ? (
+                    <Link href={service.href} className="block h-full">
+                      <Card service={service} index={idx} />
+                    </Link>
+                  ) : (
+                    <Card service={service} index={idx} />
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
           </div>
         </div>
 

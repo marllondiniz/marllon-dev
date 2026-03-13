@@ -5,6 +5,6 @@ import Header from "./Header";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/admin")) return null;
+  if (pathname?.startsWith("/admin") || pathname === "/enxoval") return null;
   return <Header />;
 }

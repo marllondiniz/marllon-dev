@@ -527,22 +527,13 @@ export default function EnxovalPage() {
                                 setModalItem(item);
                                 setModalCategoryName(cat.name);
                               }}
-                              className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold text-white shadow-sm transition active:scale-95 ${
-                                cat.name === "Roupinhas" ? "bg-gradient-to-br from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600" :
-                                cat.name === "Passeio"   ? "bg-gradient-to-br from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600" :
-                                cat.name === "Diversos"  ? "bg-gradient-to-br from-violet-400 to-violet-500 hover:from-violet-500 hover:to-violet-600" :
-                                cat.name === "Banho e Toalete" ? "bg-gradient-to-br from-cyan-400 to-cyan-500 hover:from-cyan-500 hover:to-cyan-600" :
-                                cat.name === "Quarto"    ? "bg-gradient-to-br from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600" :
-                                cat.name === "Para Mamãe" ? "bg-gradient-to-br from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600" :
-                                cat.name === "Móveis"    ? "bg-gradient-to-br from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700" :
-                                "bg-gradient-to-br from-pink-400 to-violet-400 hover:from-pink-500 hover:to-violet-500"
-                              }`}
+                              className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium transition ${color.badge} ${color.border} hover:brightness-95`}
                             >
                               Reservar
                             </button>
                           )}
                           {esgotado && (
-                            <span className="shrink-0 rounded-xl bg-zinc-100 px-4 py-2.5 text-xs font-semibold text-zinc-400">
+                            <span className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-zinc-400">
                               Esgotado
                             </span>
                           )}

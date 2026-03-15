@@ -14,8 +14,8 @@ export default function EnxovalLayout({ children }: { children: React.ReactNode 
   return (
     <div
       className="min-h-screen text-zinc-800"
-      style={{
-        background: "linear-gradient(160deg, #e8f5ff 0%, #fff0f8 40%, #f0fff4 100%)",
+        style={{
+        background: "linear-gradient(160deg, #e0f2fe 0%, #f0f9ff 40%, #eff6ff 100%)",
       }}
     >
       {children}

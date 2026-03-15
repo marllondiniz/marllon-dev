@@ -10,8 +10,6 @@ import {
   Package,
   Bath,
   Home,
-  Heart,
-  Sofa,
   Check,
   AlertCircle,
   ExternalLink,
@@ -20,6 +18,8 @@ import {
   ChevronDown,
   Loader2,
   Trophy,
+  Sparkles,
+  Heart,
 } from "lucide-react";
 import ReservaModal from "./ReservaModal";
 import ProductImage from "./ProductImage";
@@ -31,18 +31,14 @@ const CATEGORY_ICONS: Record<string, typeof Baby> = {
   Diversos: Package,
   "Banho e Toalete": Bath,
   Quarto: Home,
-  "Para Mamãe": Heart,
-  Móveis: Sofa,
 };
 
 const CATEGORY_COLORS: Record<string, { bg: string; icon: string; border: string; badge: string }> = {
-  Roupinhas:       { bg: "bg-pink-50",   icon: "text-pink-500",   border: "border-pink-200",   badge: "bg-pink-100 text-pink-600" },
+  Roupinhas:       { bg: "bg-sky-50",    icon: "text-sky-600",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700" },
   Passeio:         { bg: "bg-sky-50",    icon: "text-sky-500",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-600" },
   Diversos:        { bg: "bg-violet-50", icon: "text-violet-500", border: "border-violet-200", badge: "bg-violet-100 text-violet-600" },
   "Banho e Toalete": { bg: "bg-cyan-50", icon: "text-cyan-500",   border: "border-cyan-200",   badge: "bg-cyan-100 text-cyan-600" },
   Quarto:          { bg: "bg-amber-50",  icon: "text-amber-500",  border: "border-amber-200",  badge: "bg-amber-100 text-amber-600" },
-  "Para Mamãe":    { bg: "bg-rose-50",   icon: "text-rose-500",   border: "border-rose-200",   badge: "bg-rose-100 text-rose-600" },
-  Móveis:          { bg: "bg-lime-50",   icon: "text-lime-600",   border: "border-lime-200",   badge: "bg-lime-100 text-lime-700" },
 };
 
 const DEFAULT_COLOR = { bg: "bg-teal-50", icon: "text-teal-500", border: "border-teal-200", badge: "bg-teal-100 text-teal-600" };
@@ -194,7 +190,7 @@ export default function EnxovalPage() {
       {/* Header */}
       <header className="border-b border-white/60 bg-white/70 backdrop-blur-md shadow-sm">
         <div className="mx-auto flex max-w-4xl items-center justify-center gap-2 px-4 py-4 sm:px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-pink-400 to-violet-400 shadow-md">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-sky-500 shadow-md">
             <Baby className="h-5 w-5 text-white" />
           </div>
           <span className="text-base font-bold text-zinc-700">Lista de Enxoval</span>
@@ -208,16 +204,19 @@ export default function EnxovalPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10 text-center"
         >
-          <div className="mb-3 flex justify-center gap-1">
-            {["✨", "🍼", "👶", "🍼", "✨"].map((e, i) => (
-              <span key={i} className="text-xl">{e}</span>
-            ))}
+          <div className="mb-3 flex justify-center gap-2">
+            <Sparkles className="h-5 w-5 text-blue-400" />
+            <Baby className="h-6 w-6 text-blue-500" />
+            <Baby className="h-6 w-6 text-blue-500" />
+            <Baby className="h-5 w-5 text-blue-400" />
+            <Sparkles className="h-5 w-5 text-blue-400" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-zinc-800 sm:text-4xl">
             Lista de Enxoval do Bebê
           </h1>
-          <p className="mt-2 text-base text-zinc-500">
-            Escolha o item que deseja dar, preencha seus dados e reserve com carinho. 💙
+          <p className="mt-2 flex items-center justify-center gap-2 text-base text-zinc-500">
+            Escolha o item que deseja dar, preencha seus dados e reserve com carinho.
+            <Heart className="h-4 w-4 inline text-blue-400 fill-blue-400" />
           </p>
         </motion.section>
 
@@ -229,9 +228,9 @@ export default function EnxovalPage() {
             transition={{ delay: 0.05 }}
             className="mb-8"
           >
-            <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-50 p-5 shadow-lg shadow-amber-200/30 sm:p-6">
+            <div className="rounded-2xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 via-sky-50 to-blue-50 p-5 shadow-lg shadow-blue-200/30 sm:p-6">
               <h3 className="mb-4 flex items-center justify-center gap-2 text-lg font-bold text-zinc-800">
-                <Trophy className="h-6 w-6 text-amber-500" />
+                <Trophy className="h-6 w-6 text-blue-500" />
                 Top 5 parceiros do enxoval
               </h3>
               <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
@@ -240,22 +239,22 @@ export default function EnxovalPage() {
                     key={`${p.name}-${i}`}
                     className={`flex flex-col items-center gap-1 rounded-xl border-2 px-4 py-3 ${
                       i === 0
-                        ? "border-amber-400 bg-amber-100/80 shadow-md"
+                        ? "border-blue-400 bg-blue-100/80 shadow-md"
                         : i === 1
                           ? "border-zinc-300 bg-zinc-50"
                           : i === 2
-                            ? "border-amber-800/50 bg-amber-900/10"
+                            ? "border-blue-800/50 bg-blue-900/10"
                             : "border-zinc-200 bg-white"
                     }`}
                   >
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                         i === 0
-                          ? "bg-amber-400 text-white ring-2 ring-amber-500/50"
+                          ? "bg-blue-500 text-white ring-2 ring-blue-400/50"
                           : i === 1
                             ? "bg-zinc-400 text-white"
                             : i === 2
-                              ? "bg-amber-700 text-amber-100"
+                              ? "bg-blue-700 text-blue-100"
                               : "bg-zinc-200 text-zinc-600"
                       }`}
                     >
@@ -264,7 +263,7 @@ export default function EnxovalPage() {
                     <span className="truncate text-center font-semibold text-zinc-800">
                       {p.name.split(" ")[0]}
                     </span>
-                    <span className="text-sm font-bold text-amber-600">
+                    <span className="text-sm font-bold text-blue-600">
                       {p.total} {p.total === 1 ? "item" : "itens"}
                     </span>
                   </li>
@@ -281,14 +280,14 @@ export default function EnxovalPage() {
           transition={{ delay: 0.03 }}
           className="mb-8"
         >
-          <div className="overflow-hidden rounded-2xl border border-pink-200 bg-gradient-to-br from-pink-50 to-violet-50 shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-sm">
             <button
               type="button"
               onClick={() => setMyReservationsOpen((v) => !v)}
-              className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:from-pink-100 hover:to-violet-100 sm:px-5"
+              className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:from-blue-100 hover:to-sky-100 sm:px-5"
             >
               <span className="flex items-center gap-2 text-sm font-semibold text-zinc-700">
-                <Gift className="h-4 w-4 text-pink-500" />
+                <Gift className="h-4 w-4 text-blue-500" />
                 Já reservou? Veja seus itens
               </span>
               <ChevronDown
@@ -296,7 +295,7 @@ export default function EnxovalPage() {
               />
             </button>
             {myReservationsOpen && (
-              <div className="border-t border-pink-100/60 px-4 py-4 sm:px-5">
+              <div className="border-t border-blue-100/60 px-4 py-4 sm:px-5">
                 <form onSubmit={loadMyReservations} className="flex flex-wrap items-end gap-2">
                   <div className="flex-1 min-w-[160px]">
                     <label htmlFor="my-phone" className="mb-1 block text-xs font-medium text-zinc-500">
@@ -311,13 +310,13 @@ export default function EnxovalPage() {
                         setMyReservationsError("");
                       }}
                       placeholder="(27) 9 9999-9999"
-                      className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
+                      className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={loadingMyReservations || !myReservationsPhone.trim()}
-                    className="rounded-xl bg-gradient-to-r from-pink-400 to-violet-400 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-pink-500 hover:to-violet-500 disabled:opacity-50"
+                    className="rounded-xl bg-gradient-to-r from-blue-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-blue-600 hover:to-sky-600 disabled:opacity-50"
                   >
                     {loadingMyReservations ? (
                       <Loader2 className="inline h-4 w-4 animate-spin" />
@@ -354,7 +353,7 @@ export default function EnxovalPage() {
                             href={(r.item as { link?: string }).link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-pink-200 bg-pink-50 px-3 py-1.5 text-xs font-semibold text-pink-600 hover:bg-pink-100"
+                            className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100"
                           >
                             Ver produto
                             <ExternalLink className="h-3 w-3" />
@@ -388,7 +387,7 @@ export default function EnxovalPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar item..."
-              className="w-full rounded-2xl border border-white/80 bg-white/90 py-3 pl-11 pr-4 text-sm text-zinc-700 placeholder-zinc-400 shadow-sm outline-none transition focus:border-pink-300 focus:ring-2 focus:ring-pink-200/60"
+              className="w-full rounded-2xl border border-white/80 bg-white/90 py-3 pl-11 pr-4 text-sm text-zinc-700 placeholder-zinc-400 shadow-sm outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-200/60"
             />
           </div>
           {categories.length > 0 && (
@@ -398,8 +397,8 @@ export default function EnxovalPage() {
                 onClick={() => setFilterCategory(null)}
                 className={`rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm transition ${
                   !filterCategory
-                    ? "bg-gradient-to-r from-pink-400 to-violet-400 text-white shadow-pink-200"
-                    : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-pink-300"
+                    ? "bg-gradient-to-r from-blue-500 to-sky-500 text-white shadow-blue-200"
+                    : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-blue-300"
                 }`}
               >
                 Todos
@@ -415,7 +414,7 @@ export default function EnxovalPage() {
                     className={`rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm transition ${
                       active
                         ? `${color.badge} ring-2 ring-offset-1 ring-current`
-                        : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-pink-300"
+                        : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-blue-300"
                     }`}
                   >
                     {c.name}
@@ -433,7 +432,7 @@ export default function EnxovalPage() {
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="h-3 w-3 animate-bounce rounded-full bg-pink-400"
+                  className="h-3 w-3 animate-bounce rounded-full bg-blue-500"
                   style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
@@ -446,7 +445,7 @@ export default function EnxovalPage() {
             animate={{ opacity: 1 }}
             className="rounded-3xl border border-white/60 bg-white/70 p-12 text-center shadow-sm"
           >
-            <span className="text-5xl">🎁</span>
+            <Gift className="mx-auto h-12 w-12 text-blue-400" />
             <p className="mt-4 text-zinc-500">
               {search || filterCategory
                 ? "Nenhum item encontrado."

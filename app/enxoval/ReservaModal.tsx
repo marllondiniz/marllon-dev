@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, ExternalLink } from "lucide-react";
+import { X, Minus, Plus, ExternalLink, Gift, Loader2, Heart, AlertCircle } from "lucide-react";
 import ProductImage from "./ProductImage";
 import type { EnxovalItemWithStatus } from "./types";
 
@@ -30,7 +30,7 @@ function isValidBrazilianPhone(value: string): boolean {
 }
 
 const inputCls =
-  "w-full rounded-2xl border border-zinc-200 bg-[#fafafa] px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 outline-none transition focus:border-pink-300 focus:bg-white focus:ring-2 focus:ring-pink-100";
+  "w-full rounded-2xl border border-zinc-200 bg-[#fafafa] px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100";
 const inputErrorCls =
   "w-full rounded-2xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-100";
 
@@ -41,7 +41,7 @@ type Props = {
   onSuccess: () => void;
 };
 
-const DEFAULT_COLOR = { bg: "bg-pink-50", icon: "text-pink-300" };
+const DEFAULT_COLOR = { bg: "bg-sky-50", icon: "text-sky-400" };
 
 export default function ReservaModal({ item, categoryName = "", onClose, onSuccess }: Props) {
   const maxQty = item.disponivel;
@@ -103,7 +103,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
-        <div className="absolute inset-0 bg-pink-900/20 backdrop-blur-sm" aria-hidden />
+        <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-sm" aria-hidden />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.92, y: 12 }}
@@ -112,10 +112,10 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
           transition={{ type: "spring", stiffness: 320, damping: 28 }}
           onClick={(e) => e.stopPropagation()}
           className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
-          style={{ background: "linear-gradient(160deg, #fff5fb 0%, #f0f7ff 100%)" }}
+          style={{ background: "linear-gradient(160deg, #eff6ff 0%, #f0f9ff 100%)" }}
         >
           {/* Barra decorativa topo */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-pink-400 via-violet-400 to-sky-400" />
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-400 via-sky-400 to-cyan-400" />
 
           <div className="p-6">
             {/* Header do modal */}
@@ -128,8 +128,8 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
               />
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-pink-400">
-                  <span>🎀</span>
+                <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-blue-500">
+                  <Gift className="h-3.5 w-3.5" />
                   <span>Reservar item</span>
                 </div>
                 <p className="mt-0.5 font-bold text-zinc-800">{item.name}</p>
@@ -152,7 +152,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
               <button
                 type="button"
                 onClick={onClose}
-                className="shrink-0 rounded-xl p-2 text-zinc-400 transition hover:bg-pink-50 hover:text-pink-500"
+                className="shrink-0 rounded-xl p-2 text-zinc-400 transition hover:bg-sky-50 hover:text-blue-500"
                 aria-label="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -177,7 +177,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 />
                 {errors.name && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-                    <span>⚠️</span> {errors.name}
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.name}
                   </p>
                 )}
               </div>
@@ -198,7 +198,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 />
                 {errors.phone && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-                    <span>⚠️</span> {errors.phone}
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.phone}
                   </p>
                 )}
               </div>
@@ -212,18 +212,18 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                     type="button"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-pink-200 bg-white text-pink-400 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-blue-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="flex h-11 min-w-[3.5rem] items-center justify-center rounded-2xl border-2 border-pink-200 bg-white text-lg font-bold text-zinc-800 shadow-sm">
+                  <span className="flex h-11 min-w-[3.5rem] items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-lg font-bold text-zinc-800 shadow-sm">
                     {quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
                     disabled={quantity >= maxQty}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-pink-200 bg-white text-pink-400 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-blue-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -231,7 +231,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 </div>
                 {errors.quantity && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-                    <span>⚠️</span> {errors.quantity}
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.quantity}
                   </p>
                 )}
               </div>
@@ -243,7 +243,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Alguma observação? 💌"
+                  placeholder="Alguma observação?"
                   rows={2}
                   className={inputCls}
                 />
@@ -260,9 +260,19 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded-2xl bg-gradient-to-r from-pink-400 to-violet-400 px-4 py-3 text-sm font-bold text-white shadow-md shadow-pink-200/60 transition hover:from-pink-500 hover:to-violet-500 active:scale-95 disabled:opacity-70"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-sky-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-blue-200/60 transition hover:from-blue-600 hover:to-sky-600 active:scale-95 disabled:opacity-70"
                 >
-                  {submitting ? "Reservando... 🍼" : "Confirmar reserva 💙"}
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Reservando...
+                    </>
+                  ) : (
+                    <>
+                      <Heart className="h-4 w-4 fill-current" />
+                      Confirmar reserva
+                    </>
+                  )}
                 </button>
               </div>
             </form>

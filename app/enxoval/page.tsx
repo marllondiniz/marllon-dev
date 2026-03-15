@@ -20,6 +20,7 @@ import {
   Trophy,
   Sparkles,
   Heart,
+  Crown,
 } from "lucide-react";
 import ReservaModal from "./ReservaModal";
 import ProductImage from "./ProductImage";
@@ -33,15 +34,15 @@ const CATEGORY_ICONS: Record<string, typeof Baby> = {
   Quarto: Home,
 };
 
-const CATEGORY_COLORS: Record<string, { bg: string; icon: string; border: string; badge: string }> = {
-  Roupinhas:       { bg: "bg-sky-50",    icon: "text-sky-600",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700" },
-  Passeio:         { bg: "bg-sky-50",    icon: "text-sky-500",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-600" },
-  Diversos:        { bg: "bg-violet-50", icon: "text-violet-500", border: "border-violet-200", badge: "bg-violet-100 text-violet-600" },
-  "Banho e Toalete": { bg: "bg-cyan-50", icon: "text-cyan-500",   border: "border-cyan-200",   badge: "bg-cyan-100 text-cyan-600" },
-  Quarto:          { bg: "bg-amber-50",  icon: "text-amber-500",  border: "border-amber-200",  badge: "bg-amber-100 text-amber-600" },
+const CATEGORY_COLORS: Record<string, { bg: string; icon: string; border: string; badge: string; gradient: string }> = {
+  Roupinhas:         { bg: "bg-teal-400/25",    icon: "text-teal-200",    border: "border-teal-400/30",    badge: "bg-teal-400/25 text-teal-100",   gradient: "from-teal-400/15 to-teal-500/5" },
+  Passeio:           { bg: "bg-teal-500/25",    icon: "text-teal-200",    border: "border-teal-500/30",    badge: "bg-teal-500/25 text-teal-100",   gradient: "from-teal-500/15 to-teal-600/5" },
+  Diversos:          { bg: "bg-cyan-400/25",    icon: "text-cyan-200",    border: "border-cyan-400/30",    badge: "bg-cyan-400/25 text-cyan-100",   gradient: "from-cyan-400/15 to-cyan-500/5" },
+  "Banho e Toalete": { bg: "bg-teal-400/25", icon: "text-teal-200", border: "border-teal-400/30", badge: "bg-teal-400/25 text-teal-100", gradient: "from-teal-400/15 to-teal-500/5" },
+  Quarto:            { bg: "bg-teal-600/25",    icon: "text-teal-200",    border: "border-teal-600/30",    badge: "bg-teal-600/25 text-teal-100",   gradient: "from-teal-600/15 to-teal-700/5" },
 };
 
-const DEFAULT_COLOR = { bg: "bg-teal-50", icon: "text-teal-500", border: "border-teal-200", badge: "bg-teal-100 text-teal-600" };
+const DEFAULT_COLOR = { bg: "bg-teal-500/25", icon: "text-teal-200", border: "border-teal-500/30", badge: "bg-teal-500/25 text-teal-200", gradient: "from-teal-500/15 to-teal-600/5" };
 
 function getCategoryColor(name: string) {
   return CATEGORY_COLORS[name] ?? DEFAULT_COLOR;
@@ -54,22 +55,39 @@ function getIcon(cat: EnxovalCategory) {
 function StatusBadge({ status }: { status: EnxovalItemWithStatus["status"] }) {
   if (status === "disponivel")
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+      <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/20 px-2.5 py-0.5 text-xs font-semibold text-teal-300">
         <Check className="h-3 w-3" />
         Disponível
       </span>
     );
   if (status === "parcialmente_reservado")
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
         <AlertCircle className="h-3 w-3" />
         Parcial
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-semibold text-zinc-500">
+    <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white/40">
       Esgotado
     </span>
+  );
+}
+
+function ProgressBar({ reserved, total }: { reserved: number; total: number }) {
+  const pct = total > 0 ? Math.round((reserved / total) * 100) : 0;
+  return (
+    <div className="mt-2 flex items-center gap-2">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+        <div
+          className={`h-full rounded-full transition-all ${
+            pct === 100 ? "bg-white/30" : "bg-teal-400"
+          }`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-[10px] font-medium text-white/40">{reserved}/{total}</span>
+    </div>
   );
 }
 
@@ -185,120 +203,167 @@ export default function EnxovalPage() {
       .sort((a, b) => a.sort_order - b.sort_order);
   }, [categories, byCategory]);
 
+  const totalItems = items.length;
+  const totalReserved = items.reduce((s, i) => s + i.quantity_reserved, 0);
+  const totalQty = items.reduce((s, i) => s + i.quantity_total, 0);
+
   return (
-    <main className="min-h-screen">
-      {/* Header */}
-      <header className="border-b border-white/60 bg-white/70 backdrop-blur-md shadow-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-center gap-2 px-4 py-4 sm:px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-sky-500 shadow-md">
-            <Baby className="h-5 w-5 text-white" />
+    <main className="min-h-screen pb-12">
+      {/* Header / Navbar */}
+      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#042f2e]/80">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-600">
+              <Baby className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-white">Lista de Enxoval</span>
+              <span className="ml-2 hidden rounded-md bg-teal-500/20 px-1.5 py-0.5 text-[10px] font-bold text-teal-200 sm:inline">
+                {totalItems} itens
+              </span>
+            </div>
           </div>
-          <span className="text-base font-bold text-zinc-700">Lista de Enxoval</span>
+          <div className="flex items-center gap-2 text-xs text-white/50">
+            <Sparkles className="h-3.5 w-3.5 text-teal-400" />
+            <span className="hidden sm:inline">Feito com carinho</span>
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
         {/* Hero */}
         <motion.section
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10 text-center"
+          transition={{ duration: 0.6 }}
+          className="pb-8 pt-10 text-center sm:pt-14"
         >
-          <div className="mb-3 flex justify-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-400" />
-            <Baby className="h-6 w-6 text-blue-500" />
-            <Baby className="h-6 w-6 text-blue-500" />
-            <Baby className="h-5 w-5 text-blue-400" />
-            <Sparkles className="h-5 w-5 text-blue-400" />
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-800 sm:text-4xl">
-            Lista de Enxoval do Bebê
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", delay: 0.2, stiffness: 200 }}
+            className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-400 to-teal-600 sm:h-24 sm:w-24"
+          >
+            <Baby className="h-10 w-10 text-white sm:h-12 sm:w-12" />
+          </motion.div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+            Lista de Enxoval
           </h1>
-          <p className="mt-2 flex items-center justify-center gap-2 text-base text-zinc-500">
-            Escolha o item que deseja dar, preencha seus dados e reserve com carinho.
-            <Heart className="h-4 w-4 inline text-blue-400 fill-blue-400" />
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/50 sm:text-base">
+            Escolha o item que deseja presentear, preencha seus dados e reserve.
+            <Heart className="ml-1 inline h-4 w-4 text-teal-400 fill-teal-400" />
           </p>
+
+          {/* Dica sobre links */}
+          <p className="mx-auto mt-4 flex max-w-lg flex-wrap items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-xs text-white/60 sm:text-sm">
+            <ExternalLink className="h-4 w-4 shrink-0 text-teal-400" />
+            <span>
+              Todos os itens têm link direto para você <strong className="text-white/80">ver a foto</strong> e
+              <strong className="text-white/80"> comprar</strong> na loja. Clique em &quot;Ver produto&quot; em cada item.
+            </span>
+          </p>
+
+          {/* Stats */}
+          {!loading && totalItems > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mx-auto mt-6 flex max-w-xs justify-center gap-6 sm:gap-10"
+            >
+              <div className="text-center">
+                <p className="text-2xl font-extrabold text-white">{totalItems}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-white/30">Itens</p>
+              </div>
+              <div className="h-10 w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-extrabold text-teal-400">{totalReserved}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-white/30">Reservados</p>
+              </div>
+              <div className="h-10 w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-extrabold text-teal-400">{totalQty - totalReserved}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-white/30">Disponíveis</p>
+              </div>
+            </motion.div>
+          )}
         </motion.section>
 
-        {/* Top 5 - Ranking (destaque) */}
+        {/* Top 5 - Ranking */}
         {ranking.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="mb-8"
+            transition={{ delay: 0.15 }}
+            className="mb-6"
           >
-            <div className="rounded-2xl border-2 border-blue-300 bg-gradient-to-br from-blue-50 via-sky-50 to-blue-50 p-5 shadow-lg shadow-blue-200/30 sm:p-6">
-              <h3 className="mb-4 flex items-center justify-center gap-2 text-lg font-bold text-zinc-800">
-                <Trophy className="h-6 w-6 text-blue-500" />
-                Top 5 parceiros do enxoval
-              </h3>
-              <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] ">
+              <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3">
+                <Trophy className="h-4.5 w-4.5 text-amber-400" />
+                <h3 className="text-sm font-bold text-white">Top parceiros</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-white/[0.04] sm:grid-cols-3 lg:grid-cols-5">
                 {ranking.map((p, i) => (
-                  <li
+                  <div
                     key={`${p.name}-${i}`}
-                    className={`flex flex-col items-center gap-1 rounded-xl border-2 px-4 py-3 ${
-                      i === 0
-                        ? "border-blue-400 bg-blue-100/80 shadow-md"
-                        : i === 1
-                          ? "border-zinc-300 bg-zinc-50"
-                          : i === 2
-                            ? "border-blue-800/50 bg-blue-900/10"
-                            : "border-zinc-200 bg-white"
+                    className={`flex items-center gap-3 px-4 py-3 ${
+                      i === 0 ? "bg-teal-500/10" : "bg-white/[0.02]"
                     }`}
                   >
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
                         i === 0
-                          ? "bg-blue-500 text-white ring-2 ring-blue-400/50"
+                          ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white "
                           : i === 1
-                            ? "bg-zinc-400 text-white"
+                            ? "bg-white/10 text-white/60"
                             : i === 2
-                              ? "bg-blue-700 text-blue-100"
-                              : "bg-zinc-200 text-zinc-600"
+                              ? "bg-white/10 text-white/50"
+                              : "bg-white/5 text-white/30"
                       }`}
                     >
-                      {i + 1}º
+                      {i === 0 ? <Crown className="h-4 w-4" /> : `${i + 1}º`}
                     </span>
-                    <span className="truncate text-center font-semibold text-zinc-800">
-                      {p.name.split(" ")[0]}
-                    </span>
-                    <span className="text-sm font-bold text-blue-600">
-                      {p.total} {p.total === 1 ? "item" : "itens"}
-                    </span>
-                  </li>
+                    <div className="min-w-0 flex-1">
+                      <p className={`truncate text-sm font-semibold ${i === 0 ? "text-white" : "text-white/70"}`}>
+                        {p.name.split(" ")[0]}
+                      </p>
+                      <p className="text-xs text-white/30">
+                        {p.total} {p.total === 1 ? "item" : "itens"}
+                      </p>
+                    </div>
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
           </motion.section>
         )}
 
         {/* Minhas reservas */}
         <motion.section
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.03 }}
-          className="mb-8"
+          transition={{ delay: 0.2 }}
+          className="mb-6"
         >
-          <div className="overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] ">
             <button
               type="button"
               onClick={() => setMyReservationsOpen((v) => !v)}
-              className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:from-blue-100 hover:to-sky-100 sm:px-5"
+              className="flex w-full items-center justify-between px-5 py-3.5 text-left transition hover:bg-white/[0.02]"
             >
-              <span className="flex items-center gap-2 text-sm font-semibold text-zinc-700">
-                <Gift className="h-4 w-4 text-blue-500" />
-                Já reservou? Veja seus itens
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/80">
+                <Gift className="h-4 w-4 text-teal-400" />
+                Já reservou? Consulte aqui
               </span>
               <ChevronDown
-                className={`h-4 w-4 text-zinc-400 transition-transform ${myReservationsOpen ? "rotate-180" : ""}`}
+                className={`h-4 w-4 text-white/30 transition-transform ${myReservationsOpen ? "rotate-180" : ""}`}
               />
             </button>
             {myReservationsOpen && (
-              <div className="border-t border-blue-100/60 px-4 py-4 sm:px-5">
+              <div className="border-t border-white/[0.06] px-5 py-4">
                 <form onSubmit={loadMyReservations} className="flex flex-wrap items-end gap-2">
-                  <div className="flex-1 min-w-[160px]">
-                    <label htmlFor="my-phone" className="mb-1 block text-xs font-medium text-zinc-500">
+                  <div className="min-w-[160px] flex-1">
+                    <label htmlFor="my-phone" className="mb-1.5 block text-xs font-medium text-white/40">
                       Telefone (o mesmo da reserva)
                     </label>
                     <input
@@ -310,39 +375,35 @@ export default function EnxovalPage() {
                         setMyReservationsError("");
                       }}
                       placeholder="(27) 9 9999-9999"
-                      className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/20"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={loadingMyReservations || !myReservationsPhone.trim()}
-                    className="rounded-xl bg-gradient-to-r from-blue-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-blue-600 hover:to-sky-600 disabled:opacity-50"
+                    className="rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white  transition hover:bg-teal-400 disabled:opacity-50"
                   >
-                    {loadingMyReservations ? (
-                      <Loader2 className="inline h-4 w-4 animate-spin" />
-                    ) : (
-                      "Ver"
-                    )}
+                    {loadingMyReservations ? <Loader2 className="inline h-4 w-4 animate-spin" /> : "Buscar"}
                   </button>
                 </form>
                 {myReservationsError && (
-                  <p className="mt-2 text-sm text-red-500">{myReservationsError}</p>
+                  <p className="mt-2 text-sm text-red-400">{myReservationsError}</p>
                 )}
                 {myReservations.length > 0 && !myReservationsError && (
                   <ul className="mt-4 space-y-2">
                     {myReservations.map((r) => (
                       <li
                         key={r.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white bg-white/80 p-3 shadow-sm"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] p-3"
                       >
                         <div>
-                          <p className="font-medium text-zinc-800">
+                          <p className="font-medium text-white">
                             {(r.item as { name?: string })?.name ?? "Item"}
                           </p>
-                          <p className="text-xs text-zinc-500">
+                          <p className="text-xs text-white/40">
                             {(r.item as { category?: { name?: string } })?.category?.name ?? ""} · Qtd: {r.quantity}
                             {r.status === "delivered" && (
-                              <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-emerald-700">
+                              <span className="ml-1.5 rounded-full bg-teal-500/20 px-1.5 py-0.5 text-teal-300">
                                 Entregue
                               </span>
                             )}
@@ -353,7 +414,7 @@ export default function EnxovalPage() {
                             href={(r.item as { link?: string }).link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+                            className="inline-flex items-center gap-1 rounded-lg border border-teal-500/30 bg-teal-500/10 px-3 py-1.5 text-xs font-semibold text-teal-300 transition hover:bg-teal-500/20"
                           >
                             Ver produto
                             <ExternalLink className="h-3 w-3" />
@@ -364,7 +425,7 @@ export default function EnxovalPage() {
                   </ul>
                 )}
                 {myReservations.length === 0 && !loadingMyReservations && !myReservationsError && myReservationsPhone.trim() && (
-                  <p className="mt-4 text-center text-sm text-zinc-500">
+                  <p className="mt-4 text-center text-sm text-white/30">
                     Nenhuma reserva encontrada com este telefone.
                   </p>
                 )}
@@ -377,17 +438,17 @@ export default function EnxovalPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-8 space-y-4"
+          transition={{ delay: 0.25 }}
+          className="mb-8 space-y-3"
         >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar item..."
-              className="w-full rounded-2xl border border-white/80 bg-white/90 py-3 pl-11 pr-4 text-sm text-zinc-700 placeholder-zinc-400 shadow-sm outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-200/60"
+              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder-white/25 outline-none  transition focus:border-teal-500/40 focus:ring-2 focus:ring-teal-500/20"
             />
           </div>
           {categories.length > 0 && (
@@ -395,10 +456,10 @@ export default function EnxovalPage() {
               <button
                 type="button"
                 onClick={() => setFilterCategory(null)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm transition ${
+                className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                   !filterCategory
-                    ? "bg-gradient-to-r from-blue-500 to-sky-500 text-white shadow-blue-200"
-                    : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-blue-300"
+                    ? "bg-teal-500 text-white "
+                    : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/70"
                 }`}
               >
                 Todos
@@ -406,17 +467,19 @@ export default function EnxovalPage() {
               {categories.map((c) => {
                 const color = getCategoryColor(c.name);
                 const active = filterCategory === c.id;
+                const Icon = getIcon(c);
                 return (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => setFilterCategory(active ? null : c.id)}
-                    className={`rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm transition ${
+                    className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                       active
-                        ? `${color.badge} ring-2 ring-offset-1 ring-current`
-                        : "bg-white/80 text-zinc-500 ring-1 ring-zinc-200 hover:ring-blue-300"
+                        ? `${color.badge} ring-1 ring-current/30`
+                        : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/70"
                     }`}
                   >
+                    <Icon className="h-3 w-3" />
                     {c.name}
                   </button>
                 );
@@ -427,33 +490,33 @@ export default function EnxovalPage() {
 
         {/* Lista */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="flex gap-1">
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="flex gap-1.5">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="h-3 w-3 animate-bounce rounded-full bg-blue-500"
+                  className="h-2.5 w-2.5 animate-bounce rounded-full bg-teal-400"
                   style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
             </div>
-            <p className="mt-4 text-sm font-medium text-zinc-400">Carregando a lista...</p>
+            <p className="mt-4 text-sm font-medium text-white/30">Carregando a lista...</p>
           </div>
         ) : sortedCategories.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="rounded-3xl border border-white/60 bg-white/70 p-12 text-center shadow-sm"
+            className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-16 text-center"
           >
-            <Gift className="mx-auto h-12 w-12 text-blue-400" />
-            <p className="mt-4 text-zinc-500">
+            <Gift className="mx-auto h-14 w-14 text-teal-400/50" />
+            <p className="mt-4 text-white/40">
               {search || filterCategory
                 ? "Nenhum item encontrado."
                 : "A lista ainda não tem itens cadastrados."}
             </p>
           </motion.div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {sortedCategories.map((cat, idx) => {
               const catItems = byCategory.get(cat.id) ?? [];
               const Icon = getIcon(cat);
@@ -461,32 +524,35 @@ export default function EnxovalPage() {
               return (
                 <motion.section
                   key={cat.id}
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * idx }}
-                  className={`rounded-3xl border ${color.border} bg-white/80 p-5 shadow-sm backdrop-blur-sm sm:p-6`}
+                  transition={{ delay: 0.08 * idx }}
                 >
                   {/* Cabeçalho da categoria */}
-                  <div className="mb-5 flex items-center gap-3">
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${color.bg} shadow-sm`}>
+                  <div className="mb-3 flex items-center gap-3 px-1">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${color.bg}`}>
                       <Icon className={`h-5 w-5 ${color.icon}`} />
                     </div>
-                    <h2 className="text-lg font-bold text-zinc-700">{cat.name}</h2>
-                    <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ${color.badge}`}>
+                    <div className="flex-1">
+                      <h2 className="text-base font-bold text-white">{cat.name}</h2>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${color.badge}`}>
                       {catItems.length} {catItems.length === 1 ? "item" : "itens"}
                     </span>
                   </div>
 
-                  <ul className="space-y-3">
+                  {/* Grid de itens */}
+                  <div className="grid gap-2 sm:grid-cols-2">
                     {catItems.map((item) => {
                       const esgotado = item.status === "esgotado";
                       return (
-                        <li
+                        <motion.div
                           key={item.id}
-                          className={`flex gap-4 rounded-2xl border bg-white p-4 transition sm:items-center ${
+                          whileHover={esgotado ? {} : { scale: 1.01 }}
+                          className={`group flex gap-3 rounded-2xl border p-3.5 transition ${
                             esgotado
-                              ? "border-zinc-100 opacity-60"
-                              : `border-zinc-100 hover:border-current hover:${color.border} hover:shadow-sm`
+                              ? "border-white/[0.04] bg-white/[0.02] opacity-50"
+                              : "border-white/[0.08] bg-white/[0.04] hover:border-white/[0.14] hover:bg-white/[0.06]"
                           }`}
                         >
                           <ProductImage
@@ -496,21 +562,18 @@ export default function EnxovalPage() {
                             size="md"
                           />
 
-                          {/* Conteúdo */}
                           <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-zinc-800">{item.name}</p>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-white">{item.name}</p>
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5">
                               <StatusBadge status={item.status} />
-                              <span className="text-xs text-zinc-400">
-                                {item.disponivel} de {item.quantity_total} restante(s)
-                              </span>
                             </div>
+                            <ProgressBar reserved={item.quantity_reserved} total={item.quantity_total} />
                             {item.link && (
                               <a
                                 href={item.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`mt-2 inline-flex items-center gap-1 text-xs font-semibold ${color.icon} hover:underline`}
+                                className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${color.icon} hover:underline`}
                               >
                                 Ver produto
                                 <ExternalLink className="h-3 w-3" />
@@ -519,27 +582,28 @@ export default function EnxovalPage() {
                           </div>
 
                           {/* Botão Reservar */}
-                          {!esgotado && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setModalItem(item);
-                                setModalCategoryName(cat.name);
-                              }}
-                              className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium transition ${color.badge} ${color.border} hover:brightness-95`}
-                            >
-                              Reservar
-                            </button>
-                          )}
-                          {esgotado && (
-                            <span className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-zinc-400">
-                              Esgotado
-                            </span>
-                          )}
-                        </li>
+                          <div className="flex items-center">
+                            {!esgotado ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setModalItem(item);
+                                  setModalCategoryName(cat.name);
+                                }}
+                                className="shrink-0 rounded-xl bg-teal-500 px-3.5 py-2 text-xs font-bold text-white  transition hover:bg-teal-400 active:scale-95"
+                              >
+                                Reservar
+                              </button>
+                            ) : (
+                              <span className="shrink-0 rounded-xl px-3 py-2 text-xs font-medium text-white/20">
+                                Esgotado
+                              </span>
+                            )}
+                          </div>
+                        </motion.div>
                       );
                     })}
-                  </ul>
+                  </div>
                 </motion.section>
               );
             })}
@@ -550,12 +614,12 @@ export default function EnxovalPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 flex items-center justify-center gap-1.5 text-xs text-zinc-400"
+          transition={{ delay: 0.5 }}
+          className="mt-14 flex items-center justify-center gap-2 pb-4 text-xs text-white/20"
         >
-          <Star className="h-3 w-3 text-yellow-400" fill="currentColor" />
+          <Star className="h-3 w-3 text-teal-500/50" fill="currentColor" />
           Feito com amor para o bebê que vem por aí
-          <Star className="h-3 w-3 text-yellow-400" fill="currentColor" />
+          <Star className="h-3 w-3 text-teal-500/50" fill="currentColor" />
         </motion.p>
       </div>
 

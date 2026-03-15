@@ -30,9 +30,9 @@ function isValidBrazilianPhone(value: string): boolean {
 }
 
 const inputCls =
-  "w-full rounded-2xl border border-zinc-200 bg-[#fafafa] px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-teal-500/50 focus:bg-white/[0.07] focus:ring-2 focus:ring-teal-500/20";
 const inputErrorCls =
-  "w-full rounded-2xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-100";
+  "w-full rounded-xl border border-red-500/40 bg-red-500/5 px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-red-500/60 focus:ring-2 focus:ring-red-500/20";
 
 type Props = {
   item: EnxovalItemWithStatus;
@@ -41,7 +41,7 @@ type Props = {
   onSuccess: () => void;
 };
 
-const DEFAULT_COLOR = { bg: "bg-sky-50", icon: "text-sky-400" };
+const DEFAULT_COLOR = { bg: "bg-teal-500/20", icon: "text-teal-300" };
 
 export default function ReservaModal({ item, categoryName = "", onClose, onSuccess }: Props) {
   const maxQty = item.disponivel;
@@ -103,22 +103,24 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
-        <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-sm" aria-hidden />
+        <div className="absolute inset-0 bg-black/60 " aria-hidden />
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 12 }}
+          initial={{ opacity: 0, scale: 0.92, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 12 }}
+          exit={{ opacity: 0, scale: 0.92, y: 16 }}
           transition={{ type: "spring", stiffness: 320, damping: 28 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
-          style={{ background: "linear-gradient(160deg, #eff6ff 0%, #f0f9ff 100%)" }}
+          className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/[0.08]"
+          style={{
+            background: "linear-gradient(160deg, #0f2f2e 0%, #042f2e 50%, #0d4d4b 100%)",
+          }}
         >
-          {/* Barra decorativa topo */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-blue-400 via-sky-400 to-cyan-400" />
+          {/* Barra decorativa */}
+          <div className="h-1 w-full bg-gradient-to-r from-teal-400 via-cyan-500 to-teal-600" />
 
-          <div className="p-6">
-            {/* Header do modal */}
+          <div className="p-5 sm:p-6">
+            {/* Header */}
             <div className="mb-5 flex items-start gap-3">
               <ProductImage
                 item={item}
@@ -128,12 +130,12 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
               />
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-blue-500">
+                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-teal-400">
                   <Gift className="h-3.5 w-3.5" />
                   <span>Reservar item</span>
                 </div>
-                <p className="mt-0.5 font-bold text-zinc-800">{item.name}</p>
-                <p className="mt-0.5 text-xs text-emerald-600 font-medium">
+                <p className="mt-0.5 font-bold text-white">{item.name}</p>
+                <p className="mt-0.5 text-xs font-medium text-teal-400">
                   {item.disponivel} disponível(is)
                 </p>
                 {item.link && (
@@ -141,7 +143,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-sky-500 hover:underline"
+                    className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-teal-400 hover:underline"
                   >
                     Ver produto
                     <ExternalLink className="h-3 w-3" />
@@ -152,7 +154,7 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
               <button
                 type="button"
                 onClick={onClose}
-                className="shrink-0 rounded-xl p-2 text-zinc-400 transition hover:bg-sky-50 hover:text-blue-500"
+                className="shrink-0 rounded-xl p-2 text-white/30 transition hover:bg-white/5 hover:text-white/60"
                 aria-label="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -161,8 +163,8 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-zinc-600">
-                  Nome completo *
+                <label className="mb-1.5 block text-sm font-semibold text-white/70">
+                  Nome completo <span className="text-teal-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -176,15 +178,15 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                   autoFocus
                 />
                 {errors.name && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
+                  <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.name}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-zinc-600">
-                  Telefone / WhatsApp *
+                <label className="mb-1.5 block text-sm font-semibold text-white/70">
+                  Telefone / WhatsApp <span className="text-teal-400">*</span>
                 </label>
                 <input
                   type="tel"
@@ -197,14 +199,14 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                   className={errors.phone ? inputErrorCls : inputCls}
                 />
                 {errors.phone && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
+                  <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.phone}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-zinc-600">
+                <label className="mb-1.5 block text-sm font-semibold text-white/70">
                   Quantidade
                 </label>
                 <div className="flex items-center gap-3">
@@ -212,33 +214,33 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                     type="button"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-blue-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-teal-400 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="flex h-11 min-w-[3.5rem] items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-lg font-bold text-zinc-800 shadow-sm">
+                  <span className="flex h-10 min-w-[3rem] items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg font-bold text-white">
                     {quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
                     disabled={quantity >= maxQty}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-blue-200 bg-white text-blue-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-teal-400 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
-                  <span className="text-sm text-zinc-400">de {maxQty}</span>
+                  <span className="text-sm text-white/30">de {maxQty}</span>
                 </div>
                 {errors.quantity && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
+                  <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {errors.quantity}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-zinc-500">
-                  Mensagem <span className="font-normal text-zinc-400">(opcional)</span>
+                <label className="mb-1.5 block text-sm font-semibold text-white/40">
+                  Mensagem <span className="font-normal text-white/20">(opcional)</span>
                 </label>
                 <textarea
                   value={message}
@@ -249,18 +251,18 @@ export default function ReservaModal({ item, categoryName = "", onClose, onSucce
                 />
               </div>
 
-              <div className="flex gap-3 pt-1">
+              <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-2xl border-2 border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-500 transition hover:border-zinc-300 hover:bg-zinc-50"
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white/50 transition hover:bg-white/10 hover:text-white/70"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-sky-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-blue-200/60 transition hover:from-blue-600 hover:to-sky-600 active:scale-95 disabled:opacity-70"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-3 text-sm font-bold text-white  transition hover:bg-teal-400 active:scale-[0.97] disabled:opacity-60"
                 >
                   {submitting ? (
                     <>

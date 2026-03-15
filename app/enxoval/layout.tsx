@@ -12,12 +12,15 @@ export const metadata: Metadata = {
 
 export default function EnxovalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="min-h-screen text-zinc-800"
+    <div className="min-h-screen text-zinc-800 relative overflow-hidden">
+      {/* Background verde água (teal) */}
+      <div
+        className="fixed inset-0 -z-10"
         style={{
-        background: "linear-gradient(160deg, #e0f2fe 0%, #f0f9ff 40%, #eff6ff 100%)",
-      }}
-    >
+          background:
+            "linear-gradient(145deg, #042f2e 0%, #064e3b 25%, #0d4d4b 50%, #134e4a 75%, #14b8a6 100%)",
+        }}
+      />
       {children}
     </div>
   );

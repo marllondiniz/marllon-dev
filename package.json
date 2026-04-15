@@ -7,7 +7,8 @@
     "dev:stable": "ulimit -n 10240 && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "meta:long-lived": "node scripts/meta-exchange-long-lived.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",

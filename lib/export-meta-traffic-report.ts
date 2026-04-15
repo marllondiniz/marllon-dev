@@ -74,6 +74,20 @@ function safeFilePart(s: string): string {
   return s.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
 }
 
+/** Assinatura exibida ao final das exportações MD/PDF */
+const REPORT_SIGNATURE = {
+  name: "Marllon Diniz",
+  line: "zinid.tech · marllonzinid@gmail.com",
+} as const;
+
+function appendReportSignatureMd(lines: string[]) {
+  lines.push("");
+  lines.push("---");
+  lines.push("");
+  lines.push(`**${REPORT_SIGNATURE.name}**`);
+  lines.push(REPORT_SIGNATURE.line);
+}
+
 export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string {
   const lines: string[] = [];
   const now = new Date().toLocaleString("pt-BR");
@@ -155,6 +169,8 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
       );
     }
   }
+
+  appendReportSignatureMd(lines);
 
   return lines.join("\n");
 }
@@ -308,6 +324,28 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
     headStyles: { fillColor: [39, 39, 42] },
     margin: { left: 14, right: 14 },
   });
+
+  y = (d.lastAutoTable?.finalY ?? y) + 10;
+
+  const pageH = doc.internal.pageSize.getHeight();
+  const sigBlockMm = 22;
+  if (y + sigBlockMm > pageH - 12) {
+    doc.addPage();
+    y = 14;
+  }
+
+  doc.setDrawColor(200, 200, 200);
+  doc.line(14, y, pageW - 14, y);
+  y += 8;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text(REPORT_SIGNATURE.name, 14, y);
+  y += 5;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(60, 60, 60);
+  doc.text(REPORT_SIGNATURE.line, 14, y);
+  doc.setTextColor(0, 0, 0);
 
   const stamp = safeFilePart(new Date().toISOString().slice(0, 10));
   doc.save(`metricas-meta-${stamp}.pdf`);

@@ -15,9 +15,8 @@ import {
   Target,
   Layers,
   Image,
-  FileText,
-  FileDown,
 } from "lucide-react";
+import { MetaTrafficExportToolbar } from "@/app/components/MetaTrafficExportToolbar";
 import {
   downloadMetaTrafficMarkdown,
   downloadMetaTrafficPdf,
@@ -246,7 +245,7 @@ export default function ClienteTrafegoPage() {
                   )}
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <button
                   type="button"
                   onClick={() => clientSecret && fetchData(clientSecret, preset)}
@@ -263,32 +262,6 @@ export default function ClienteTrafegoPage() {
                 </Link>
                 <button
                   type="button"
-                  disabled={!data}
-                  onClick={() => {
-                    const p = buildExportPayload();
-                    if (p) downloadMetaTrafficMarkdown(p);
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                  title="Baixar relatório em Markdown"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  .md
-                </button>
-                <button
-                  type="button"
-                  disabled={!data}
-                  onClick={() => {
-                    const p = buildExportPayload();
-                    if (p) downloadMetaTrafficPdf(p);
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                  title="Baixar relatório em PDF"
-                >
-                  <FileDown className="h-3.5 w-3.5" />
-                  PDF
-                </button>
-                <button
-                  type="button"
                   onClick={() => {
                     setSessionOk(false);
                     setClientSecret("");
@@ -301,22 +274,36 @@ export default function ClienteTrafegoPage() {
               </div>
             </header>
 
-            <div className="mb-6">
-              <label htmlFor="preset-client" className="mb-1 block text-xs text-zinc-500">
-                Período
-              </label>
-              <select
-                id="preset-client"
-                value={preset}
-                onChange={(e) => setPreset(e.target.value)}
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
-              >
-                {PRESETS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <label htmlFor="preset-client" className="mb-1 block text-xs text-zinc-500">
+                  Período
+                </label>
+                <select
+                  id="preset-client"
+                  value={preset}
+                  onChange={(e) => setPreset(e.target.value)}
+                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                >
+                  {PRESETS.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <MetaTrafficExportToolbar
+                align="start"
+                disabled={!data}
+                onMarkdown={() => {
+                  const p = buildExportPayload();
+                  if (p) downloadMetaTrafficMarkdown(p);
+                }}
+                onPdf={() => {
+                  const p = buildExportPayload();
+                  if (p) downloadMetaTrafficPdf(p);
+                }}
+              />
             </div>
 
             {error && (

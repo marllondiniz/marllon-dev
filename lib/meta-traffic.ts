@@ -213,9 +213,28 @@ export type AdInsightRow = {
   cpc: number;
 };
 
-/** Texto extra quando a Meta bloqueia por permissão (#200 NOT grant ads_read). */
+/**
+ * Texto extra quando a Meta retorna erro (permissão, token expirado, etc.).
+ */
 export function metaInsightsPermissionHint(apiMessage: string): string | undefined {
   const s = String(apiMessage).toLowerCase();
+  const tokenExpired =
+    s.includes("session has expired") ||
+    s.includes("error validating access token") ||
+    (s.includes("access token") && s.includes("expired"));
+
+  if (tokenExpired) {
+    return [
+      "O access token da Meta expirou ou foi invalidado. Tokens gerados no Graph API Explorer costumam durar só algumas horas.",
+      "",
+      "1) Graph API Explorer (developers.facebook.com/tools/explorer): gere um token NOVO com permissões de anúncios (ex.: ads_read).",
+      "2) No projeto, com META_APP_ID e META_APP_SECRET no .env: rode na raiz `npm run meta:long-lived` e copie o `access_token` do JSON (válido ~60 dias).",
+      "3) Atualize META_ACCESS_TOKEN no .env.local e no painel da Vercel (Environment Variables) e faça redeploy — produção não usa o arquivo local.",
+      "",
+      "Se o painel local funciona mas a URL em produção não, o env da Vercel está desatualizado.",
+    ].join("\n");
+  }
+
   if (!s.includes("not grant") || !s.includes("ads_read")) return undefined;
   return [
     "A Meta bloqueou o acesso: o token não tem permissão de anúncios aceita para esta conta (não é bug do site).",

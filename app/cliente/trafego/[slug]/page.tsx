@@ -204,6 +204,7 @@ export default function ClienteTrafegoPage() {
       reportTitle,
       adAccountId: data.adAccountId,
       presetLabel,
+      presetId: data.preset,
       timeRange: data.timeRange,
       account: data.account,
       campaigns: data.campaigns ?? [],

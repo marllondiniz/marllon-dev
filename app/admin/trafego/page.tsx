@@ -199,10 +199,15 @@ export default function AdminTrafegoPage() {
   function buildExportPayload(): MetaTrafficExportInput | null {
     if (!data) return null;
     const presetLabel = PRESETS.find((p) => p.id === data.preset)?.label ?? data.preset;
+    const clientName = data.clients?.find((c) => c.slug === slug)?.name?.trim();
+    const reportTitle = clientName
+      ? `Métricas Meta Ads · ${clientName}`
+      : "Métricas Meta Ads";
     return {
-      reportTitle: "Métricas Meta Ads",
+      reportTitle,
       adAccountId: data.adAccountId,
       presetLabel,
+      presetId: data.preset,
       timeRange: data.timeRange,
       account: data.account,
       campaigns: data.campaigns ?? [],

@@ -46,6 +46,8 @@ export type MetaTrafficExportInput = {
   reportTitle: string;
   adAccountId: string;
   presetLabel: string;
+  /** Preset da API (ex.: last_30d, this_month) — usado no nome do arquivo quando não há intervalo explícito. */
+  presetId?: string;
   timeRange?: { since: string; until: string };
   account: MetaTrafficExportAccount | null;
   campaigns: MetaTrafficExportCampaign[];
@@ -70,8 +72,104 @@ function escMdCell(s: string): string {
   return s.replace(/\|/g, "/").replace(/\n/g, " ");
 }
 
-function safeFilePart(s: string): string {
-  return s.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
+const EXPORT_BRAND = "zinid.tech";
+
+/** Normaliza texto para uso seguro em nomes de arquivo (sem acentos, hífens). */
+function slugifyForFilename(s: string, maxLen: number): string {
+  const out = s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, maxLen);
+  return out || "meta";
+}
+
+/** Mês(es) de referência do relatório para o nome do arquivo (AAAA-MM ou intervalo). */
+function monthReferenceForExportFilename(input: MetaTrafficExportInput): string {
+  const tr = input.timeRange;
+  if (tr?.since && tr?.until) {
+    const a = tr.since.slice(0, 7);
+    const b = tr.until.slice(0, 7);
+    if (a === b) return `mes-${a}`;
+    return `mes-de-${a}-a-${b}`;
+  }
+
+  const id = input.presetId ?? "";
+  const now = new Date();
+  const ym = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+  if (id === "this_month") return `mes-${ym(now)}`;
+
+  if (id === "last_month") {
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return `mes-${ym(d)}`;
+  }
+
+  /* Últimos N dias: o “até” costuma ser hoje — referência = mês/ano atual */
+  if (id === "last_7d" || id === "last_14d" || id === "last_30d" || id === "last_90d") {
+    return `mes-${ym(now)}`;
+  }
+
+  return `mes-${ym(now)}`;
+}
+
+/** Texto legível (pt-BR) do mês ou intervalo, para corpo MD/PDF. */
+function mesReferenciaTextoPt(input: MetaTrafficExportInput): string {
+  const tr = input.timeRange;
+  const fmt = (y: number, m: number) => {
+    const s = new Date(y, m - 1, 15).toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+  if (tr?.since && tr?.until) {
+    const [ys, ms] = tr.since.slice(0, 10).split("-").map(Number);
+    const [ye, me] = tr.until.slice(0, 10).split("-").map(Number);
+    if (ys === ye && ms === me) return fmt(ys, ms);
+    return `De ${fmt(ys, ms)} a ${fmt(ye, me)}`;
+  }
+  const id = input.presetId ?? "";
+  const now = new Date();
+  if (id === "this_month") return fmt(now.getFullYear(), now.getMonth() + 1);
+  if (id === "last_month") {
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 15);
+    return fmt(d.getFullYear(), d.getMonth() + 1);
+  }
+  if (id === "last_7d" || id === "last_14d" || id === "last_30d" || id === "last_90d") {
+    return `${fmt(now.getFullYear(), now.getMonth() + 1)} (janela móvel até a data do relatório)`;
+  }
+  return fmt(now.getFullYear(), now.getMonth() + 1);
+}
+
+/**
+ * Nome do arquivo para exportação (.md / .pdf): título, marca, período, mês de referência, conta e data.
+ * Ex.: `Metricas-zinid.tech-Ultimos-30-dias-mes-2026-04-8040...-2026-04-15.pdf`
+ */
+export function getMetaTrafficExportFilename(
+  input: MetaTrafficExportInput,
+  ext: "md" | "pdf"
+): string {
+  const date = new Date().toISOString().slice(0, 10);
+  const title = slugifyForFilename(input.reportTitle, 44);
+  const period = slugifyForFilename(input.presetLabel, 32);
+  const monthPart = monthReferenceForExportFilename(input)
+    .replace(/[^a-zA-Z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 44);
+  const actRaw = input.adAccountId.replace(/^act_/i, "").replace(/\D/g, "") || "conta";
+  const act = actRaw.slice(0, 14);
+  let base = `${title}-${EXPORT_BRAND}-${period}-${monthPart}-${act}-${date}`;
+  const maxLen = 188;
+  if (base.length > maxLen) {
+    const shortTitle = slugifyForFilename(input.reportTitle, 24);
+    base = `${shortTitle}-${EXPORT_BRAND}-${period}-${monthPart}-${act}-${date}`;
+    if (base.length > maxLen) base = base.slice(0, maxLen);
+  }
+  return `${base}.${ext}`;
 }
 
 /** Assinatura exibida ao final das exportações MD/PDF */
@@ -96,6 +194,7 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
   lines.push(`- **Gerado em:** ${now}`);
   lines.push(`- **Conta:** \`${input.adAccountId}\``);
   lines.push(`- **Período:** ${input.presetLabel}`);
+  lines.push(`- **Mês de referência:** ${mesReferenciaTextoPt(input)}`);
   if (input.timeRange) {
     lines.push(`- **Intervalo:** ${input.timeRange.since} → ${input.timeRange.until}`);
   }
@@ -177,8 +276,7 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
 
 export function downloadMetaTrafficMarkdown(input: MetaTrafficExportInput): void {
   const md = buildMetaTrafficMarkdown(input);
-  const stamp = safeFilePart(new Date().toISOString().slice(0, 10));
-  const filename = `metricas-meta-${stamp}.md`;
+  const filename = getMetaTrafficExportFilename(input, "md");
   const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -203,6 +301,14 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
   y += 5;
   doc.text(`Periodo: ${input.presetLabel}`, 14, y);
   y += 5;
+  {
+    const mesLines = doc.splitTextToSize(
+      `Mes referencia: ${mesReferenciaTextoPt(input)}`,
+      pageW - 28
+    );
+    doc.text(mesLines, 14, y);
+    y += mesLines.length * 4 + 1;
+  }
   if (input.timeRange) {
     doc.text(`Intervalo: ${input.timeRange.since} -> ${input.timeRange.until}`, 14, y);
     y += 5;
@@ -347,6 +453,5 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
   doc.text(REPORT_SIGNATURE.line, 14, y);
   doc.setTextColor(0, 0, 0);
 
-  const stamp = safeFilePart(new Date().toISOString().slice(0, 10));
-  doc.save(`metricas-meta-${stamp}.pdf`);
+  doc.save(getMetaTrafficExportFilename(input, "pdf"));
 }

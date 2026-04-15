@@ -229,6 +229,9 @@ export default function AdminLeadsPage() {
                 >
                   <RefreshCw className={`inline h-3.5 w-3.5 ${loadingBriefings || loadingTraffic ? "animate-spin" : ""}`} />
                 </button>
+                <Link href="/admin/trafego" className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white">
+                  <TrendingUp className="inline h-3.5 w-3.5" /> Métricas Meta
+                </Link>
                 <Link href="/admin/enxoval" className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white">
                   <Baby className="inline h-3.5 w-3.5" /> Enxoval
                 </Link>

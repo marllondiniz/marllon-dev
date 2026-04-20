@@ -15,6 +15,7 @@ import {
   Target,
   Layers,
   Image,
+  MessageCircle,
 } from "lucide-react";
 import { MetaTrafficExportToolbar } from "@/app/components/MetaTrafficExportToolbar";
 import {
@@ -29,6 +30,7 @@ type AccountTotals = {
   clicks: number;
   spend: number;
   reach: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
   cpm: number;
@@ -40,6 +42,7 @@ type CampaignRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -52,6 +55,7 @@ type AdSetRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -65,6 +69,7 @@ type AdRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -326,20 +331,27 @@ export default function ClienteTrafegoPage() {
             ) : a ? (
               <>
                 <p className="mb-4 text-sm text-zinc-400">{a.accountName}</p>
-                <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                   {[
                     { icon: Eye, label: "Impressões", value: fmtInt(a.impressions) },
                     { icon: MousePointerClick, label: "Cliques", value: fmtInt(a.clicks) },
                     { icon: Wallet, label: "Investimento", value: brl(a.spend) },
                     { icon: Target, label: "Alcance", value: fmtInt(a.reach) },
-                  ].map(({ icon: Icon, label, value }) => (
+                    {
+                      icon: MessageCircle,
+                      label: "Conversas por mensagem iniciadas",
+                      value: fmtInt(a.messagingConversationsStarted),
+                      title: "Conversas por mensagem iniciadas (atribuição 7 dias, conforme Meta)",
+                    },
+                  ].map(({ icon: Icon, label, value, title }) => (
                     <div
                       key={label}
                       className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                      title={title}
                     >
                       <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <Icon className="h-3.5 w-3.5" />
-                        {label}
+                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="leading-tight">{label}</span>
                       </div>
                       <p className="mt-2 text-xl font-semibold text-white">{value}</p>
                     </div>
@@ -371,13 +383,16 @@ export default function ClienteTrafegoPage() {
                   </p>
                 ) : (
                   <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[640px] text-left text-sm">
+                    <table className="w-full min-w-[760px] text-left text-sm">
                       <thead>
                         <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
                           <th className="px-4 py-3 font-medium">Campanha</th>
                           <th className="px-4 py-3 font-medium">Impressões</th>
                           <th className="px-4 py-3 font-medium">Cliques</th>
                           <th className="px-4 py-3 font-medium">Investimento</th>
+                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
+                            Conv. msg.
+                          </th>
                           <th className="px-4 py-3 font-medium">CTR</th>
                           <th className="px-4 py-3 font-medium">CPC</th>
                         </tr>
@@ -391,6 +406,7 @@ export default function ClienteTrafegoPage() {
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(c.impressions)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(c.clicks)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-300">{brl(c.spend)}</td>
+                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(c.messagingConversationsStarted)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{pct(c.ctr)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{brl(c.cpc)}</td>
                           </tr>
@@ -420,7 +436,7 @@ export default function ClienteTrafegoPage() {
                   </p>
                 ) : (
                   <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[800px] text-left text-sm">
+                    <table className="w-full min-w-[920px] text-left text-sm">
                       <thead>
                         <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
                           <th className="px-4 py-3 font-medium">Campanha</th>
@@ -428,6 +444,9 @@ export default function ClienteTrafegoPage() {
                           <th className="px-4 py-3 font-medium">Impressões</th>
                           <th className="px-4 py-3 font-medium">Cliques</th>
                           <th className="px-4 py-3 font-medium">Investimento</th>
+                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
+                            Conv. msg.
+                          </th>
                           <th className="px-4 py-3 font-medium">CTR</th>
                           <th className="px-4 py-3 font-medium">CPC</th>
                         </tr>
@@ -444,6 +463,7 @@ export default function ClienteTrafegoPage() {
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(s.impressions)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(s.clicks)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-300">{brl(s.spend)}</td>
+                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(s.messagingConversationsStarted)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{pct(s.ctr)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{brl(s.cpc)}</td>
                           </tr>
@@ -463,7 +483,7 @@ export default function ClienteTrafegoPage() {
                   </p>
                 ) : (
                   <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[920px] text-left text-sm">
+                    <table className="w-full min-w-[1040px] text-left text-sm">
                       <thead>
                         <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
                           <th className="px-4 py-3 font-medium">Campanha</th>
@@ -472,6 +492,9 @@ export default function ClienteTrafegoPage() {
                           <th className="px-4 py-3 font-medium">Impressões</th>
                           <th className="px-4 py-3 font-medium">Cliques</th>
                           <th className="px-4 py-3 font-medium">Investimento</th>
+                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
+                            Conv. msg.
+                          </th>
                           <th className="px-4 py-3 font-medium">CTR</th>
                           <th className="px-4 py-3 font-medium">CPC</th>
                         </tr>
@@ -491,6 +514,7 @@ export default function ClienteTrafegoPage() {
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(ad.impressions)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(ad.clicks)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-300">{brl(ad.spend)}</td>
+                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(ad.messagingConversationsStarted)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{pct(ad.ctr)}</td>
                             <td className="px-4 py-3 font-mono text-zinc-400">{brl(ad.cpc)}</td>
                           </tr>

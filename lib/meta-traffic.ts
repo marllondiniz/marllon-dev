@@ -167,12 +167,33 @@ function num(v: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Campo `actions` retornado pela Graph API (não é só string). */
+type FbActionItem = { action_type?: string; value?: string };
+
+/**
+ * “Conversas por mensagem iniciadas” — soma `actions` com tipo *messaging_conversation_started_7d*
+ * (ex.: `onsite_conversion.messaging_conversation_started_7d`), alinhado ao Ads Manager.
+ */
+export function messagingConversationsFromActions(actions: unknown): number {
+  if (!Array.isArray(actions)) return 0;
+  let total = 0;
+  for (const raw of actions) {
+    if (!raw || typeof raw !== "object") continue;
+    const at = String((raw as FbActionItem).action_type ?? "");
+    if (!/messaging_conversation_started_7d/i.test(at)) continue;
+    total += num(String((raw as FbActionItem).value ?? ""));
+  }
+  return total;
+}
+
 export type AccountTotals = {
   accountName: string;
   impressions: number;
   clicks: number;
   spend: number;
   reach: number;
+  /** Conversas por mensagem iniciadas (7d), via `actions` na API. */
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
   cpm: number;
@@ -184,6 +205,7 @@ export type CampaignInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -196,6 +218,7 @@ export type AdSetInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -209,6 +232,7 @@ export type AdInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -408,7 +432,7 @@ export async function fetchMetaInsights(
   const { params: dateParams, periodKey, timeRange } = insightDateParamsFromPreset(preset);
   const act = normalizeActId(adAccountId);
 
-  const fieldsAccount = "account_name,impressions,clicks,spend,ctr,cpc,cpm,reach";
+  const fieldsAccount = "account_name,impressions,clicks,spend,ctr,cpc,cpm,reach,actions";
 
   const accJson = await graphGet<FbInsightRow[]>(`${act}/insights`, token, {
     fields: fieldsAccount,
@@ -430,30 +454,33 @@ export async function fetchMetaInsights(
     };
   }
 
-  const row = accJson.data?.[0];
+  const row = accJson.data?.[0] as (FbInsightRow & { actions?: FbActionItem[] }) | undefined;
   let account: AccountTotals | null = null;
   if (row) {
     const impressions = num(row.impressions as string | undefined);
     const clicks = num(row.clicks as string | undefined);
     const spend = num(row.spend as string | undefined);
     const reach = num(row.reach as string | undefined);
+    const messagingConversationsStarted = messagingConversationsFromActions(row.actions);
     account = {
       accountName: String(row.account_name ?? "Conta de anúncios"),
       impressions,
       clicks,
       spend,
       reach,
+      messagingConversationsStarted,
       ctr: num(row.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
       cpc: num(row.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       cpm: num(row.cpm as string | undefined) || (impressions > 0 ? (spend / impressions) * 1000 : 0),
     };
   }
 
-  const fieldsCamp = "campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc";
+  const fieldsCamp =
+    "campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
   const fieldsAdset =
-    "adset_id,adset_name,campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc";
+    "adset_id,adset_name,campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
   const fieldsAd =
-    "ad_id,ad_name,adset_id,adset_name,campaign_name,impressions,clicks,spend,ctr,cpc";
+    "ad_id,ad_name,adset_id,adset_name,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
 
   const [campRes, adsetRes, adRes] = await Promise.all([
     fetchAllInsightPages(`${act}/insights`, token, {
@@ -494,17 +521,19 @@ export async function fetchMetaInsights(
   }
 
   const campaigns: CampaignInsightRow[] = campRes.rows.map((r) => {
-    const impressions = num(r.impressions as string | undefined);
-    const clicks = num(r.clicks as string | undefined);
-    const spend = num(r.spend as string | undefined);
+    const raw = r as FbInsightRow & { actions?: FbActionItem[] };
+    const impressions = num(raw.impressions as string | undefined);
+    const clicks = num(raw.clicks as string | undefined);
+    const spend = num(raw.spend as string | undefined);
     return {
-      campaignId: String(r.campaign_id ?? ""),
-      campaignName: String(r.campaign_name ?? "—"),
+      campaignId: String(raw.campaign_id ?? ""),
+      campaignName: String(raw.campaign_name ?? "—"),
       impressions,
       clicks,
       spend,
-      ctr: num(r.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
-      cpc: num(r.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
+      messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+      ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
+      cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
     };
   });
 
@@ -520,19 +549,21 @@ export async function fetchMetaInsights(
       warnings.push(`Conjuntos (possivelmente incompleto): ${adsetRes.error}`);
     }
     adsets = adsetRes.rows.map((r) => {
-      const impressions = num(r.impressions as string | undefined);
-      const clicks = num(r.clicks as string | undefined);
-      const spend = num(r.spend as string | undefined);
+      const raw = r as FbInsightRow & { actions?: FbActionItem[] };
+      const impressions = num(raw.impressions as string | undefined);
+      const clicks = num(raw.clicks as string | undefined);
+      const spend = num(raw.spend as string | undefined);
       return {
-        adSetId: String(r.adset_id ?? ""),
-        adSetName: String(r.adset_name ?? "—"),
-        campaignId: String(r.campaign_id ?? ""),
-        campaignName: String(r.campaign_name ?? "—"),
+        adSetId: String(raw.adset_id ?? ""),
+        adSetName: String(raw.adset_name ?? "—"),
+        campaignId: String(raw.campaign_id ?? ""),
+        campaignName: String(raw.campaign_name ?? "—"),
         impressions,
         clicks,
         spend,
-        ctr: num(r.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
-        cpc: num(r.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
+        messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+        ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
+        cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       };
     });
     adsets.sort((a, b) => b.spend - a.spend);
@@ -545,20 +576,22 @@ export async function fetchMetaInsights(
       warnings.push(`Anúncios (possivelmente incompleto): ${adRes.error}`);
     }
     ads = adRes.rows.map((r) => {
-      const impressions = num(r.impressions as string | undefined);
-      const clicks = num(r.clicks as string | undefined);
-      const spend = num(r.spend as string | undefined);
+      const raw = r as FbInsightRow & { actions?: FbActionItem[] };
+      const impressions = num(raw.impressions as string | undefined);
+      const clicks = num(raw.clicks as string | undefined);
+      const spend = num(raw.spend as string | undefined);
       return {
-        adId: String(r.ad_id ?? ""),
-        adName: String(r.ad_name ?? "—"),
-        adSetId: String(r.adset_id ?? ""),
-        adSetName: String(r.adset_name ?? "—"),
-        campaignName: String(r.campaign_name ?? "—"),
+        adId: String(raw.ad_id ?? ""),
+        adName: String(raw.ad_name ?? "—"),
+        adSetId: String(raw.adset_id ?? ""),
+        adSetName: String(raw.adset_name ?? "—"),
+        campaignName: String(raw.campaign_name ?? "—"),
         impressions,
         clicks,
         spend,
-        ctr: num(r.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
-        cpc: num(r.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
+        messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+        ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
+        cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       };
     });
     ads.sort((a, b) => b.spend - a.spend);

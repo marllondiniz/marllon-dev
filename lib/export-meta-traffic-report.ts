@@ -7,6 +7,8 @@ export type MetaTrafficExportAccount = {
   clicks: number;
   spend: number;
   reach: number;
+  /** Conversas por mensagem iniciadas (7d). */
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
   cpm: number;
@@ -17,6 +19,7 @@ export type MetaTrafficExportCampaign = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -27,6 +30,7 @@ export type MetaTrafficExportAdSet = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -38,6 +42,7 @@ export type MetaTrafficExportAd = {
   impressions: number;
   clicks: number;
   spend: number;
+  messagingConversationsStarted: number;
   ctr: number;
   cpc: number;
 };
@@ -219,6 +224,7 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
     lines.push(`| Cliques | ${fmtInt(a.clicks)} |`);
     lines.push(`| Investimento | ${brl(a.spend)} |`);
     lines.push(`| Alcance | ${fmtInt(a.reach)} |`);
+    lines.push(`| Conversas por mensagem iniciadas (7d) | ${fmtInt(a.messagingConversationsStarted)} |`);
     lines.push(`| CTR | ${pct(a.ctr)} |`);
     lines.push(`| CPC médio | ${brl(a.cpc)} |`);
     lines.push(`| CPM | ${brl(a.cpm)} |`);
@@ -230,11 +236,11 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
   if (input.campaigns.length === 0) {
     lines.push("_Nenhuma linha._");
   } else {
-    lines.push("| Campanha | Impressões | Cliques | Investimento | CTR | CPC |");
-    lines.push("| --- | ---: | ---: | ---: | ---: | ---: |");
+    lines.push("| Campanha | Impressões | Cliques | Investimento | Conv. msg. (7d) | CTR | CPC |");
+    lines.push("| --- | ---: | ---: | ---: | ---: | ---: | ---: |");
     for (const c of input.campaigns) {
       lines.push(
-        `| ${escMdCell(c.campaignName)} | ${fmtInt(c.impressions)} | ${fmtInt(c.clicks)} | ${brl(c.spend)} | ${pct(c.ctr)} | ${brl(c.cpc)} |`
+        `| ${escMdCell(c.campaignName)} | ${fmtInt(c.impressions)} | ${fmtInt(c.clicks)} | ${brl(c.spend)} | ${fmtInt(c.messagingConversationsStarted)} | ${pct(c.ctr)} | ${brl(c.cpc)} |`
       );
     }
   }
@@ -245,11 +251,11 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
   if (input.adsets.length === 0) {
     lines.push("_Nenhuma linha._");
   } else {
-    lines.push("| Campanha | Conjunto | Impressões | Cliques | Investimento | CTR | CPC |");
-    lines.push("| --- | --- | ---: | ---: | ---: | ---: | ---: |");
+    lines.push("| Campanha | Conjunto | Impressões | Cliques | Investimento | Conv. msg. (7d) | CTR | CPC |");
+    lines.push("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |");
     for (const s of input.adsets) {
       lines.push(
-        `| ${escMdCell(s.campaignName)} | ${escMdCell(s.adSetName)} | ${fmtInt(s.impressions)} | ${fmtInt(s.clicks)} | ${brl(s.spend)} | ${pct(s.ctr)} | ${brl(s.cpc)} |`
+        `| ${escMdCell(s.campaignName)} | ${escMdCell(s.adSetName)} | ${fmtInt(s.impressions)} | ${fmtInt(s.clicks)} | ${brl(s.spend)} | ${fmtInt(s.messagingConversationsStarted)} | ${pct(s.ctr)} | ${brl(s.cpc)} |`
       );
     }
   }
@@ -260,11 +266,11 @@ export function buildMetaTrafficMarkdown(input: MetaTrafficExportInput): string 
   if (input.ads.length === 0) {
     lines.push("_Nenhuma linha._");
   } else {
-    lines.push("| Campanha | Conjunto | Anúncio | Impressões | Cliques | Investimento | CTR | CPC |");
-    lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |");
+    lines.push("| Campanha | Conjunto | Anúncio | Impressões | Cliques | Investimento | Conv. msg. (7d) | CTR | CPC |");
+    lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |");
     for (const ad of input.ads) {
       lines.push(
-        `| ${escMdCell(ad.campaignName)} | ${escMdCell(ad.adSetName)} | ${escMdCell(ad.adName)} | ${fmtInt(ad.impressions)} | ${fmtInt(ad.clicks)} | ${brl(ad.spend)} | ${pct(ad.ctr)} | ${brl(ad.cpc)} |`
+        `| ${escMdCell(ad.campaignName)} | ${escMdCell(ad.adSetName)} | ${escMdCell(ad.adName)} | ${fmtInt(ad.impressions)} | ${fmtInt(ad.clicks)} | ${brl(ad.spend)} | ${fmtInt(ad.messagingConversationsStarted)} | ${pct(ad.ctr)} | ${brl(ad.cpc)} |`
       );
     }
   }
@@ -344,6 +350,7 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
         ["Cliques", fmtInt(a.clicks)],
         ["Investimento", brl(a.spend)],
         ["Alcance", fmtInt(a.reach)],
+        ["Conv. msg. iniciadas (7d)", fmtInt(a.messagingConversationsStarted)],
         ["CTR", pct(a.ctr)],
         ["CPC medio", brl(a.cpc)],
         ["CPM", brl(a.cpm)],
@@ -361,12 +368,13 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
 
   autoTable(doc, {
     startY: y,
-    head: [["Campanha", "Impr.", "Cliques", "Invest.", "CTR", "CPC"]],
+    head: [["Campanha", "Impr.", "Cliques", "Invest.", "Conv.msg", "CTR", "CPC"]],
     body: input.campaigns.map((c) => [
       c.campaignName,
       fmtInt(c.impressions),
       fmtInt(c.clicks),
       brl(c.spend),
+      fmtInt(c.messagingConversationsStarted),
       pct(c.ctr),
       brl(c.cpc),
     ]),
@@ -388,13 +396,14 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
 
   autoTable(doc, {
     startY: y,
-    head: [["Campanha", "Conjunto", "Impr.", "Cliques", "Invest.", "CTR", "CPC"]],
+    head: [["Campanha", "Conjunto", "Impr.", "Cliques", "Invest.", "Conv.msg", "CTR", "CPC"]],
     body: input.adsets.map((s) => [
       s.campaignName,
       s.adSetName,
       fmtInt(s.impressions),
       fmtInt(s.clicks),
       brl(s.spend),
+      fmtInt(s.messagingConversationsStarted),
       pct(s.ctr),
       brl(s.cpc),
     ]),
@@ -415,7 +424,7 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
 
   autoTable(doc, {
     startY: y,
-    head: [["Campanha", "Conjunto", "Anuncio", "Impr.", "Cliques", "Invest.", "CTR", "CPC"]],
+    head: [["Campanha", "Conjunto", "Anuncio", "Impr.", "Cliques", "Invest.", "Conv.msg", "CTR", "CPC"]],
     body: input.ads.map((ad) => [
       ad.campaignName,
       ad.adSetName,
@@ -423,6 +432,7 @@ export function downloadMetaTrafficPdf(input: MetaTrafficExportInput): void {
       fmtInt(ad.impressions),
       fmtInt(ad.clicks),
       brl(ad.spend),
+      fmtInt(ad.messagingConversationsStarted),
       pct(ad.ctr),
       brl(ad.cpc),
     ]),

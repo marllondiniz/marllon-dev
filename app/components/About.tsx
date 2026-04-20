@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
-import { Code2, Plug, Workflow, Brain, Box, Zap, Target } from "lucide-react";
+import { Code2, Plug, Workflow, BarChart3, Box, Zap, Target } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import BlurText from "./BlurText";
 
@@ -13,13 +13,13 @@ const blocks = [
   { title: "Back-end & Web", desc: "Sistemas, APIs e aplicações", icon: Code2 },
   { title: "Integrações", desc: "APIs externas e bancos de dados", icon: Plug },
   { title: "Automação", desc: "Processos e fluxos internos", icon: Workflow },
-  { title: "IA aplicada", desc: "LLMs e desenvolvimento", icon: Brain },
+  { title: "Dados", desc: "Métricas e decisões orientadas", icon: BarChart3 },
 ];
 
 const pillars = [
   { label: "Código", sub: "Back-end & Web", icon: Box },
   { label: "Integração", sub: "APIs & Dados", icon: Zap },
-  { label: "Entrega", sub: "Automação & IA", icon: Target },
+  { label: "Entrega", sub: "Automação & escala", icon: Target },
 ];
 
 const floatingTags: Array<{ text: string; x: string; y: string }> = [];
@@ -181,7 +181,7 @@ function PillarsRotate() {
       </div>
 
       <p className="mt-8 text-center font-mono text-sm text-zinc-400 terminal-cursor">
-        Código que entrega. Integrações que funcionam. IA que acelera.
+        Código que entrega. Integrações que funcionam. Dados que orientam.
       </p>
     </motion.div>
   );
@@ -237,13 +237,10 @@ export default function About() {
               className="rounded-xl border-l-2 border-[#22c55e]/50 bg-[#0d0d0f] pl-6 pr-4 py-5"
             >
               <p className="mb-4 text-lg leading-relaxed text-zinc-300">
-                Meu nome é <strong className="text-white">Marllon Diniz</strong>. Desenvolvedor com experiência desde 2022 em back-end, web, integrações de APIs, automações e soluções orientadas a dados.
-              </p>
-              <p className="mb-4 text-lg leading-relaxed text-zinc-300">
-                Uso intensivo de{" "}
-                <span className="text-[#22c55e]">IA aplicada ao desenvolvimento</span>{" "}
-                via LLMs — mais de{" "}
-                <span className="font-mono text-[#22c55e]">1.6 bilhões de tokens</span> usados em 2025 para acelerar entregas, qualidade de código, arquitetura e integrações.
+                Sou <strong className="text-white">Marllon Diniz</strong>, desenvolvedor desde <strong className="text-white">2022</strong>.{" "}
+                Construo o que roda por trás da tela: <span className="text-zinc-200">APIs</span>,{" "}
+                <span className="text-zinc-200">integrações</span>, <span className="text-zinc-200">automações</span> e soluções em que{" "}
+                <span className="text-[#22c55e]">dados</span> viram decisão e entrega.
               </p>
               <p className="text-xl font-medium text-white md:text-2xl">
                 Eu construo sistemas que <span className="text-[#22c55e] cyber-text-glow">organizam e escalam</span>.
@@ -258,7 +255,7 @@ export default function About() {
 
       {/* Carrossel infinito em tela inteira (ocupa toda a largura da viewport) */}
       <div className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden py-2 mb-20">
-        <div className="infinite-carousel infinite-carousel--full" aria-label="Back-end, Integrações, Automação, IA aplicada">
+        <div className="infinite-carousel infinite-carousel--full" aria-label="Back-end, Integrações, Automação, Dados">
           <div className="infinite-carousel-track">
             {[...blocks, ...blocks, ...blocks].map((item, i) => (
               <motion.div

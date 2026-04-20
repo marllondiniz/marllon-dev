@@ -19,14 +19,14 @@ const spaceGrotesk = Space_Grotesk({
 
 const siteUrl = "https://zinid.tech";
 const siteName = "Marllon Diniz - zinid.tech";
-const siteDescription = "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e IA aplicada ao desenvolvimento. Início de um futuro próspero. Espírito Santo, Brasil.";
+const siteDescription =
+  "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados. Início de um futuro próspero. Espírito Santo, Brasil.";
 const keywords = [
   "desenvolvedor back-end",
   "desenvolvedor web",
   "integrações API",
   "automação",
-  "IA aplicada",
-  "inteligência artificial",
+  "dados",
   "Python",
   "Node.js",
   "API REST",
@@ -42,7 +42,7 @@ const keywords = [
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | IA aplicada",
+    default: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
     template: "%s | Marllon Diniz - zinid.tech",
   },
   description: siteDescription,
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: siteUrl,
     siteName: siteName,
-    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | IA aplicada",
+    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
     description: siteDescription,
     images: [
       {
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | IA aplicada",
+    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
     description: siteDescription,
     images: [`${siteUrl}/og-image.png`],
     creator: "@marllondiniz",
@@ -123,7 +123,7 @@ export default function RootLayout({
     image: "https://zinid.tech/marllon.jpeg",
     jobTitle: "Desenvolvedor Back-end",
     description:
-      "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e IA aplicada ao desenvolvimento.",
+      "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados.",
     address: {
       "@type": "PostalAddress",
       addressRegion: "ES",

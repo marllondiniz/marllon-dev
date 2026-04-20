@@ -62,7 +62,7 @@ export default function Home() {
           </p>
           <p className="mt-2 text-zinc-500">
             <small>
-              © {new Date().getFullYear()} Marllon Diniz · zinid.tech · Back-end · Web · Integrações · Automação · IA aplicada.
+              © {new Date().getFullYear()} Marllon Diniz · zinid.tech · Back-end · Web · Integrações · Automação · Dados.
             </small>
           </p>
         </div>

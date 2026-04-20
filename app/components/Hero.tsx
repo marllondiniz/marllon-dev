@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
-import { ChevronDown, Wrench, Sparkles, Terminal, Cpu, Zap, ArrowRight } from "lucide-react";
+import { ChevronDown, Wrench, Layers, Terminal, Cpu, Zap, ArrowRight } from "lucide-react";
 import CyberBackground from "./CyberBackground";
 import BlurText from "./BlurText";
 import CountUp from "./CountUp";
@@ -76,15 +76,15 @@ export default function Hero() {
         </FloatingCard>
         <FloatingCard delay={1.1} x="72%" y="18%">
           <Zap className="h-3 w-3 text-[#22c55e]" />
-          <span>1.6B+ tokens</span>
+          <span>integrações estáveis</span>
         </FloatingCard>
         <FloatingCard delay={1.3} x="78%" y="62%">
           <Terminal className="h-3 w-3 text-[#22c55e]" />
           <span>4+ anos exp.</span>
         </FloatingCard>
         <FloatingCard delay={1.5} x="2%" y="62%">
-          <Sparkles className="h-3 w-3 text-[#22c55e]" />
-          <span>IA aplicada</span>
+          <Layers className="h-3 w-3 text-[#22c55e]" />
+          <span>dados & escala</span>
         </FloatingCard>
       </motion.div>
 
@@ -99,7 +99,7 @@ export default function Hero() {
           style={{ translateZ: 20 }}
           className="mb-6 text-sm font-mono uppercase tracking-widest text-zinc-500"
         >
-          Desenvolvedor Back-end · Web · Integrações · Automação · IA aplicada
+          Desenvolvedor Back-end · Web · Integrações · Automação · Dados
         </motion.p>
 
         <motion.div
@@ -149,7 +149,7 @@ export default function Hero() {
           style={{ translateZ: 20 }}
           className="mx-auto mt-4 max-w-xl font-mono text-sm text-zinc-400 terminal-cursor"
         >
-          Back-end | Web | Integrações de APIs | Automação | IA aplicada ao desenvolvimento
+          Back-end | Web | Integrações de APIs | Automação | Soluções orientadas a dados
         </motion.p>
 
         <motion.div
@@ -193,9 +193,9 @@ export default function Hero() {
           </div>
           <div className="text-center">
             <div className="font-[family-name:var(--font-space)] text-2xl font-bold text-white">
-              <CountUp to={1600} suffix="M+" prefix="" duration={2.5} />
+              <CountUp to={50} suffix="+" duration={2} />
             </div>
-            <div className="mt-0.5 text-xs text-zinc-500">Tokens de IA (2025)</div>
+            <div className="mt-0.5 text-xs text-zinc-500">Integrações e fluxos</div>
           </div>
           <div className="text-center">
             <div className="font-[family-name:var(--font-space)] text-2xl font-bold text-white">

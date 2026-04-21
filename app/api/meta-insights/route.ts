@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   fetchMetaInsights,
   findClientBySlug,
+  getAccessTokenForClient,
   getDefaultAdAccountId,
   getMetaAccessToken,
   listClientsPublicInfo,
   resolveAdAccountFromToken,
+  type TrafficClientConfig,
 } from "@/lib/meta-traffic";
 
 export const dynamic = "force-dynamic";
@@ -31,15 +33,32 @@ function parseDatePreset(request: NextRequest): string {
   return DATE_PRESETS.has(p) ? p : "last_30d";
 }
 
-export async function GET(request: NextRequest) {
-  const token = getMetaAccessToken();
-  if (!token) {
-    return NextResponse.json(
-      { error: "META_ACCESS_TOKEN não configurado no servidor." },
-      { status: 503 }
-    );
+/** Avisa quando havia intenção de configurar clientes mas a lista ficou vazia. */
+function metaTrafficClientsEnvWarning(clientsCount: number): string | undefined {
+  if (clientsCount > 0) return undefined;
+  const raw = process.env.META_TRAFFIC_CLIENTS?.trim();
+  const hasFlat =
+    !!process.env.META_CLIENT_EASYBEE_SLUG?.trim() ||
+    !!process.env.META_CLIENT_LUZ_SLUG?.trim();
+  if (raw) {
+    return "META_TRAFFIC_CLIENTS não carregou nenhum cliente (JSON vazio ou inválido). Remova a linha e use META_CLIENT_* + META_LUZ_*, ou corrija o JSON.";
   }
+  if (hasFlat) {
+    return "Variáveis META_CLIENT_* / META_LUZ_* incompletas — confira slug, nome, senha do link, act_ e token da Luz do Luar.";
+  }
+  return undefined;
+}
 
+function mergeWarnings(
+  base: string[] | undefined,
+  extra: string | undefined
+): string[] | undefined {
+  const out = [...(base ?? [])];
+  if (extra) out.push(extra);
+  return out.length ? out : undefined;
+}
+
+export async function GET(request: NextRequest) {
   const adminHeader = request.headers.get("x-admin-secret");
   const clientSlug = request.headers.get("x-trafego-slug")?.trim();
   const clientSecret = request.headers.get("x-trafego-secret")?.trim();
@@ -52,6 +71,16 @@ export async function GET(request: NextRequest) {
     const client = findClientBySlug(clientSlug);
     if (!client || client.secret !== clientSecret) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+    const token = getAccessTokenForClient(client);
+    if (!token) {
+      return NextResponse.json(
+        {
+          error:
+            "Token Meta ausente. Defina `accessToken` neste cliente em META_TRAFFIC_CLIENTS ou META_ACCESS_TOKEN no servidor.",
+        },
+        { status: 503 }
+      );
     }
     const result = await fetchMetaInsights(client.adAccountId, token, preset);
     if (result.error) {
@@ -76,6 +105,9 @@ export async function GET(request: NextRequest) {
   if (ADMIN_SECRET && adminHeader === ADMIN_SECRET) {
     const slugParam = request.nextUrl.searchParams.get("slug")?.trim();
     let adAccountId: string | undefined;
+    let token: string | undefined;
+    /** Para debug_token com app id/secret do cliente. */
+    let clientContext: TrafficClientConfig | undefined;
 
     if (slugParam) {
       const c = findClientBySlug(slugParam);
@@ -83,16 +115,33 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Cliente (slug) não encontrado." }, { status: 404 });
       }
       adAccountId = c.adAccountId;
+      token = getAccessTokenForClient(c);
+      clientContext = c;
     } else {
+      token = getMetaAccessToken();
       adAccountId = getDefaultAdAccountId();
       if (!adAccountId && clients.length > 0) {
         const first = findClientBySlug(clients[0].slug);
-        adAccountId = first?.adAccountId;
+        if (first) {
+          adAccountId = first.adAccountId;
+          token = getAccessTokenForClient(first) ?? token;
+          clientContext = first;
+        }
       }
     }
 
+    if (!token) {
+      return NextResponse.json(
+        {
+          error:
+            "META_ACCESS_TOKEN não configurado (ou falta `accessToken` no cliente selecionado).",
+        },
+        { status: 503 }
+      );
+    }
+
     if (!adAccountId) {
-      const resolved = await resolveAdAccountFromToken(token);
+      const resolved = await resolveAdAccountFromToken(token, clientContext);
       adAccountId = resolved.adAccountId;
       if (!adAccountId) {
         return NextResponse.json(
@@ -106,6 +155,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    const parseWarn = metaTrafficClientsEnvWarning(clients.length);
+
     const result = await fetchMetaInsights(adAccountId, token, preset);
     if (result.error) {
       return NextResponse.json(
@@ -114,6 +165,7 @@ export async function GET(request: NextRequest) {
           hint: result.hint,
           adAccountId: result.adAccountId,
           clients,
+          warnings: mergeWarnings(undefined, parseWarn),
         },
         { status: 502 }
       );
@@ -123,6 +175,7 @@ export async function GET(request: NextRequest) {
       clients,
       preset,
       ...result,
+      warnings: mergeWarnings(result.warnings, parseWarn),
     });
   }
 

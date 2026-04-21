@@ -5,6 +5,15 @@ export type TrafficClientConfig = {
   name: string;
   adAccountId: string;
   secret: string;
+  /**
+   * Token com acesso a esta conta (ex.: app do cliente). Se omitido, usa `META_ACCESS_TOKEN`.
+   */
+  accessToken?: string;
+  /**
+   * App do cliente (Graph API). Se omitido, `debug_token` e troca long-lived usam `META_APP_ID` / `META_APP_SECRET`.
+   */
+  appId?: string;
+  appSecret?: string;
 };
 
 export function getMetaApiVersion(): string {
@@ -37,12 +46,23 @@ export type ResolveAdAccountResult = {
   detail?: string;
 };
 
+/** App id/secret efetivos: por cliente ou globais do env. */
+export function getMetaAppCredsForClient(client?: TrafficClientConfig): {
+  appId?: string;
+  appSecret?: string;
+} {
+  const appId = client?.appId?.trim() || getMetaAppId();
+  const appSecret = client?.appSecret?.trim() || getMetaAppSecret();
+  return { appId, appSecret };
+}
+
 /**
  * Descobre uma conta act_ via token. Se a lista vier vazia ou der erro,
  * devolve `detail` para mostrar no painel (permissões, token errado, etc.).
  */
 export async function resolveAdAccountFromToken(
-  userAccessToken: string
+  userAccessToken: string,
+  client?: TrafficClientConfig
 ): Promise<ResolveAdAccountResult> {
   const v = getMetaApiVersion();
   const url = new URL(`https://graph.facebook.com/${v}/me/adaccounts`);
@@ -68,8 +88,7 @@ export async function resolveAdAccountFromToken(
   }
 
   let scopeHint = "";
-  const appId = getMetaAppId();
-  const appSecret = getMetaAppSecret();
+  const { appId, appSecret } = getMetaAppCredsForClient(client);
   if (appId && appSecret) {
     const dbg = await fetchDebugTokenInfo(userAccessToken, appId, appSecret);
     if (dbg) scopeHint = ` ${dbg}`;
@@ -119,35 +138,123 @@ async function fetchDebugTokenInfo(
   }
 }
 
+function actIdFromEnv(id: string): string {
+  const s = id.trim();
+  return s.startsWith("act_") ? s : `act_${s}`;
+}
+
+function parseTrafficClientsJsonArray(parsed: unknown[]): TrafficClientConfig[] {
+  return parsed
+    .filter(
+      (x): x is TrafficClientConfig =>
+        typeof x === "object" &&
+        x !== null &&
+        typeof (x as TrafficClientConfig).slug === "string" &&
+        typeof (x as TrafficClientConfig).name === "string" &&
+        typeof (x as TrafficClientConfig).adAccountId === "string" &&
+        typeof (x as TrafficClientConfig).secret === "string"
+    )
+    .map((c) => {
+      const row = c as TrafficClientConfig & {
+        accessToken?: unknown;
+        appId?: unknown;
+        appSecret?: unknown;
+      };
+      const accessToken =
+        typeof row.accessToken === "string" && row.accessToken.trim()
+          ? row.accessToken.trim()
+          : undefined;
+      const appId =
+        typeof row.appId === "string" && row.appId.trim() ? row.appId.trim() : undefined;
+      const appSecret =
+        typeof row.appSecret === "string" && row.appSecret.trim()
+          ? row.appSecret.trim()
+          : undefined;
+      return {
+        slug: c.slug,
+        name: c.name,
+        adAccountId: actIdFromEnv(c.adAccountId),
+        secret: c.secret,
+        ...(accessToken ? { accessToken } : {}),
+        ...(appId ? { appId } : {}),
+        ...(appSecret ? { appSecret } : {}),
+      };
+    });
+}
+
 /**
- * Lista de clientes: JSON no env META_TRAFFIC_CLIENTS
- * [{"slug":"loja-x","name":"Loja X","adAccountId":"act_...","secret":"senha-do-cliente"}]
+ * Clientes a partir de variáveis “flat” (mesmo estilo que META_APP_ID / META_ACCESS_TOKEN para a Luz do Luar).
+ *
+ * Easybee (portal): META_CLIENT_EASYBEE_* — sem token próprio → usa META_ACCESS_TOKEN.
+ * Luz do Luar: META_LUZ_APP_ID, META_LUZ_APP_SECRET, META_LUZ_ACCESS_TOKEN, META_LUZ_AD_ACCOUNT_ID + META_CLIENT_LUZ_*.
+ */
+function buildTrafficClientsFromFlatEnv(): TrafficClientConfig[] {
+  const out: TrafficClientConfig[] = [];
+
+  const ezSlug = process.env.META_CLIENT_EASYBEE_SLUG?.trim();
+  const ezName = process.env.META_CLIENT_EASYBEE_NAME?.trim();
+  const ezSecret = process.env.META_CLIENT_EASYBEE_SECRET?.trim();
+  const ezAct =
+    process.env.META_CLIENT_EASYBEE_AD_ACCOUNT_ID?.trim() || getDefaultAdAccountId();
+
+  if (ezSlug && ezName && ezSecret && ezAct) {
+    out.push({
+      slug: ezSlug,
+      name: ezName,
+      adAccountId: actIdFromEnv(ezAct),
+      secret: ezSecret,
+    });
+  }
+
+  const luzSlug = process.env.META_CLIENT_LUZ_SLUG?.trim();
+  const luzName = process.env.META_CLIENT_LUZ_NAME?.trim();
+  const luzSecret = process.env.META_CLIENT_LUZ_SECRET?.trim();
+  const luzAct = process.env.META_LUZ_AD_ACCOUNT_ID?.trim();
+  const luzTok = process.env.META_LUZ_ACCESS_TOKEN?.trim();
+  const luzAppId = process.env.META_LUZ_APP_ID?.trim();
+  const luzAppSec = process.env.META_LUZ_APP_SECRET?.trim();
+
+  if (luzSlug && luzName && luzSecret && luzAct && luzTok) {
+    out.push({
+      slug: luzSlug,
+      name: luzName,
+      adAccountId: actIdFromEnv(luzAct),
+      secret: luzSecret,
+      accessToken: luzTok,
+      ...(luzAppId ? { appId: luzAppId } : {}),
+      ...(luzAppSec ? { appSecret: luzAppSec } : {}),
+    });
+  }
+
+  return out;
+}
+
+/**
+ * Clientes do painel / cliente tráfego.
+ *
+ * 1) Se `META_TRAFFIC_CLIENTS` tiver um array JSON válido e não vazio após o filtro, usa só ele (legado).
+ * 2) Senão: `META_CLIENT_EASYBEE_*`, `META_CLIENT_LUZ_*` e `META_LUZ_*` (recomendado — igual ao bloco Meta da Easybee).
  */
 export function getTrafficClientsFromEnv(): TrafficClientConfig[] {
   const raw = process.env.META_TRAFFIC_CLIENTS?.trim();
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter(
-        (x): x is TrafficClientConfig =>
-          typeof x === "object" &&
-          x !== null &&
-          typeof (x as TrafficClientConfig).slug === "string" &&
-          typeof (x as TrafficClientConfig).name === "string" &&
-          typeof (x as TrafficClientConfig).adAccountId === "string" &&
-          typeof (x as TrafficClientConfig).secret === "string"
-      )
-      .map((c) => ({
-        slug: c.slug,
-        name: c.name,
-        adAccountId: c.adAccountId.startsWith("act_") ? c.adAccountId : `act_${c.adAccountId}`,
-        secret: c.secret,
-      }));
-  } catch {
-    return [];
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const fromJson = parseTrafficClientsJsonArray(parsed);
+        if (fromJson.length > 0) return fromJson;
+      }
+    } catch {
+      /* JSON inválido → cai no flat */
+    }
   }
+  return buildTrafficClientsFromFlatEnv();
+}
+
+/** Token a usar para um cliente (próprio ou global). */
+export function getAccessTokenForClient(client: TrafficClientConfig): string | undefined {
+  const t = client.accessToken?.trim() || getMetaAccessToken();
+  return t || undefined;
 }
 
 export function findClientBySlug(slug: string): TrafficClientConfig | undefined {

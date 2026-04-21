@@ -8,15 +8,15 @@ import {
   BarChart3,
   Lock,
   RefreshCw,
-  TrendingUp,
   MousePointerClick,
   Eye,
   Wallet,
   Target,
-  Layers,
-  Image,
   MessageCircle,
+  Link2,
+  Coins,
 } from "lucide-react";
+import { MetaTrafficHierarchy } from "@/app/components/MetaTrafficHierarchy";
 import { MetaTrafficExportToolbar } from "@/app/components/MetaTrafficExportToolbar";
 import {
   downloadMetaTrafficMarkdown,
@@ -30,7 +30,13 @@ type AccountTotals = {
   clicks: number;
   spend: number;
   reach: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
   ctr: number;
   cpc: number;
   cpm: number;
@@ -42,7 +48,14 @@ type CampaignRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -55,7 +68,14 @@ type AdSetRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -69,7 +89,14 @@ type AdRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -280,8 +307,8 @@ export default function ClienteTrafegoPage() {
               </div>
             </header>
 
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
+            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
+              <div className="w-full max-w-xs">
                 <label htmlFor="preset-client" className="mb-1 block text-xs text-zinc-500">
                   Período
                 </label>
@@ -289,7 +316,7 @@ export default function ClienteTrafegoPage() {
                   id="preset-client"
                   value={preset}
                   onChange={(e) => setPreset(e.target.value)}
-                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
                 >
                   {PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -331,17 +358,35 @@ export default function ClienteTrafegoPage() {
             ) : a ? (
               <>
                 <p className="mb-4 text-sm text-zinc-400">{a.accountName}</p>
-                <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {[
                     { icon: Eye, label: "Impressões", value: fmtInt(a.impressions) },
-                    { icon: MousePointerClick, label: "Cliques", value: fmtInt(a.clicks) },
+                    { icon: MousePointerClick, label: "Cliques (todos)", value: fmtInt(a.clicks) },
                     { icon: Wallet, label: "Investimento", value: brl(a.spend) },
                     { icon: Target, label: "Alcance", value: fmtInt(a.reach) },
                     {
+                      icon: Coins,
+                      label: "CPP (custo / mil alcance)",
+                      value: brl(a.cpp),
+                      title: "Custo por mil pessoas alcançadas",
+                    },
+                    {
+                      icon: Link2,
+                      label: "Cliques no link",
+                      value: fmtInt(a.inlineLinkClicks),
+                      title: "Cliques no link do anúncio (inline)",
+                    },
+                    {
+                      icon: Link2,
+                      label: "CPC no link",
+                      value: brl(a.costPerInlineLinkClick),
+                      title: "Custo por clique no link",
+                    },
+                    {
                       icon: MessageCircle,
-                      label: "Conversas por mensagem iniciadas",
+                      label: "Conv. por mensagem (7d)",
                       value: fmtInt(a.messagingConversationsStarted),
-                      title: "Conversas por mensagem iniciadas (atribuição 7 dias, conforme Meta)",
+                      title: "Conversas por mensagem iniciadas (atribuição 7 dias)",
                     },
                   ].map(({ icon: Icon, label, value, title }) => (
                     <div
@@ -357,64 +402,29 @@ export default function ClienteTrafegoPage() {
                     </div>
                   ))}
                 </div>
-                <div className="mb-8 grid gap-3 sm:grid-cols-3">
-                  {[
-                    { label: "CTR", value: pct(a.ctr) },
-                    { label: "CPC médio", value: brl(a.cpc) },
-                    { label: "CPM", value: brl(a.cpm) },
-                  ].map((x) => (
-                    <div
-                      key={x.label}
-                      className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3"
-                    >
-                      <span className="text-xs text-zinc-500">{x.label}</span>
-                      <p className="mt-1 font-mono text-lg text-emerald-400">{x.value}</p>
-                    </div>
-                  ))}
+                <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+                    <span className="text-xs text-zinc-500">CTR (todos os cliques)</span>
+                    <p className="mt-1 font-mono text-lg text-emerald-400">{pct(a.ctr)}</p>
+                  </div>
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+                    <span className="text-xs text-zinc-500">CPC médio (todos)</span>
+                    <p className="mt-1 font-mono text-lg text-emerald-400">{brl(a.cpc)}</p>
+                  </div>
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+                    <span className="text-xs text-zinc-500">CPM</span>
+                    <p className="mt-1 font-mono text-lg text-emerald-400">{brl(a.cpm)}</p>
+                  </div>
                 </div>
 
-                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-                  <TrendingUp className="h-4 w-4 text-zinc-500" />
-                  Campanhas
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Campanhas · conjuntos · anúncios
                 </h2>
-                {(data?.campaigns ?? []).length === 0 ? (
-                  <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-8 text-center text-sm text-zinc-500">
-                    Nenhuma campanha com dados neste período.
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[760px] text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
-                          <th className="px-4 py-3 font-medium">Campanha</th>
-                          <th className="px-4 py-3 font-medium">Impressões</th>
-                          <th className="px-4 py-3 font-medium">Cliques</th>
-                          <th className="px-4 py-3 font-medium">Investimento</th>
-                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
-                            Conv. msg.
-                          </th>
-                          <th className="px-4 py-3 font-medium">CTR</th>
-                          <th className="px-4 py-3 font-medium">CPC</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(data?.campaigns ?? []).map((c) => (
-                          <tr key={c.campaignId || c.campaignName} className="border-b border-zinc-800/80">
-                            <td className="max-w-[220px] truncate px-4 py-3 text-zinc-200" title={c.campaignName}>
-                              {c.campaignName}
-                            </td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(c.impressions)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(c.clicks)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{brl(c.spend)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(c.messagingConversationsStarted)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{pct(c.ctr)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{brl(c.cpc)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                <MetaTrafficHierarchy
+                  campaigns={data?.campaigns ?? []}
+                  adsets={data?.adsets ?? []}
+                  ads={data?.ads ?? []}
+                />
 
                 {data?.warnings && data.warnings.length > 0 && (
                   <div className="mt-8 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-200/90">
@@ -423,104 +433,6 @@ export default function ClienteTrafegoPage() {
                         {w}
                       </p>
                     ))}
-                  </div>
-                )}
-
-                <h2 className="mb-3 mt-10 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-                  <Layers className="h-4 w-4 text-zinc-500" />
-                  Conjuntos de anúncios
-                </h2>
-                {(data?.adsets ?? []).length === 0 ? (
-                  <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-6 text-center text-sm text-zinc-500">
-                    Nenhum conjunto com dados neste período.
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[920px] text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
-                          <th className="px-4 py-3 font-medium">Campanha</th>
-                          <th className="px-4 py-3 font-medium">Conjunto</th>
-                          <th className="px-4 py-3 font-medium">Impressões</th>
-                          <th className="px-4 py-3 font-medium">Cliques</th>
-                          <th className="px-4 py-3 font-medium">Investimento</th>
-                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
-                            Conv. msg.
-                          </th>
-                          <th className="px-4 py-3 font-medium">CTR</th>
-                          <th className="px-4 py-3 font-medium">CPC</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(data?.adsets ?? []).map((s) => (
-                          <tr key={s.adSetId || s.adSetName} className="border-b border-zinc-800/80">
-                            <td className="max-w-[180px] truncate px-4 py-3 text-zinc-400" title={s.campaignName}>
-                              {s.campaignName}
-                            </td>
-                            <td className="max-w-[200px] truncate px-4 py-3 text-zinc-200" title={s.adSetName}>
-                              {s.adSetName}
-                            </td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(s.impressions)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(s.clicks)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{brl(s.spend)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(s.messagingConversationsStarted)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{pct(s.ctr)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{brl(s.cpc)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                <h2 className="mb-3 mt-10 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-                  <Image className="h-4 w-4 text-zinc-500" />
-                  Anúncios
-                </h2>
-                {(data?.ads ?? []).length === 0 ? (
-                  <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-6 text-center text-sm text-zinc-500">
-                    Nenhum anúncio com dados neste período.
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto rounded-xl border border-zinc-800">
-                    <table className="w-full min-w-[1040px] text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-zinc-800 bg-zinc-900/80 text-xs text-zinc-500">
-                          <th className="px-4 py-3 font-medium">Campanha</th>
-                          <th className="px-4 py-3 font-medium">Conjunto</th>
-                          <th className="px-4 py-3 font-medium">Anúncio</th>
-                          <th className="px-4 py-3 font-medium">Impressões</th>
-                          <th className="px-4 py-3 font-medium">Cliques</th>
-                          <th className="px-4 py-3 font-medium">Investimento</th>
-                          <th className="px-4 py-3 font-medium" title="Conversas por mensagem iniciadas (7d)">
-                            Conv. msg.
-                          </th>
-                          <th className="px-4 py-3 font-medium">CTR</th>
-                          <th className="px-4 py-3 font-medium">CPC</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(data?.ads ?? []).map((ad) => (
-                          <tr key={ad.adId || ad.adName} className="border-b border-zinc-800/80">
-                            <td className="max-w-[140px] truncate px-4 py-3 text-zinc-400" title={ad.campaignName}>
-                              {ad.campaignName}
-                            </td>
-                            <td className="max-w-[160px] truncate px-4 py-3 text-zinc-400" title={ad.adSetName}>
-                              {ad.adSetName}
-                            </td>
-                            <td className="max-w-[200px] truncate px-4 py-3 text-zinc-200" title={ad.adName}>
-                              {ad.adName}
-                            </td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(ad.impressions)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{fmtInt(ad.clicks)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{brl(ad.spend)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-300">{fmtInt(ad.messagingConversationsStarted)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{pct(ad.ctr)}</td>
-                            <td className="px-4 py-3 font-mono text-zinc-400">{brl(ad.cpc)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
                   </div>
                 )}
               </>

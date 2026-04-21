@@ -186,14 +186,65 @@ export function messagingConversationsFromActions(actions: unknown): number {
   return total;
 }
 
+/** Leads de formulário / pixel — soma tipos comuns em `actions` (Meta Ads). */
+export function leadsFromActions(actions: unknown): number {
+  if (!Array.isArray(actions)) return 0;
+  let total = 0;
+  for (const raw of actions) {
+    if (!raw || typeof raw !== "object") continue;
+    const at = String((raw as FbActionItem).action_type ?? "");
+    if (
+      at === "lead" ||
+      /offsite_conversion\.fb_pixel_lead/i.test(at) ||
+      /onsite_conversion\.lead_grouped/i.test(at)
+    ) {
+      total += num(String((raw as FbActionItem).value ?? ""));
+    }
+  }
+  return total;
+}
+
+/**
+ * Leads “qualificados” quando a Meta expõe tipos dedicados em `actions`
+ * (varia por conta/objetivo; pode ficar 0 se não houver tipo compatível).
+ */
+export function qualifiedLeadsFromActions(actions: unknown): number {
+  if (!Array.isArray(actions)) return 0;
+  let total = 0;
+  for (const raw of actions) {
+    if (!raw || typeof raw !== "object") continue;
+    const at = String((raw as FbActionItem).action_type ?? "");
+    const lower = at.toLowerCase();
+    if (
+      (lower.includes("qualified") && lower.includes("lead")) ||
+      /quality_lead|lead_quality|graded_lead|lead.*qualified|qualified.*lead/i.test(at)
+    ) {
+      total += num(String((raw as FbActionItem).value ?? ""));
+    }
+  }
+  return total;
+}
+
 export type AccountTotals = {
   accountName: string;
   impressions: number;
   clicks: number;
   spend: number;
   reach: number;
+  /** Média de vezes que cada pessoa viu o anúncio (Meta). */
+  frequency: number;
+  /** Custo por mil pessoas alcançadas (Meta `cpp`). */
+  cpp: number;
+  /** Cliques no link (inline), distintos de “todos os cliques”. */
+  inlineLinkClicks: number;
+  /** Custo por clique no link (`cost_per_inline_link_click`). */
+  costPerInlineLinkClick: number;
   /** Conversas por mensagem iniciadas (7d), via `actions` na API. */
   messagingConversationsStarted: number;
+  /** Leads (formulário/pixel), via `actions`. */
+  leads: number;
+  /** Leads qualificados (quando a Meta reporta em `actions`). */
+  qualifiedLeads: number;
   ctr: number;
   cpc: number;
   cpm: number;
@@ -205,7 +256,14 @@ export type CampaignInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -218,7 +276,14 @@ export type AdSetInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -232,7 +297,14 @@ export type AdInsightRow = {
   impressions: number;
   clicks: number;
   spend: number;
+  frequency: number;
+  cpp: number;
+  inlineLinkClicks: number;
+  costPerInlineLinkClick: number;
   messagingConversationsStarted: number;
+  leads: number;
+  qualifiedLeads: number;
+  cpm: number;
   ctr: number;
   cpc: number;
 };
@@ -432,7 +504,8 @@ export async function fetchMetaInsights(
   const { params: dateParams, periodKey, timeRange } = insightDateParamsFromPreset(preset);
   const act = normalizeActId(adAccountId);
 
-  const fieldsAccount = "account_name,impressions,clicks,spend,ctr,cpc,cpm,reach,actions";
+  const fieldsAccount =
+    "account_name,impressions,clicks,spend,ctr,cpc,cpm,reach,frequency,cpp,inline_link_clicks,cost_per_inline_link_click,actions";
 
   const accJson = await graphGet<FbInsightRow[]>(`${act}/insights`, token, {
     fields: fieldsAccount,
@@ -461,14 +534,30 @@ export async function fetchMetaInsights(
     const clicks = num(row.clicks as string | undefined);
     const spend = num(row.spend as string | undefined);
     const reach = num(row.reach as string | undefined);
+    const inlineLinkClicks = num(row.inline_link_clicks as string | undefined);
     const messagingConversationsStarted = messagingConversationsFromActions(row.actions);
+    const leads = leadsFromActions(row.actions);
+    const qualifiedLeads = qualifiedLeadsFromActions(row.actions);
+    const frequency = num(row.frequency as string | undefined);
+    const cpp =
+      num(row.cpp as string | undefined) ||
+      (reach > 0 ? (spend / reach) * 1000 : 0);
+    const costPerInlineLinkClick =
+      num(row.cost_per_inline_link_click as string | undefined) ||
+      (inlineLinkClicks > 0 ? spend / inlineLinkClicks : 0);
     account = {
       accountName: String(row.account_name ?? "Conta de anúncios"),
       impressions,
       clicks,
       spend,
       reach,
+      frequency,
+      cpp,
+      inlineLinkClicks,
+      costPerInlineLinkClick,
       messagingConversationsStarted,
+      leads,
+      qualifiedLeads,
       ctr: num(row.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
       cpc: num(row.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       cpm: num(row.cpm as string | undefined) || (impressions > 0 ? (spend / impressions) * 1000 : 0),
@@ -476,11 +565,11 @@ export async function fetchMetaInsights(
   }
 
   const fieldsCamp =
-    "campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
+    "campaign_id,campaign_name,impressions,clicks,spend,reach,ctr,cpc,cpm,frequency,cpp,inline_link_clicks,cost_per_inline_link_click,actions";
   const fieldsAdset =
-    "adset_id,adset_name,campaign_id,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
+    "adset_id,adset_name,campaign_id,campaign_name,impressions,clicks,spend,reach,ctr,cpc,cpm,frequency,cpp,inline_link_clicks,cost_per_inline_link_click,actions";
   const fieldsAd =
-    "ad_id,ad_name,adset_id,adset_name,campaign_name,impressions,clicks,spend,ctr,cpc,actions";
+    "ad_id,ad_name,adset_id,adset_name,campaign_name,impressions,clicks,spend,reach,ctr,cpc,cpm,frequency,cpp,inline_link_clicks,cost_per_inline_link_click,actions";
 
   const [campRes, adsetRes, adRes] = await Promise.all([
     fetchAllInsightPages(`${act}/insights`, token, {
@@ -525,13 +614,31 @@ export async function fetchMetaInsights(
     const impressions = num(raw.impressions as string | undefined);
     const clicks = num(raw.clicks as string | undefined);
     const spend = num(raw.spend as string | undefined);
+    const reach = num(raw.reach as string | undefined);
+    const inlineLinkClicks = num(raw.inline_link_clicks as string | undefined);
+    const frequency = num(raw.frequency as string | undefined);
+    const cpp =
+      num(raw.cpp as string | undefined) ||
+      (reach > 0 ? (spend / reach) * 1000 : 0);
+    const costPerInlineLinkClick =
+      num(raw.cost_per_inline_link_click as string | undefined) ||
+      (inlineLinkClicks > 0 ? spend / inlineLinkClicks : 0);
     return {
       campaignId: String(raw.campaign_id ?? ""),
       campaignName: String(raw.campaign_name ?? "—"),
       impressions,
       clicks,
       spend,
+      frequency,
+      cpp,
+      inlineLinkClicks,
+      costPerInlineLinkClick,
       messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+      leads: leadsFromActions(raw.actions),
+      qualifiedLeads: qualifiedLeadsFromActions(raw.actions),
+      cpm:
+        num(raw.cpm as string | undefined) ||
+        (impressions > 0 ? (spend / impressions) * 1000 : 0),
       ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
       cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
     };
@@ -553,6 +660,15 @@ export async function fetchMetaInsights(
       const impressions = num(raw.impressions as string | undefined);
       const clicks = num(raw.clicks as string | undefined);
       const spend = num(raw.spend as string | undefined);
+      const reach = num(raw.reach as string | undefined);
+      const inlineLinkClicks = num(raw.inline_link_clicks as string | undefined);
+      const frequency = num(raw.frequency as string | undefined);
+      const cpp =
+        num(raw.cpp as string | undefined) ||
+        (reach > 0 ? (spend / reach) * 1000 : 0);
+      const costPerInlineLinkClick =
+        num(raw.cost_per_inline_link_click as string | undefined) ||
+        (inlineLinkClicks > 0 ? spend / inlineLinkClicks : 0);
       return {
         adSetId: String(raw.adset_id ?? ""),
         adSetName: String(raw.adset_name ?? "—"),
@@ -561,7 +677,16 @@ export async function fetchMetaInsights(
         impressions,
         clicks,
         spend,
+        frequency,
+        cpp,
+        inlineLinkClicks,
+        costPerInlineLinkClick,
         messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+        leads: leadsFromActions(raw.actions),
+        qualifiedLeads: qualifiedLeadsFromActions(raw.actions),
+        cpm:
+          num(raw.cpm as string | undefined) ||
+          (impressions > 0 ? (spend / impressions) * 1000 : 0),
         ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
         cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       };
@@ -580,6 +705,15 @@ export async function fetchMetaInsights(
       const impressions = num(raw.impressions as string | undefined);
       const clicks = num(raw.clicks as string | undefined);
       const spend = num(raw.spend as string | undefined);
+      const reach = num(raw.reach as string | undefined);
+      const inlineLinkClicks = num(raw.inline_link_clicks as string | undefined);
+      const frequency = num(raw.frequency as string | undefined);
+      const cpp =
+        num(raw.cpp as string | undefined) ||
+        (reach > 0 ? (spend / reach) * 1000 : 0);
+      const costPerInlineLinkClick =
+        num(raw.cost_per_inline_link_click as string | undefined) ||
+        (inlineLinkClicks > 0 ? spend / inlineLinkClicks : 0);
       return {
         adId: String(raw.ad_id ?? ""),
         adName: String(raw.ad_name ?? "—"),
@@ -589,7 +723,16 @@ export async function fetchMetaInsights(
         impressions,
         clicks,
         spend,
+        frequency,
+        cpp,
+        inlineLinkClicks,
+        costPerInlineLinkClick,
         messagingConversationsStarted: messagingConversationsFromActions(raw.actions),
+        leads: leadsFromActions(raw.actions),
+        qualifiedLeads: qualifiedLeadsFromActions(raw.actions),
+        cpm:
+          num(raw.cpm as string | undefined) ||
+          (impressions > 0 ? (spend / impressions) * 1000 : 0),
         ctr: num(raw.ctr as string | undefined) || (impressions > 0 ? (clicks / impressions) * 100 : 0),
         cpc: num(raw.cpc as string | undefined) || (clicks > 0 ? spend / clicks : 0),
       };

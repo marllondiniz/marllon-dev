@@ -155,6 +155,18 @@ function mesReferenciaTextoPt(input: MetaTrafficExportInput): string {
     return s.charAt(0).toUpperCase() + s.slice(1);
   };
   if (tr?.since && tr?.until) {
+    const sd = tr.since.slice(0, 10);
+    const ed = tr.until.slice(0, 10);
+    if (sd === ed) {
+      const [y, m, day] = sd.split("-").map(Number);
+      const s = new Date(y, m - 1, day).toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
     const [ys, ms] = tr.since.slice(0, 10).split("-").map(Number);
     const [ye, me] = tr.until.slice(0, 10).split("-").map(Number);
     if (ys === ye && ms === me) return fmt(ys, ms);
@@ -169,6 +181,20 @@ function mesReferenciaTextoPt(input: MetaTrafficExportInput): string {
   }
   if (id === "last_7d" || id === "last_14d" || id === "last_30d" || id === "last_90d") {
     return `${fmt(now.getFullYear(), now.getMonth() + 1)} (janela móvel até a data do relatório)`;
+  }
+  if (id === "today" || id === "yesterday") {
+    const d = new Date();
+    if (id === "yesterday") d.setUTCDate(d.getUTCDate() - 1);
+    const y = d.getUTCFullYear();
+    const m = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    const s = new Date(y, m - 1, day).toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
   return fmt(now.getFullYear(), now.getMonth() + 1);
 }

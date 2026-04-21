@@ -484,6 +484,32 @@ export function getInsightsHistoryMonthCount(): number {
   return Math.min(120, Math.max(1, Math.round(n)));
 }
 
+/** Data em UTC no formato YYYY-MM-DD (alinhado ao uso de time_range na Meta). */
+function formatUtcDateYmd(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+/** Calendário YYYY-MM-DD em um fuso (ex.: referência para “hoje/ontem” no painel). */
+function formatDateYmdInTimeZone(d: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+const PRESET_UI_TIMEZONE = "America/Sao_Paulo";
+
+/** Ontem no calendário do fuso do painel (Brasil), para exibir junto com preset `yesterday` da Meta. */
+function yesterdayYmdForPresetUi(): string {
+  const todayYmd = formatDateYmdInTimeZone(new Date(), PRESET_UI_TIMEZONE);
+  const [y, m, d] = todayYmd.split("-").map(Number);
+  const anchorUtc = Date.UTC(y, m - 1, d, 15, 0, 0);
+  const prev = new Date(anchorUtc - 24 * 60 * 60 * 1000);
+  return formatDateYmdInTimeZone(prev, PRESET_UI_TIMEZONE);
+}
+
 /** Intervalo [since, until] em UTC YYYY-MM-DD, N meses atrás até hoje. */
 export function rollingMonthsDateRange(months: number): { since: string; until: string } {
   const until = new Date();
@@ -491,9 +517,7 @@ export function rollingMonthsDateRange(months: number): { since: string; until: 
     Date.UTC(until.getUTCFullYear(), until.getUTCMonth(), until.getUTCDate())
   );
   since.setUTCMonth(since.getUTCMonth() - months);
-  const fmt = (d: Date) =>
-    `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
-  return { since: fmt(since), until: fmt(until) };
+  return { since: formatUtcDateYmd(since), until: formatUtcDateYmd(until) };
 }
 
 /**
@@ -513,6 +537,22 @@ export function insightDateParamsFromPreset(preset: string): {
       params: { time_range: JSON.stringify(tr) },
       periodKey: "last_37_months",
       timeRange: tr,
+    };
+  }
+  if (p === "today") {
+    const ymd = formatDateYmdInTimeZone(new Date(), PRESET_UI_TIMEZONE);
+    return {
+      params: { date_preset: "today" },
+      periodKey: "today",
+      timeRange: { since: ymd, until: ymd },
+    };
+  }
+  if (p === "yesterday") {
+    const ymd = yesterdayYmdForPresetUi();
+    return {
+      params: { date_preset: "yesterday" },
+      periodKey: "yesterday",
+      timeRange: { since: ymd, until: ymd },
     };
   }
   if (STANDARD_DATE_PRESETS.has(p)) {

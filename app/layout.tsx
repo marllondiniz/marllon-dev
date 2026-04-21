@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "./components/ConditionalHeader";
+import ConditionalSiteFooter from "./components/ConditionalSiteFooter";
 import MainPadding from "./components/MainPadding";
 import CookieConsentOnlyHome from "./components/CookieConsentOnlyHome";
 import BodyOverlayControl from "./components/BodyOverlayControl";
 import { Analytics } from "@vercel/analytics/next";
+import { SITE_HOST, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,8 +19,8 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space",
 });
 
-const siteUrl = "https://zinid.tech";
-const siteName = "Marllon Diniz - zinid.tech";
+const siteUrl = SITE_URL;
+const siteName = SITE_NAME;
 const siteDescription =
   "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados. Início de um futuro próspero. Espírito Santo, Brasil.";
 const keywords = [
@@ -119,8 +121,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Marllon Diniz",
-    url: "https://zinid.tech",
-    image: "https://zinid.tech/marllon.jpeg",
+    url: SITE_URL,
+    image: `${SITE_URL}/marllon.jpeg`,
     jobTitle: "Desenvolvedor Back-end",
     description:
       "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados.",
@@ -148,8 +150,8 @@ export default function RootLayout({
     ],
     worksFor: {
       "@type": "Organization",
-      name: "zinid.tech",
-      url: "https://zinid.tech",
+      name: SITE_HOST,
+      url: SITE_URL,
     },
   };
 
@@ -165,6 +167,7 @@ export default function RootLayout({
         <BodyOverlayControl />
         <ConditionalHeader />
         <MainPadding>{children}</MainPadding>
+        <ConditionalSiteFooter />
         <CookieConsentOnlyHome />
         <Analytics />
       </body>

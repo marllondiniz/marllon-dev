@@ -2,42 +2,24 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, Lock, LogOut, RefreshCw } from "lucide-react";
+import { EasyBeeBrandBanner } from "@/app/components/EasyBeeBrandBanner";
+import { LuzDoLuarBrandBanner } from "@/app/components/LuzDoLuarBrandBanner";
 import {
-  ArrowLeft,
-  Lock,
-  RefreshCw,
-  MousePointerClick,
-  Eye,
-  Wallet,
-  Target,
-  MessageCircle,
-  Link2,
-  Coins,
-} from "lucide-react";
-import { MetaTrafficHierarchy } from "@/app/components/MetaTrafficHierarchy";
-import { MetaTrafficExportToolbar } from "@/app/components/MetaTrafficExportToolbar";
+  MetaTrafficDashboard,
+  type DashboardAccount,
+  type DashboardBrandVariant,
+} from "@/app/components/MetaTrafficDashboard";
+import { trafficPortalKind } from "@/lib/traffic-portal-slugs";
 import {
   downloadMetaTrafficMarkdown,
   downloadMetaTrafficPdf,
   type MetaTrafficExportInput,
 } from "@/lib/export-meta-traffic-report";
 
-type AccountTotals = {
-  accountName: string;
-  impressions: number;
-  clicks: number;
-  spend: number;
-  reach: number;
-  frequency: number;
-  cpp: number;
-  inlineLinkClicks: number;
-  costPerInlineLinkClick: number;
-  messagingConversationsStarted: number;
+type AccountTotals = DashboardAccount & {
   leads: number;
   qualifiedLeads: number;
-  ctr: number;
-  cpc: number;
-  cpm: number;
 };
 
 type CampaignRow = {
@@ -58,45 +40,14 @@ type CampaignRow = {
   cpc: number;
 };
 
-type AdSetRow = {
+type AdSetRow = CampaignRow & {
   adSetId: string;
   adSetName: string;
-  campaignId: string;
-  campaignName: string;
-  impressions: number;
-  clicks: number;
-  spend: number;
-  frequency: number;
-  cpp: number;
-  inlineLinkClicks: number;
-  costPerInlineLinkClick: number;
-  messagingConversationsStarted: number;
-  leads: number;
-  qualifiedLeads: number;
-  cpm: number;
-  ctr: number;
-  cpc: number;
 };
 
-type AdRow = {
+type AdRow = AdSetRow & {
   adId: string;
   adName: string;
-  adSetId: string;
-  adSetName: string;
-  campaignName: string;
-  impressions: number;
-  clicks: number;
-  spend: number;
-  frequency: number;
-  cpp: number;
-  inlineLinkClicks: number;
-  costPerInlineLinkClick: number;
-  messagingConversationsStarted: number;
-  leads: number;
-  qualifiedLeads: number;
-  cpm: number;
-  ctr: number;
-  cpc: number;
 };
 
 type ClientItem = { slug: string; name: string };
@@ -104,7 +55,6 @@ type ClientItem = { slug: string; name: string };
 type ApiPayload = {
   role: string;
   clients?: ClientItem[];
-  /** Dica quando só existe conta padrão (env incompleto na Vercel). */
   clientEnvHint?: string;
   preset: string;
   adAccountId: string;
@@ -115,11 +65,12 @@ type ApiPayload = {
   ads?: AdRow[];
   warnings?: string[];
   error?: string;
-  /** Instruções extras (ex.: permissão ads_read na Meta) */
   hint?: string;
 };
 
-const PRESETS: { id: string; label: string }[] = [
+const PRESETS = [
+  { id: "today", label: "Hoje" },
+  { id: "yesterday", label: "Ontem" },
   { id: "last_7d", label: "Últimos 7 dias" },
   { id: "last_14d", label: "Últimos 14 dias" },
   { id: "last_30d", label: "Últimos 30 dias" },
@@ -128,18 +79,6 @@ const PRESETS: { id: string; label: string }[] = [
   { id: "last_month", label: "Mês passado" },
   { id: "last_37_months", label: "Histórico longo (~37 meses Meta)" },
 ];
-
-function brl(n: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
-}
-
-function fmtInt(n: number) {
-  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(n);
-}
-
-function pct(n: number) {
-  return `${n.toFixed(2)}%`;
-}
 
 export default function AdminTrafegoPage() {
   const [password, setPassword] = useState("");
@@ -151,6 +90,9 @@ export default function AdminTrafegoPage() {
   const [data, setData] = useState<ApiPayload | null>(null);
   const [preset, setPreset] = useState("last_30d");
   const [slug, setSlug] = useState<string>("");
+  const portal = trafficPortalKind(slug);
+  const dashboardBrand: DashboardBrandVariant =
+    portal === "easybee" ? "easybee" : portal === "luzdoluar" ? "luzdoluar" : "default";
 
   const load = useCallback(
     async (s: string, p: string, clientSlug?: string) => {
@@ -208,7 +150,6 @@ export default function AdminTrafegoPage() {
         setError("Senha incorreta.");
         return;
       }
-      // Senha ok: entra no painel mesmo se a Meta devolver 400/502 (conta/token)
       setSecret(s);
       if (!res.ok) {
         setError(json.error || "Erro ao carregar dados da Meta.");
@@ -226,8 +167,6 @@ export default function AdminTrafegoPage() {
       setLoading(false);
     }
   }
-
-  const a = data?.account;
 
   function buildExportPayload(): MetaTrafficExportInput | null {
     if (!data) return null;
@@ -252,64 +191,90 @@ export default function AdminTrafegoPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         {secret ? (
-          <>
-            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
-              <div className="grid w-full gap-3 sm:grid-cols-2 lg:max-w-xl lg:grid-cols-2">
-                <div>
-                  <label htmlFor="preset" className="mb-1 block text-xs text-zinc-500">
-                    Período
+          <MetaTrafficDashboard
+            presets={PRESETS}
+            preset={preset}
+            onPresetChange={setPreset}
+            brandVariant={dashboardBrand}
+            brandSlot={
+              portal === "easybee" ? (
+                <EasyBeeBrandBanner variant="compact" subtitle="Métricas Meta Ads" />
+              ) : portal === "luzdoluar" ? (
+                <LuzDoLuarBrandBanner variant="compact" subtitle="Métricas Meta Ads" />
+              ) : undefined
+            }
+            adAccountId={data?.adAccountId}
+            timeRange={data?.timeRange}
+            account={data?.account ?? null}
+            campaigns={data?.campaigns ?? []}
+            adsets={data?.adsets ?? []}
+            ads={data?.ads ?? []}
+            loading={loadingData}
+            error={error || null}
+            errorHint={errorHint || null}
+            warnings={data?.warnings}
+            controlsHint={data?.clientEnvHint ?? null}
+            disableExport={!data}
+            onExportMarkdown={() => {
+              const p = buildExportPayload();
+              if (p) downloadMetaTrafficMarkdown(p);
+            }}
+            onExportPdf={() => {
+              const p = buildExportPayload();
+              if (p) downloadMetaTrafficPdf(p);
+            }}
+            leftExtras={
+              data?.clients && data.clients.length > 0 ? (
+                <div className="w-full sm:max-w-xs">
+                  <label
+                    htmlFor="client-slug"
+                    className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500"
+                  >
+                    Conta (cliente)
                   </label>
                   <select
-                    id="preset"
-                    value={preset}
-                    onChange={(e) => setPreset(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                    id="client-slug"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    className={
+                      "w-full rounded-lg border border-zinc-700/80 bg-zinc-900 px-3 py-2 text-sm text-white transition focus:outline-none focus:ring-1 " +
+                      (portal === "easybee"
+                        ? "focus:border-amber-500/55 focus:ring-amber-500/25"
+                        : portal === "luzdoluar"
+                          ? "focus:border-[#c5a47e]/55 focus:ring-[#c5a47e]/22"
+                          : "focus:border-emerald-500/50 focus:ring-emerald-500/20")
+                    }
                   >
-                    {PRESETS.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.label}
+                    {data.clients.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name}
                       </option>
                     ))}
                   </select>
                 </div>
-                {data?.clients && data.clients.length > 0 && (
-                  <div>
-                    <label htmlFor="client-slug" className="mb-1 block text-xs text-zinc-500">
-                      Conta (cliente)
-                    </label>
-                    <select
-                      id="client-slug"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      className="w-full max-w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
-                    >
-                      {data.clients.map((c) => (
-                        <option key={c.slug} value={c.slug}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    {data.clientEnvHint && (
-                      <p className="mt-1.5 text-xs leading-snug text-amber-200/90">{data.clientEnvHint}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-wrap items-end gap-3">
-                <MetaTrafficExportToolbar
-                  align="start"
-                  disabled={!data}
-                  onMarkdown={() => {
-                    const p = buildExportPayload();
-                    if (p) downloadMetaTrafficMarkdown(p);
-                  }}
-                  onPdf={() => {
-                    const p = buildExportPayload();
-                    if (p) downloadMetaTrafficPdf(p);
-                  }}
-                />
+              ) : null
+            }
+            rightExtras={
+              <>
+                <button
+                  type="button"
+                  onClick={() => secret && load(secret, preset, slug || undefined)}
+                  disabled={loadingData}
+                  className={
+                    "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-900/60 px-3 text-xs text-zinc-300 transition disabled:opacity-50 " +
+                    (portal === "easybee"
+                      ? "hover:border-amber-500/45 hover:text-amber-200"
+                      : portal === "luzdoluar"
+                        ? "hover:border-[#c5a47e]/45 hover:text-[#e8dcc8]"
+                        : "hover:border-emerald-500/40 hover:text-emerald-300")
+                  }
+                  title="Atualizar"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${loadingData ? "animate-spin" : ""}`} />
+                  <span className="hidden sm:inline">Atualizar</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -317,118 +282,22 @@ export default function AdminTrafegoPage() {
                     setPassword("");
                     setData(null);
                   }}
-                  className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:border-red-500/40 hover:text-red-400"
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-900/60 px-3 text-xs text-zinc-300 transition hover:border-red-500/40 hover:text-red-400"
+                  title="Sair"
                 >
-                  Sair
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Sair</span>
                 </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-                {error}
-              </div>
-            )}
-            {errorHint && (
-              <div className="mb-4 whitespace-pre-wrap rounded-lg border border-zinc-600 bg-zinc-900/80 px-3 py-3 text-xs leading-relaxed text-zinc-300">
-                {errorHint}
-              </div>
-            )}
-
-            {loadingData && !a ? (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/50 py-16">
-                <RefreshCw className="mb-2 h-8 w-8 animate-spin text-emerald-400" />
-                <p className="text-sm text-zinc-500">Carregando insights…</p>
-              </div>
-            ) : a ? (
-              <>
-                <p className="mb-4 text-sm text-zinc-400">{a.accountName}</p>
-                <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {[
-                    { icon: Eye, label: "Impressões", value: fmtInt(a.impressions) },
-                    { icon: MousePointerClick, label: "Cliques (todos)", value: fmtInt(a.clicks) },
-                    { icon: Wallet, label: "Investimento", value: brl(a.spend) },
-                    { icon: Target, label: "Alcance", value: fmtInt(a.reach) },
-                    {
-                      icon: Coins,
-                      label: "CPP (custo / mil alcance)",
-                      value: brl(a.cpp),
-                      title: "Custo por mil pessoas alcançadas",
-                    },
-                    {
-                      icon: Link2,
-                      label: "Cliques no link",
-                      value: fmtInt(a.inlineLinkClicks),
-                      title: "Cliques no link do anúncio (inline)",
-                    },
-                    {
-                      icon: Link2,
-                      label: "CPC no link",
-                      value: brl(a.costPerInlineLinkClick),
-                      title: "Custo por clique no link",
-                    },
-                    {
-                      icon: MessageCircle,
-                      label: "Conv. por mensagem (7d)",
-                      value: fmtInt(a.messagingConversationsStarted),
-                      title: "Conversas por mensagem iniciadas (atribuição 7 dias)",
-                    },
-                  ].map(({ icon: Icon, label, value, title }) => (
-                    <div
-                      key={label}
-                      className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
-                      title={title}
-                    >
-                      <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <Icon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="leading-tight">{label}</span>
-                      </div>
-                      <p className="mt-2 text-xl font-semibold text-white">{value}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-                    <span className="text-xs text-zinc-500">CTR (todos os cliques)</span>
-                    <p className="mt-1 font-mono text-lg text-emerald-400">{pct(a.ctr)}</p>
-                  </div>
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-                    <span className="text-xs text-zinc-500">CPC médio (todos)</span>
-                    <p className="mt-1 font-mono text-lg text-emerald-400">{brl(a.cpc)}</p>
-                  </div>
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-                    <span className="text-xs text-zinc-500">CPM</span>
-                    <p className="mt-1 font-mono text-lg text-emerald-400">{brl(a.cpm)}</p>
-                  </div>
-                </div>
-
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Campanhas · conjuntos · anúncios
-                </h2>
-                <MetaTrafficHierarchy
-                  campaigns={data!.campaigns}
-                  adsets={data?.adsets ?? []}
-                  ads={data?.ads ?? []}
-                />
-
-                {data?.warnings && data.warnings.length > 0 && (
-                  <div className="mt-8 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-200/90">
-                    {data.warnings.map((w) => (
-                      <p key={w} className="mb-1 last:mb-0">
-                        {w}
-                      </p>
-                    ))}
-                  </div>
-                )}
               </>
-            ) : (
-              <p className="text-sm text-zinc-500">Não foi possível carregar os totais da conta.</p>
-            )}
-          </>
+            }
+          />
         ) : (
           <div className="flex min-h-[60vh] items-center justify-center">
             <div className="w-full max-w-sm">
-              <Link href="/admin" className="mb-6 inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white">
+              <Link
+                href="/admin"
+                className="mb-6 inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white"
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Voltar ao admin
               </Link>
@@ -453,7 +322,9 @@ export default function AdminTrafegoPage() {
                   />
                   {error && <p className="text-xs text-red-400">{error}</p>}
                   {errorHint && (
-                    <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-zinc-500">{errorHint}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-zinc-500">
+                      {errorHint}
+                    </p>
                   )}
                   <button
                     type="submit"

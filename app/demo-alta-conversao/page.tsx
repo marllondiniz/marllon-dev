@@ -654,36 +654,6 @@ export default function DemoAltaConversaoPage() {
           </div>
         </div>
       </section>
-
-      {/* ─── FOOTER (identidade da página principal) ───────── */}
-      <footer className="border-t border-zinc-800 py-8 text-center text-sm text-zinc-500" role="contentinfo">
-        <div className="mx-auto max-w-5xl px-6">
-          <p className="font-medium text-zinc-400">
-            Marllon Diniz · zinid.tech
-          </p>
-          <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1" aria-label="Serviços e contato">
-            <Link
-              href="/site-72h"
-              className="inline-flex items-center gap-1.5 text-[#22c55e] hover:text-[#22c55e]/80 font-medium"
-            >
-              <ArrowRight className="h-4 w-4" aria-hidden />
-              Seu site pronto em 72h
-            </Link>
-            <Link
-              href="/briefing"
-              className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-white"
-            >
-              Briefing rápido
-            </Link>
-          </nav>
-          <p className="mt-3 text-[#22c55e]/90 font-medium text-sm">
-            Início de um futuro próspero
-          </p>
-          <p className="mt-2 text-zinc-500">
-            <small>© {new Date().getFullYear()} Marllon Diniz · zinid.tech</small>
-          </p>
-        </div>
-      </footer>
     </main>
   );
 }

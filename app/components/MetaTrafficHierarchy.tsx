@@ -12,19 +12,19 @@ export type HierarchyMetrics = {
   ctr: number;
 };
 
-type Campaign = HierarchyMetrics & {
+export type Campaign = HierarchyMetrics & {
   campaignId: string;
   campaignName: string;
 };
 
-type AdSet = HierarchyMetrics & {
+export type AdSet = HierarchyMetrics & {
   adSetId: string;
   adSetName: string;
   campaignId: string;
   campaignName: string;
 };
 
-type Ad = HierarchyMetrics & {
+export type Ad = HierarchyMetrics & {
   adId: string;
   adName: string;
   adSetId: string;

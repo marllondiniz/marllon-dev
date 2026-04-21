@@ -20,6 +20,8 @@ export const maxDuration = 60;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 const DATE_PRESETS = new Set([
+  "today",
+  "yesterday",
   "last_7d",
   "last_14d",
   "last_30d",

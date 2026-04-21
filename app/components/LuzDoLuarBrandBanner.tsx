@@ -1,8 +1,14 @@
 import Image from "next/image";
+import { LuzDoLuarManualLink } from "@/app/components/LuzDoLuarManualLink";
 
 type Props = {
   subtitle?: string;
   variant?: "login" | "compact";
+  /**
+   * Manual no banner: no login fica abaixo do formulário (use `LuzDoLuarManualLink` na página).
+   * Padrão: só no painel (`compact`).
+   */
+  showManualLink?: boolean;
   className?: string;
 };
 
@@ -12,9 +18,16 @@ type Props = {
 export function LuzDoLuarBrandBanner({
   subtitle = "Painel de métricas",
   variant = "login",
+  showManualLink,
   className = "",
 }: Props) {
   const isLogin = variant === "login";
+  const showManualInBanner =
+    showManualLink === false
+      ? false
+      : showManualLink === true
+        ? true
+        : variant === "compact";
   return (
     <div
       className={
@@ -45,6 +58,7 @@ export function LuzDoLuarBrandBanner({
           {subtitle}
         </p>
       ) : null}
+      {showManualInBanner ? <LuzDoLuarManualLink variant="compact" /> : null}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, LogOut, RefreshCw } from "lucide-react";
 import { EasyBeeBrandBanner } from "@/app/components/EasyBeeBrandBanner";
 import { LuzDoLuarBrandBanner } from "@/app/components/LuzDoLuarBrandBanner";
+import { LuzDoLuarManualLink } from "@/app/components/LuzDoLuarManualLink";
 import {
   MetaTrafficDashboard,
   type DashboardAccount,
@@ -357,6 +358,11 @@ export default function ClienteTrafegoPage() {
                     {loading ? "Entrando..." : "Ver métricas"}
                   </button>
                 </form>
+                {portal === "luzdoluar" ? (
+                  <div className="mt-4 flex w-full justify-center">
+                    <LuzDoLuarManualLink />
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>

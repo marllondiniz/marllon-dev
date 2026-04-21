@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
-  Lock,
   RefreshCw,
   MousePointerClick,
   Eye,
+  EyeOff,
   Wallet,
   Target,
   MessageCircle,
@@ -148,6 +148,7 @@ export default function ClienteTrafegoPage() {
   const [errorHint, setErrorHint] = useState("");
   const [data, setData] = useState<ApiPayload | null>(null);
   const [preset, setPreset] = useState("last_30d");
+  const [showPassword, setShowPassword] = useState(false);
 
   const fetchData = useCallback(
     async (secret: string, p: string) => {
@@ -336,7 +337,6 @@ export default function ClienteTrafegoPage() {
               </div>
             ) : a ? (
               <>
-                <p className="mb-4 text-sm text-zinc-400">{a.accountName}</p>
                 <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {[
                     { icon: Eye, label: "Impressões", value: fmtInt(a.impressions) },
@@ -427,24 +427,30 @@ export default function ClienteTrafegoPage() {
                 Voltar ao site
               </Link>
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                    <Lock className="h-5 w-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <h1 className="font-semibold text-white">Resultados do tráfego</h1>
-                    <p className="text-xs text-zinc-500">Acesso exclusivo · slug: {slug}</p>
-                  </div>
-                </div>
                 <form onSubmit={handleLogin} className="space-y-3">
-                  <input
-                    type="password"
-                    value={clientSecret}
-                    onChange={(e) => setClientSecret(e.target.value)}
-                    placeholder="Senha do painel"
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
-                    autoFocus
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={clientSecret}
+                      onChange={(e) => setClientSecret(e.target.value)}
+                      placeholder="Senha do painel"
+                      className="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-2.5 pl-3 pr-11 text-sm text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                      autoFocus
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 shrink-0" />
+                      ) : (
+                        <Eye className="h-4 w-4 shrink-0" />
+                      )}
+                    </button>
+                  </div>
                   {error && <p className="text-xs text-red-400">{error}</p>}
                   {errorHint && (
                     <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-zinc-500">{errorHint}</p>

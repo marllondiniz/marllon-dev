@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  BarChart3,
   Lock,
   RefreshCw,
   MousePointerClick,
@@ -256,41 +255,6 @@ export default function AdminTrafegoPage() {
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {secret ? (
           <>
-            <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="flex items-center gap-2 text-lg font-semibold text-white">
-                  <BarChart3 className="h-5 w-5 text-emerald-400" />
-                  Métricas Meta Ads
-                </h1>
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  {data?.adAccountId && (
-                    <span className="font-mono text-zinc-400">{data.adAccountId}</span>
-                  )}
-                  {data?.timeRange && (
-                    <>
-                      {" · "}
-                      <span className="text-zinc-500">
-                        {data.timeRange.since} → {data.timeRange.until}
-                      </span>
-                    </>
-                  )}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSecret(null);
-                    setPassword("");
-                    setData(null);
-                  }}
-                  className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:border-red-500/40 hover:text-red-400"
-                >
-                  Sair
-                </button>
-              </div>
-            </header>
-
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
               <div className="grid w-full gap-3 sm:grid-cols-2 lg:max-w-xl lg:grid-cols-2">
                 <div>
@@ -333,18 +297,31 @@ export default function AdminTrafegoPage() {
                   </div>
                 )}
               </div>
-              <MetaTrafficExportToolbar
-                align="start"
-                disabled={!data}
-                onMarkdown={() => {
-                  const p = buildExportPayload();
-                  if (p) downloadMetaTrafficMarkdown(p);
-                }}
-                onPdf={() => {
-                  const p = buildExportPayload();
-                  if (p) downloadMetaTrafficPdf(p);
-                }}
-              />
+              <div className="flex flex-wrap items-end gap-3">
+                <MetaTrafficExportToolbar
+                  align="start"
+                  disabled={!data}
+                  onMarkdown={() => {
+                    const p = buildExportPayload();
+                    if (p) downloadMetaTrafficMarkdown(p);
+                  }}
+                  onPdf={() => {
+                    const p = buildExportPayload();
+                    if (p) downloadMetaTrafficPdf(p);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSecret(null);
+                    setPassword("");
+                    setData(null);
+                  }}
+                  className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:border-red-500/40 hover:text-red-400"
+                >
+                  Sair
+                </button>
+              </div>
             </div>
 
             {error && (

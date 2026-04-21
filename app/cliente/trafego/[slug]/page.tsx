@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
-  BarChart3,
   Lock,
   RefreshCw,
   MousePointerClick,
@@ -259,31 +258,31 @@ export default function ClienteTrafegoPage() {
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {sessionOk ? (
           <>
-            <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="flex items-center gap-2 text-lg font-semibold text-white">
-                  <BarChart3 className="h-5 w-5 text-emerald-400" />
-                  {data?.label ?? "Seu tráfego"}
-                </h1>
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  Resumo Meta Ads ·{" "}
-                  <span className="font-mono text-zinc-400">{data?.adAccountId}</span>
-                  {data?.timeRange && (
-                    <>
-                      {" · "}
-                      <span>
-                        {data.timeRange.since} → {data.timeRange.until}
-                      </span>
-                    </>
-                  )}
-                </p>
+            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
+              <div className="w-full max-w-xs">
+                <label htmlFor="preset-client" className="mb-1 block text-xs text-zinc-500">
+                  Período
+                </label>
+                <select
+                  id="preset-client"
+                  value={preset}
+                  onChange={(e) => setPreset(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                >
+                  {PRESETS.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => clientSecret && fetchData(clientSecret, preset)}
                   disabled={loadingData}
                   className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50"
+                  title="Atualizar"
                 >
                   <RefreshCw className={`inline h-3.5 w-3.5 ${loadingData ? "animate-spin" : ""}`} />
                 </button>
@@ -304,39 +303,19 @@ export default function ClienteTrafegoPage() {
                 >
                   Sair
                 </button>
+                <MetaTrafficExportToolbar
+                  align="start"
+                  disabled={!data}
+                  onMarkdown={() => {
+                    const p = buildExportPayload();
+                    if (p) downloadMetaTrafficMarkdown(p);
+                  }}
+                  onPdf={() => {
+                    const p = buildExportPayload();
+                    if (p) downloadMetaTrafficPdf(p);
+                  }}
+                />
               </div>
-            </header>
-
-            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
-              <div className="w-full max-w-xs">
-                <label htmlFor="preset-client" className="mb-1 block text-xs text-zinc-500">
-                  Período
-                </label>
-                <select
-                  id="preset-client"
-                  value={preset}
-                  onChange={(e) => setPreset(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
-                >
-                  {PRESETS.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <MetaTrafficExportToolbar
-                align="start"
-                disabled={!data}
-                onMarkdown={() => {
-                  const p = buildExportPayload();
-                  if (p) downloadMetaTrafficMarkdown(p);
-                }}
-                onPdf={() => {
-                  const p = buildExportPayload();
-                  if (p) downloadMetaTrafficPdf(p);
-                }}
-              />
             </div>
 
             {error && (

@@ -8,10 +8,12 @@ type Props = {
   disabled: boolean;
   onMarkdown: () => void;
   onPdf: () => void;
-  /** `start` alinha à esquerda (útil ao lado do seletor Período); `end` à direita (cabeçalho). */
-  align?: "start" | "end";
+  /** `start` / `end` / `center` (centro do cabeçalho em 3 colunas). */
+  align?: "start" | "end" | "center";
   /** Cor de destaque dos botões (alinhado ao tema do painel). */
   accent?: ExportToolbarAccent;
+  /** Ex.: `w-full` para ocupar a coluna no mobile. */
+  className?: string;
 };
 
 /**
@@ -23,11 +25,10 @@ export function MetaTrafficExportToolbar({
   onPdf,
   align = "end",
   accent = "emerald",
+  className = "",
 }: Props) {
   const outerAlign =
-    align === "start"
-      ? "items-start"
-      : "items-stretch sm:items-end"; /* stretch: grupo ocupa largura no mobile */
+    align === "start" ? "items-start" : align === "center" ? "items-center" : "items-end";
 
   const accentHover =
     accent === "amber"
@@ -53,13 +54,19 @@ export function MetaTrafficExportToolbar({
         : "border-zinc-600/90 ring-white/[0.06]";
 
   return (
-    <div className={`flex flex-col gap-1.5 ${outerAlign}`}>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+    <div
+      className={`flex min-w-0 flex-col gap-1.5 ${outerAlign} ${className}`}
+    >
+      <span
+        className={`w-full text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500 ${
+          align === "end" ? "text-right" : align === "center" ? "text-center" : "text-left"
+        }`}
+      >
         Exportar relatório
       </span>
       <div
         className={
-          "flex min-w-0 gap-0.5 rounded-2xl border bg-gradient-to-b from-zinc-800/90 to-zinc-950/90 p-1 shadow-lg shadow-black/40 ring-1 " +
+          "flex w-full min-w-0 max-w-full gap-0.5 rounded-2xl border bg-gradient-to-b from-zinc-800/90 to-zinc-950/90 p-1 shadow-lg shadow-black/40 ring-1 " +
           groupRing
         }
         role="group"

@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
+import { TRAFFIC_LEGACY_PRESET_IDS } from "@/lib/traffic-date-presets";
 import {
   MetaTrafficHierarchy,
   type Ad,
@@ -21,6 +22,8 @@ import {
   type Campaign,
 } from "./MetaTrafficHierarchy";
 import { MetaTrafficExportToolbar } from "./MetaTrafficExportToolbar";
+
+const LEGACY_PRESET_SET = new Set(TRAFFIC_LEGACY_PRESET_IDS);
 
 export type DashboardBrandVariant = "default" | "easybee" | "luzdoluar";
 
@@ -177,6 +180,8 @@ export function MetaTrafficDashboard(props: MetaTrafficDashboardProps) {
 
   const presetLabel = presets.find((p) => p.id === preset)?.label ?? preset;
   const a = account;
+  const mainPresets = presets.filter((p) => !LEGACY_PRESET_SET.has(p.id));
+  const extraPresets = presets.filter((p) => LEGACY_PRESET_SET.has(p.id));
 
   return (
     <div className="space-y-6">
@@ -186,64 +191,108 @@ export function MetaTrafficDashboard(props: MetaTrafficDashboardProps) {
             {brandSlot}
           </div>
         ) : null}
-        <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
-          <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-            <div className="w-full sm:max-w-xs">
-              <label
-                htmlFor="meta-preset"
-                className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500"
-              >
-                Período
-              </label>
-              <select
-                id="meta-preset"
-                value={preset}
-                onChange={(e) => onPresetChange(e.target.value)}
-                className={`w-full rounded-lg border border-zinc-700/80 bg-zinc-900 px-3 py-2 text-sm text-white transition focus:outline-none focus:ring-1 ${ac.selectFocus}`}
-              >
-                {presets.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
+        {/* Mobile: período, depois linha [Ações] | [Exportar]. Desktop: [Período | Exportar | Ações] em 3 colunas. */}
+        <div className="mx-auto w-full max-w-6xl 2xl:max-w-7xl">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_minmax(0,auto)_1fr] lg:items-end lg:gap-6 xl:gap-8">
+            <div className="min-w-0 justify-self-stretch sm:max-w-md lg:justify-self-start">
+              <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                <div className="w-full sm:max-w-xs">
+                  <label
+                    htmlFor="meta-preset"
+                    className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500"
+                  >
+                    Período
+                  </label>
+                  <select
+                    id="meta-preset"
+                    value={preset}
+                    onChange={(e) => onPresetChange(e.target.value)}
+                    className={`w-full rounded-lg border border-zinc-700/80 bg-zinc-900 px-3 py-2 text-sm text-white transition focus:outline-none focus:ring-1 ${ac.selectFocus}`}
+                  >
+                    <optgroup label="Período">
+                      {mainPresets.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    {extraPresets.length > 0 ? (
+                      <optgroup label="Histórico adicional">
+                        {extraPresets.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ) : null}
+                  </select>
+                </div>
+                {leftExtras}
+              </div>
             </div>
-            {leftExtras}
-          </div>
-          <div className="flex flex-wrap items-end gap-2 sm:gap-3">
-            {rightExtras}
-            <MetaTrafficExportToolbar
-              align="start"
-              accent={exportAccent}
-              disabled={Boolean(disableExport)}
-              onMarkdown={onExportMarkdown}
-              onPdf={onExportPdf}
-            />
+
+            <div
+              className={
+                "flex w-full min-w-0 max-lg:items-end " +
+                (rightExtras
+                  ? "max-lg:justify-between max-lg:gap-2"
+                  : "max-lg:justify-end") +
+                " lg:contents"
+              }
+            >
+              {rightExtras ? (
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 [&>button]:min-h-10 [&>button]:shrink-0 sm:[&>button]:h-9 sm:[&>button]:min-h-0 lg:col-start-3 lg:row-start-1 lg:justify-self-end">
+                  {rightExtras}
+                </div>
+              ) : null}
+              <div className="min-w-0 max-lg:max-w-[min(20rem,100%)] max-lg:flex-1 max-lg:justify-self-end lg:col-start-2 lg:row-start-1 lg:max-w-sm lg:flex-initial lg:justify-self-center">
+                <MetaTrafficExportToolbar
+                  align="center"
+                  accent={exportAccent}
+                  className="w-full max-w-full lg:mx-auto lg:w-auto"
+                  disabled={Boolean(disableExport)}
+                  onMarkdown={onExportMarkdown}
+                  onPdf={onExportPdf}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${ac.periodPill}`}
-          >
-            {presetLabel}
-          </span>
-          {timeRange && (
-            <span className="font-mono text-zinc-400">
-              {timeRange.since} → {timeRange.until}
+        <div
+          className="mx-auto mt-4 max-w-6xl space-y-3 border-t border-zinc-800/50 pt-4 sm:mt-3 sm:space-y-0 2xl:max-w-7xl"
+          role="status"
+        >
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
+            <span
+              className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${ac.periodPill}`}
+            >
+              {presetLabel}
             </span>
-          )}
-          {adAccountId && (
-            <>
-              <span className="hidden text-zinc-700 sm:inline">·</span>
-              <span className="font-mono text-zinc-500">{adAccountId}</span>
-            </>
-          )}
-          {a?.accountName && (
-            <>
-              <span className="hidden text-zinc-700 sm:inline">·</span>
-              <span className="truncate text-zinc-400">{a.accountName}</span>
-            </>
+            {timeRange && (
+              <span className="font-mono text-xs leading-relaxed text-zinc-400 sm:whitespace-nowrap">
+                {timeRange.since} → {timeRange.until}
+              </span>
+            )}
+          </div>
+          {(adAccountId || a?.accountName) && (
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-2">
+              {adAccountId && (
+                <span className="break-all font-mono text-[11px] leading-snug text-zinc-500 sm:text-xs">
+                  {adAccountId}
+                </span>
+              )}
+              {a?.accountName && adAccountId && (
+                <span className="hidden text-zinc-600 sm:inline" aria-hidden>
+                  ·
+                </span>
+              )}
+              {a?.accountName && (
+                <span className="text-sm font-medium leading-snug text-zinc-300 sm:truncate sm:max-w-md">
+                  {a.accountName}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
@@ -335,27 +384,27 @@ function HeroKPIs({ account, brandAc }: { account: DashboardAccount; brandAc: Br
     },
   ];
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-4">
       {items.map(({ icon: Icon, label, value, title, primary }) => (
         <div
           key={label}
           title={title}
-          className={`relative overflow-hidden rounded-xl border p-4 transition ${
+          className={`relative min-w-0 overflow-hidden rounded-xl border p-3 transition sm:p-4 ${
             primary ? brandAc.heroAccentCard : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700"
           }`}
         >
-          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+          <div className="flex min-w-0 items-center gap-1.5 text-[10px] font-medium uppercase leading-tight tracking-wide text-zinc-500 sm:gap-2 sm:text-[11px]">
             <span
-              className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${
+              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                 primary ? brandAc.heroIcon : "bg-zinc-800/80 text-zinc-400"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
             </span>
-            <span className="leading-tight">{label}</span>
+            <span className="min-w-0 break-words hyphens-auto">{label}</span>
           </div>
           <p
-            className={`mt-3 text-2xl font-semibold tabular-nums ${
+            className={`mt-2 break-words text-lg font-semibold leading-snug tabular-nums sm:mt-3 sm:text-2xl ${
               primary ? brandAc.heroValue : "text-white"
             }`}
           >
@@ -374,17 +423,19 @@ function RateStrip({ account, brandAc }: { account: DashboardAccount; brandAc: B
     { icon: LineChart, label: "CPM", value: brl(account.cpm) },
   ];
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
       {items.map(({ icon: Icon, label, value }) => (
         <div
           key={label}
-          className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/30 px-4 py-3"
+          className="flex min-h-[48px] min-w-0 items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900/30 px-3 py-2.5 sm:min-h-0 sm:px-4 sm:py-3"
         >
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <Icon className="h-3.5 w-3.5" />
-            {label}
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-zinc-500 sm:gap-2">
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="leading-tight">{label}</span>
           </div>
-          <p className={`font-mono text-base font-medium tabular-nums ${brandAc.rateValue}`}>
+          <p
+            className={`shrink-0 pl-1 text-right font-mono text-sm font-medium tabular-nums sm:text-base ${brandAc.rateValue}`}
+          >
             {value}
           </p>
         </div>
@@ -424,18 +475,18 @@ function SecondaryKPIs({ account }: { account: DashboardAccount }) {
     },
   ];
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-5">
       {items.map(({ icon: Icon, label, value, title }) => (
         <div
           key={label}
           title={title}
-          className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-3.5 transition hover:border-zinc-700"
+          className="min-w-0 rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 transition hover:border-zinc-700 sm:p-3.5"
         >
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-zinc-500">
-            <Icon className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{label}</span>
+          <div className="flex min-w-0 items-start gap-1.5 text-[10px] uppercase leading-tight tracking-wide text-zinc-500 sm:items-center sm:gap-2 sm:text-[11px]">
+            <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0" />
+            <span className="line-clamp-2 sm:truncate sm:line-clamp-none">{label}</span>
           </div>
-          <p className="mt-1.5 text-base font-semibold tabular-nums text-white">
+          <p className="mt-1.5 break-words text-sm font-semibold tabular-nums text-white sm:text-base">
             {value}
           </p>
         </div>
@@ -447,23 +498,23 @@ function SecondaryKPIs({ account }: { account: DashboardAccount }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-24 animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/40"
+            className="h-[5.5rem] animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/40 sm:h-24"
           />
         ))}
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="h-14 animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/30"
+            className="h-[3rem] animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/30 sm:h-14"
           />
         ))}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-5">
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}

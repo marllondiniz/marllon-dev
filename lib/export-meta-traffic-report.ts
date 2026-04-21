@@ -137,7 +137,17 @@ function monthReferenceForExportFilename(input: MetaTrafficExportInput): string 
   }
 
   /* Últimos N dias: o “até” costuma ser hoje — referência = mês/ano atual */
-  if (id === "last_7d" || id === "last_14d" || id === "last_30d" || id === "last_90d") {
+  if (
+    id === "last_7d" ||
+    id === "last_14d" ||
+    id === "last_28d" ||
+    id === "last_30d" ||
+    id === "last_90d" ||
+    id === "today_yesterday" ||
+    id === "this_week_mon_today" ||
+    id === "last_week_mon_sun" ||
+    id === "maximum"
+  ) {
     return `mes-${ym(now)}`;
   }
 
@@ -179,7 +189,17 @@ function mesReferenciaTextoPt(input: MetaTrafficExportInput): string {
     const d = new Date(now.getFullYear(), now.getMonth() - 1, 15);
     return fmt(d.getFullYear(), d.getMonth() + 1);
   }
-  if (id === "last_7d" || id === "last_14d" || id === "last_30d" || id === "last_90d") {
+  if (
+    id === "last_7d" ||
+    id === "last_14d" ||
+    id === "last_28d" ||
+    id === "last_30d" ||
+    id === "last_90d" ||
+    id === "today_yesterday" ||
+    id === "this_week_mon_today" ||
+    id === "last_week_mon_sun" ||
+    id === "maximum"
+  ) {
     return `${fmt(now.getFullYear(), now.getMonth() + 1)} (janela móvel até a data do relatório)`;
   }
   if (id === "today" || id === "yesterday") {

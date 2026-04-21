@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ALL_TRAFFIC_PRESET_IDS, TRAFFIC_DEFAULT_PRESET } from "@/lib/traffic-date-presets";
 import {
   fetchMetaInsights,
   findClientBySlug,
@@ -19,22 +20,9 @@ export const maxDuration = 60;
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
-const DATE_PRESETS = new Set([
-  "today",
-  "yesterday",
-  "last_7d",
-  "last_14d",
-  "last_30d",
-  "last_90d",
-  "this_month",
-  "last_month",
-  /** ~37 meses (ou META_INSIGHTS_HISTORY_MONTHS) via time_range. */
-  "last_37_months",
-]);
-
 function parseDatePreset(request: NextRequest): string {
-  const p = request.nextUrl.searchParams.get("preset")?.trim() ?? "last_30d";
-  return DATE_PRESETS.has(p) ? p : "last_30d";
+  const p = request.nextUrl.searchParams.get("preset")?.trim() ?? TRAFFIC_DEFAULT_PRESET;
+  return ALL_TRAFFIC_PRESET_IDS.has(p) ? p : TRAFFIC_DEFAULT_PRESET;
 }
 
 function adminClientEnvHint(

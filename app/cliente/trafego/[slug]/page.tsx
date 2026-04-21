@@ -11,12 +11,20 @@ import {
   type DashboardAccount,
   type DashboardBrandVariant,
 } from "@/app/components/MetaTrafficDashboard";
+import {
+  getTrafficPresetLabel,
+  TRAFFIC_DATE_PRESETS,
+  TRAFFIC_DEFAULT_PRESET,
+  TRAFFIC_LEGACY_PRESETS,
+} from "@/lib/traffic-date-presets";
 import { trafficPortalKind } from "@/lib/traffic-portal-slugs";
 import {
   downloadMetaTrafficMarkdown,
   downloadMetaTrafficPdf,
   type MetaTrafficExportInput,
 } from "@/lib/export-meta-traffic-report";
+
+const PRESETS = [...TRAFFIC_DATE_PRESETS, ...TRAFFIC_LEGACY_PRESETS];
 
 type AccountTotals = DashboardAccount & {
   leads: number;
@@ -65,18 +73,6 @@ type ApiPayload = {
   hint?: string;
 };
 
-const PRESETS = [
-  { id: "today", label: "Hoje" },
-  { id: "yesterday", label: "Ontem" },
-  { id: "last_7d", label: "Últimos 7 dias" },
-  { id: "last_14d", label: "Últimos 14 dias" },
-  { id: "last_30d", label: "Últimos 30 dias" },
-  { id: "last_90d", label: "Últimos 90 dias" },
-  { id: "this_month", label: "Este mês" },
-  { id: "last_month", label: "Mês passado" },
-  { id: "last_37_months", label: "Histórico longo (~37 meses Meta)" },
-];
-
 export default function ClienteTrafegoPage() {
   const params = useParams();
   const slug = typeof params.slug === "string" ? params.slug : "";
@@ -91,7 +87,7 @@ export default function ClienteTrafegoPage() {
   const [error, setError] = useState("");
   const [errorHint, setErrorHint] = useState("");
   const [data, setData] = useState<ApiPayload | null>(null);
-  const [preset, setPreset] = useState("last_30d");
+  const [preset, setPreset] = useState(TRAFFIC_DEFAULT_PRESET);
   const [showPassword, setShowPassword] = useState(false);
 
   const fetchData = useCallback(
@@ -170,7 +166,7 @@ export default function ClienteTrafegoPage() {
 
   function buildExportPayload(): MetaTrafficExportInput | null {
     if (!data) return null;
-    const presetLabel = PRESETS.find((p) => p.id === data.preset)?.label ?? data.preset;
+    const presetLabel = getTrafficPresetLabel(data.preset);
     const reportTitle = data.label?.trim()
       ? `Métricas · ${data.label}`
       : "Métricas Meta Ads";
@@ -206,7 +202,7 @@ export default function ClienteTrafegoPage() {
             : "min-h-screen bg-zinc-950 text-white"
       }
     >
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-6 sm:py-6">
         {sessionOk ? (
           <MetaTrafficDashboard
             presets={PRESETS}

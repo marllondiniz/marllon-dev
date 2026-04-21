@@ -141,8 +141,8 @@ export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
             </button>
 
             {open && (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+              <div className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+                <table className="w-full min-w-[560px] border-collapse text-left text-sm sm:min-w-[620px]">
                   <thead>
                     <MetricHeaderRow />
                   </thead>

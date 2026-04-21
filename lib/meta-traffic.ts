@@ -467,13 +467,21 @@ export type MetaInsightsResult = {
   hint?: string;
 };
 
-const STANDARD_DATE_PRESETS = new Set([
+/**
+ * `date_preset` suportado pela API de insights (incl. semana alinhada ao Gerenciador).
+ * Ver: Ad Account /insights.
+ */
+const META_DATE_PRESET_ROLLING = new Set([
   "last_7d",
   "last_14d",
+  "last_28d",
   "last_30d",
   "last_90d",
   "this_month",
   "last_month",
+  "this_week_mon_today",
+  "last_week_mon_sun",
+  "maximum",
 ]);
 
 /** Meses de histórico para `last_37_months` (padrão 37, alinhado à retenção típica da Meta). */
@@ -555,7 +563,17 @@ export function insightDateParamsFromPreset(preset: string): {
       timeRange: { since: ymd, until: ymd },
     };
   }
-  if (STANDARD_DATE_PRESETS.has(p)) {
+  if (p === "today_yesterday") {
+    const todayYmd = formatDateYmdInTimeZone(new Date(), PRESET_UI_TIMEZONE);
+    const yestYmd = yesterdayYmdForPresetUi();
+    const tr = { since: yestYmd, until: todayYmd };
+    return {
+      params: { time_range: JSON.stringify(tr) },
+      periodKey: "today_yesterday",
+      timeRange: tr,
+    };
+  }
+  if (META_DATE_PRESET_ROLLING.has(p)) {
     return { params: { date_preset: p }, periodKey: p };
   }
   return { params: { date_preset: "last_30d" }, periodKey: "last_30d" };

@@ -5,7 +5,9 @@ import {
   getAccessTokenForClient,
   getDefaultAdAccountId,
   getMetaAccessToken,
+  getTrafficClientsFromEnv,
   listClientsPublicInfo,
+  META_TRAFFIC_ADMIN_DEFAULT_SLUG,
   resolveAdAccountFromToken,
   type TrafficClientConfig,
 } from "@/lib/meta-traffic";
@@ -31,6 +33,19 @@ const DATE_PRESETS = new Set([
 function parseDatePreset(request: NextRequest): string {
   const p = request.nextUrl.searchParams.get("preset")?.trim() ?? "last_30d";
   return DATE_PRESETS.has(p) ? p : "last_30d";
+}
+
+function adminClientEnvHint(
+  publicClients: { slug: string; name: string }[]
+): string | undefined {
+  if (getTrafficClientsFromEnv().length > 0) return undefined;
+  if (
+    publicClients.length === 1 &&
+    publicClients[0]?.slug === META_TRAFFIC_ADMIN_DEFAULT_SLUG
+  ) {
+    return "Ambiente sem META_CLIENT_EASYBEE_* / META_CLIENT_LUZ_* / META_LUZ_* — só a conta padrão aparece. Na Vercel, copie essas variáveis do .env.local e redeploy.";
+  }
+  return undefined;
 }
 
 /** Avisa quando havia intenção de configurar clientes mas a lista ficou vazia. */
@@ -109,7 +124,7 @@ export async function GET(request: NextRequest) {
     /** Para debug_token com app id/secret do cliente. */
     let clientContext: TrafficClientConfig | undefined;
 
-    if (slugParam) {
+    if (slugParam && slugParam !== META_TRAFFIC_ADMIN_DEFAULT_SLUG) {
       const c = findClientBySlug(slugParam);
       if (!c) {
         return NextResponse.json({ error: "Cliente (slug) não encontrado." }, { status: 404 });
@@ -121,11 +136,14 @@ export async function GET(request: NextRequest) {
       token = getMetaAccessToken();
       adAccountId = getDefaultAdAccountId();
       if (!adAccountId && clients.length > 0) {
-        const first = findClientBySlug(clients[0].slug);
-        if (first) {
-          adAccountId = first.adAccountId;
-          token = getAccessTokenForClient(first) ?? token;
-          clientContext = first;
+        const firstSlug = clients[0].slug;
+        if (firstSlug !== META_TRAFFIC_ADMIN_DEFAULT_SLUG) {
+          const first = findClientBySlug(firstSlug);
+          if (first) {
+            adAccountId = first.adAccountId;
+            token = getAccessTokenForClient(first) ?? token;
+            clientContext = first;
+          }
         }
       }
     }
@@ -156,6 +174,7 @@ export async function GET(request: NextRequest) {
     }
 
     const parseWarn = metaTrafficClientsEnvWarning(clients.length);
+    const clientEnvHint = adminClientEnvHint(clients);
 
     const result = await fetchMetaInsights(adAccountId, token, preset);
     if (result.error) {
@@ -165,6 +184,7 @@ export async function GET(request: NextRequest) {
           hint: result.hint,
           adAccountId: result.adAccountId,
           clients,
+          clientEnvHint,
           warnings: mergeWarnings(undefined, parseWarn),
         },
         { status: 502 }
@@ -173,6 +193,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       role: "admin",
       clients,
+      clientEnvHint,
       preset,
       ...result,
       warnings: mergeWarnings(result.warnings, parseWarn),

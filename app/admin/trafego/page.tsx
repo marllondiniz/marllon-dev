@@ -105,6 +105,8 @@ type ClientItem = { slug: string; name: string };
 type ApiPayload = {
   role: string;
   clients?: ClientItem[];
+  /** Dica quando só existe conta padrão (env incompleto na Vercel). */
+  clientEnvHint?: string;
   preset: string;
   adAccountId: string;
   timeRange?: { since: string; until: string };
@@ -325,6 +327,9 @@ export default function AdminTrafegoPage() {
                         </option>
                       ))}
                     </select>
+                    {data.clientEnvHint && (
+                      <p className="mt-1.5 text-xs leading-snug text-amber-200/90">{data.clientEnvHint}</p>
+                    )}
                   </div>
                 )}
               </div>

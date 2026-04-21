@@ -861,6 +861,22 @@ export async function fetchMetaInsights(
 
 export type ClientListItem = { slug: string; name: string };
 
+/**
+ * Slug reservado no admin quando só existem META_AD_ACCOUNT_ID + META_ACCESS_TOKEN
+ * (sem META_CLIENT_* na Vercel). Não usar em /cliente/trafego.
+ */
+export const META_TRAFFIC_ADMIN_DEFAULT_SLUG = "__meta_default__";
+
 export function listClientsPublicInfo(): ClientListItem[] {
-  return getTrafficClientsFromEnv().map(({ slug, name }) => ({ slug, name }));
+  const rows = getTrafficClientsFromEnv().map(({ slug, name }) => ({ slug, name }));
+  if (rows.length > 0) return rows;
+  if (getDefaultAdAccountId() && getMetaAccessToken()) {
+    return [
+      {
+        slug: META_TRAFFIC_ADMIN_DEFAULT_SLUG,
+        name: "Conta padrão (META_AD_ACCOUNT_ID)",
+      },
+    ];
+  }
+  return [];
 }

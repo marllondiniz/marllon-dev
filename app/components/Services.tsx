@@ -44,6 +44,7 @@ const services = [
       "Acompanhamento de resultados",
     ],
     icon: BarChart3,
+    href: "/servicos/dashboards",
   },
 ];
 

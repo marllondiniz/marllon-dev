@@ -160,3 +160,30 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const authHeader = request.headers.get("x-admin-secret");
+  if (!ADMIN_SECRET || authHeader !== ADMIN_SECRET) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id?.trim()) {
+    return NextResponse.json({ error: "Parâmetro id é obrigatório." }, { status: 400 });
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase.from("traffic_briefings").delete().eq("id", id);
+
+    if (error) {
+      console.error("[api/traffic-briefing] Supabase delete error:", error);
+      return NextResponse.json({ error: "Erro ao apagar." }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[api/traffic-briefing] DELETE error:", e);
+    return NextResponse.json({ error: "Erro interno." }, { status: 500 });
+  }
+}

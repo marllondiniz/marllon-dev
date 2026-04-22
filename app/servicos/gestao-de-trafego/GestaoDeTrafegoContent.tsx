@@ -51,6 +51,21 @@ export default function GestaoDeTrafegoContent() {
               <strong className="text-zinc-400">Foco:</strong> geração de oportunidades qualificadas, não só visitas.
             </li>
           </ul>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-6 text-sm text-zinc-500"
+          >
+            Quer ver{" "}
+            <Link
+              href="/servicos/dashboards"
+              className="font-medium text-[#22c55e] underline decoration-[#22c55e]/40 underline-offset-2 transition hover:decoration-[#22c55e]"
+            >
+              um exemplo de painel de métricas
+            </Link>{" "}
+            e como a leitura de dados se encaixa? Há uma página só sobre dashboards.
+          </motion.p>
         </div>
       </section>
 

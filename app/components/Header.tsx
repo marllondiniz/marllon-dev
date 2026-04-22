@@ -4,11 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Zap, TrendingUp, LayoutTemplate, ArrowRight } from "lucide-react";
+import { Menu, X, ChevronDown, Zap, TrendingUp, LayoutTemplate, ArrowRight, BarChart3 } from "lucide-react";
 
 const servicos = [
   { href: "/site-72h", label: "Seu site em 72h", icon: LayoutTemplate },
   { href: "/servicos/gestao-de-trafego", label: "Gestão de tráfego", icon: TrendingUp },
+  { href: "/servicos/dashboards", label: "Dashboards e dados", icon: BarChart3 },
 ];
 
 const links = [

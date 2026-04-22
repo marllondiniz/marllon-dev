@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
-import { ChevronDown, Wrench, Layers, Terminal, Cpu, Zap, ArrowRight } from "lucide-react";
+import { ArrowDown, ChevronDown, Layers, Terminal, Cpu, Zap } from "lucide-react";
 import CyberBackground from "./CyberBackground";
 import BlurText from "./BlurText";
 import CountUp from "./CountUp";
@@ -99,7 +99,7 @@ export default function Hero() {
           style={{ translateZ: 20 }}
           className="mb-6 text-sm font-mono uppercase tracking-widest text-zinc-500"
         >
-          Desenvolvedor Back-end · Web · Integrações · Automação · Dados
+          Tráfego pago · Sites que convertem · Dashboards
         </motion.p>
 
         <motion.div
@@ -109,7 +109,7 @@ export default function Hero() {
           style={{ translateZ: 40 }}
         >
           <BlurText
-            text="Eu construo sistemas."
+            text="Mais vendas e clareza"
             as="h1"
             animateBy="words"
             delay={150}
@@ -117,14 +117,14 @@ export default function Hero() {
             className="justify-center font-[family-name:var(--font-space)] text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
           />
           <BlurText
-            text="Escalo resultados."
+            text="no seu digital."
             as="span"
             animateBy="words"
             delay={150}
             stepDuration={0.5}
             className="justify-center font-[family-name:var(--font-space)] text-4xl font-bold leading-[1.15] tracking-tight text-[#22c55e] sm:text-5xl md:text-6xl lg:text-7xl"
           />
-          <span className="block h-px mx-auto mt-1 w-64 bg-gradient-to-r from-transparent via-[#22c55e] to-transparent opacity-60" />
+          <span className="mx-auto mt-1 block h-px w-64 bg-gradient-to-r from-transparent via-[#22c55e] to-transparent opacity-60" />
         </motion.div>
 
         <motion.p
@@ -134,11 +134,8 @@ export default function Hero() {
           style={{ translateZ: 30 }}
           className="mx-auto mt-5 max-w-2xl text-lg font-medium tracking-wide sm:text-xl md:text-2xl"
         >
-          <span
-            className="shiny-text"
-            data-text="Início de um futuro próspero"
-          >
-            Início de um futuro próspero
+          <span className="shiny-text" data-text="Proposta alinhada ao que você precisa vender.">
+            Proposta alinhada ao que você precisa vender.
           </span>
         </motion.p>
 
@@ -149,7 +146,7 @@ export default function Hero() {
           style={{ translateZ: 20 }}
           className="mx-auto mt-4 max-w-xl font-mono text-sm text-zinc-400 terminal-cursor"
         >
-          Back-end | Web | Integrações de APIs | Automação | Soluções orientadas a dados
+          Campanhas, páginas e números no mesmo lugar — com execução e acompanhamento.
         </motion.p>
 
         <motion.div
@@ -157,25 +154,31 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           style={{ translateZ: 30 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-4"
+          className="mt-10 flex justify-center"
         >
           <Magnet padding={60} magnetStrength={3}>
-            <a
-              href="#servicos"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-6 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
+            <Link
+              href="/#servicos"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-8 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.3)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
             >
-              <Wrench className="h-5 w-5" />
-              Serviços e Soluções
-            </a>
+              <ArrowDown className="h-5 w-5" />
+              Saiba mais
+            </Link>
           </Magnet>
-          <Link
-            href="/site-72h"
-            className="inline-flex items-center gap-2 rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/10 px-6 py-3.5 font-semibold text-[#22c55e] backdrop-blur-sm transition hover:border-[#22c55e]/60 hover:bg-[#22c55e]/20 hover:text-[#22c55e]"
-          >
-            Seu site pronto em 72h
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </motion.div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-5 text-center"
+        >
+          <Link
+            href="/#quem-sou"
+            className="font-mono text-xs text-zinc-500 underline decoration-zinc-600 underline-offset-4 transition hover:text-zinc-300"
+          >
+            Quem sou eu
+          </Link>
+        </motion.p>
 
         {/* Stats com CountUp */}
         <motion.div

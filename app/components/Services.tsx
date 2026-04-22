@@ -74,7 +74,7 @@ export default function Services() {
         />
 
         <BlurText
-          text="O que eu faço para empresas e quem quer construir ativos digitais."
+          text="Escolha onde quer crescer primeiro: tráfego, site ou visão dos dados."
           as="p"
           animateBy="words"
           delay={60}

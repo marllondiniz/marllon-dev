@@ -18,7 +18,7 @@ export default function PrivacidadePage() {
           <section>
             <h2 className="text-lg font-semibold text-white">1. Responsável</h2>
             <p className="mt-2 leading-relaxed">
-              O site zinid.tech é operado por Marllon Diniz. Para contato sobre privacidade: marllonzinid@gmail.com.
+              O site zinid.tech é operado sob essa marca. Para contato sobre privacidade: marllonzinid@gmail.com.
             </p>
           </section>
 

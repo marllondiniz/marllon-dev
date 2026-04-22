@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Landing pages focadas em conversão: estrutura, copy e tecnologia alinhadas ao seu anúncio e oferta. Formulários, pixel, CRM e testes contínuos.",
   openGraph: {
-    title: "Criação de Landing Pages | Marllon Diniz - zinid.tech",
+    title: "Criação de Landing Pages | zinid.tech",
     description:
       "Landing pages focadas em conversão: estrutura, copy e tecnologia alinhadas ao seu anúncio e oferta.",
   },

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props) {
   const article = getArticleBySlug(slug);
   if (!article) return { title: "Artigo não encontrado" };
   return {
-    title: `${article.title} — Marllon Diniz`,
+    title: `${article.title} — zinid.tech`,
     description: article.excerpt,
   };
 }
@@ -84,11 +84,11 @@ export default async function ArtigoPage({ params }: Props) {
 
         <footer className="mt-16 border-t border-zinc-800/80 pt-8">
           <Link
-            href="/#conteudo"
+            href="/"
             className="inline-flex items-center gap-2 font-mono text-sm text-[#22c55e] transition hover:gap-3"
           >
             <ArrowLeft className="h-4 w-4" />
-            Ver mais artigos
+            Voltar ao início
           </Link>
         </footer>
       </article>

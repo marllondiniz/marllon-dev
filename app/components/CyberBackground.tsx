@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const CHARS = "MARLLON DINIZ<>{}[]|/\\=+-*#@$%&";
+const CHARS = "ZINID.TECH<>{}[]|/\\=+-*#@$%&";
 
 export default function CyberBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

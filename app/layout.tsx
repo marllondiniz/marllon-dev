@@ -21,6 +21,7 @@ const spaceGrotesk = Space_Grotesk({
 
 const siteUrl = SITE_URL;
 const siteName = SITE_NAME;
+const defaultSiteTitle = `${SITE_HOST} — Desenvolvimento Back-end | Web | Integrações | Automação | Dados`;
 const siteDescription =
   "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados. Início de um futuro próspero. Espírito Santo, Brasil.";
 const keywords = [
@@ -35,8 +36,7 @@ const keywords = [
   "desenvolvimento software",
   "Espírito Santo",
   "Brasil",
-  "zinid.tech",
-  "Marllon Diniz",
+  SITE_HOST,
   "programador",
   "engenheiro de software",
 ];
@@ -44,14 +44,14 @@ const keywords = [
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
-    template: "%s | Marllon Diniz - zinid.tech",
+    default: defaultSiteTitle,
+    template: `%s | ${SITE_HOST}`,
   },
   description: siteDescription,
   keywords: keywords,
-  authors: [{ name: "Marllon Diniz", url: siteUrl }],
-  creator: "Marllon Diniz",
-  publisher: "Marllon Diniz",
+  authors: [{ name: SITE_HOST, url: siteUrl }],
+  creator: SITE_HOST,
+  publisher: SITE_HOST,
   formatDetection: {
     email: false,
     address: false,
@@ -62,21 +62,21 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: siteUrl,
     siteName: siteName,
-    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
+    title: defaultSiteTitle,
     description: siteDescription,
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "Marllon Diniz - Desenvolvedor Back-end e Web",
+        alt: `${SITE_HOST} — desenvolvimento back-end e web`,
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Marllon Diniz — Desenvolvedor Back-end | Web | Integrações | Automação | Dados",
+    title: defaultSiteTitle,
     description: siteDescription,
     images: [`${siteUrl}/og-image.png`],
     creator: "@marllondiniz",
@@ -119,11 +119,11 @@ export default function RootLayout({
   // JSON-LD structured data para SEO
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Marllon Diniz",
+    "@type": "Organization",
+    name: SITE_HOST,
     url: SITE_URL,
-    image: `${SITE_URL}/marllon.jpeg`,
-    jobTitle: "Desenvolvedor Back-end",
+    image: `${SITE_URL}/og-image.png`,
+    logo: `${SITE_URL}/favicon.png`,
     description:
       "Desenvolvedor especializado em back-end, desenvolvimento web, integrações de APIs, automações e soluções orientadas a dados.",
     address: {
@@ -148,11 +148,6 @@ export default function RootLayout({
       "REST API",
       "Software Development",
     ],
-    worksFor: {
-      "@type": "Organization",
-      name: SITE_HOST,
-      url: SITE_URL,
-    },
   };
 
   return (

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Gestão de tráfego focada em resultado: campanhas estruturadas, funil claro e decisões em cima de dados. Meta Ads, Google Ads e otimização contínua.",
   openGraph: {
-    title: "Gestão de Tráfego | Marllon Diniz - zinid.tech",
+    title: "Gestão de Tráfego | zinid.tech",
     description:
       "Gestão de tráfego focada em resultado: campanhas estruturadas, funil claro e decisões em cima de dados.",
   },

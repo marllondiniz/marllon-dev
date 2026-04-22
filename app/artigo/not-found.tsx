@@ -11,11 +11,11 @@ export default function ArtigoNotFound() {
         Este artigo não existe ou foi removido.
       </h1>
       <Link
-        href="/#conteudo"
+        href="/"
         className="mt-8 inline-flex items-center gap-2 font-mono text-sm text-[#22c55e] transition hover:gap-3"
       >
         <ArrowLeft className="h-4 w-4" />
-        Ver todos os artigos
+        Voltar ao início
       </Link>
     </div>
   );

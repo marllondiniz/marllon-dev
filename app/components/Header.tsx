@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Zap, TrendingUp, LayoutTemplate, ArrowRight, BarChart3 } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowDown, TrendingUp, LayoutTemplate, ArrowRight, BarChart3 } from "lucide-react";
+import { SITE_HOST } from "@/lib/site";
+
+const hostDot = SITE_HOST.indexOf(".");
+const siteHostStart = hostDot === -1 ? SITE_HOST : SITE_HOST.slice(0, hostDot);
+const siteHostEnd = hostDot === -1 ? null : SITE_HOST.slice(hostDot);
 
 const servicos = [
   { href: "/site-72h", label: "Seu site em 72h", icon: LayoutTemplate },
@@ -13,16 +17,13 @@ const servicos = [
 ];
 
 const links = [
-  { href: "/#sobre", label: "Sobre" },
-  { href: "/#conteudo", label: "Tech & IA" },
+  { href: "/#quem-sou", label: "Quem sou" },
   { href: "/#contato", label: "Contato" },
 ];
 
 export default function Header() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [servicosOpen, setServicosOpen] = useState(false);
-  const isHome = pathname === "/";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800/50 bg-[#0a0a0b]/85 backdrop-blur-xl">
@@ -32,7 +33,14 @@ export default function Header() {
           href="/"
           className="font-[family-name:var(--font-space)] text-lg font-bold tracking-tight text-white transition hover:text-[#22c55e]"
         >
-          zinid<span className="text-[#22c55e]">.tech</span>
+          {siteHostEnd ? (
+            <>
+              {siteHostStart}
+              <span className="text-[#22c55e]">{siteHostEnd}</span>
+            </>
+          ) : (
+            siteHostStart
+          )}
         </Link>
 
         {/* Desktop: serviços + links */}
@@ -98,27 +106,17 @@ export default function Header() {
             </Link>
           ))}
 
-          {isHome && (
-            <Link
-              href="/site-72h"
-              className="ml-2 inline-flex items-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#16a34a]"
-            >
-              <Zap className="h-4 w-4" />
-              Seu site em 72h
-            </Link>
-          )}
+          <Link
+            href="/#servicos"
+            className="ml-2 inline-flex items-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#16a34a]"
+          >
+            <ArrowDown className="h-4 w-4" />
+            Saiba mais
+          </Link>
         </div>
 
         {/* Mobile: menu button */}
-        <div className="flex items-center gap-2 md:hidden">
-          {isHome && (
-            <Link
-              href="/site-72h"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#22c55e]/40 bg-[#22c55e]/10 px-3 py-2 text-xs font-semibold text-[#22c55e]"
-            >
-              Site em 72h
-            </Link>
-          )}
+        <div className="flex items-center md:hidden">
           <button
             type="button"
             aria-label="Abrir menu"

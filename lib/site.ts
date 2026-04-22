@@ -5,4 +5,4 @@ export const SITE_URL = "https://zinid.tech";
 export const SITE_HOST = "zinid.tech";
 
 /** Nome usado em títulos / Open Graph. */
-export const SITE_NAME = "Marllon Diniz - zinid.tech";
+export const SITE_NAME = "zinid.tech";

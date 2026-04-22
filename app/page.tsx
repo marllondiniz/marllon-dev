@@ -1,7 +1,6 @@
 import Hero from "./components/Hero";
-import About from "./components/About";
 import Services from "./components/Services";
-import Content from "./components/Content";
+import About from "./components/About";
 import CTA from "./components/CTA";
 
 export default function Home() {
@@ -9,9 +8,8 @@ export default function Home() {
     <>
       <main itemScope itemType="https://schema.org/Person">
         <Hero />
-        <About />
         <Services />
-        <Content />
+        <About />
         <CTA />
       </main>
     </>

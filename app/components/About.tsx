@@ -6,6 +6,9 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import { Code2, Plug, Workflow, BarChart3, Box, Zap, Target } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import BlurText from "./BlurText";
+import { SITE_HOST } from "@/lib/site";
+
+const aboutTitle = `Quem está por trás de ${SITE_HOST}?`;
 
 const Hyperspeed = dynamic(() => import("./Hyperspeed"), { ssr: false });
 
@@ -77,7 +80,7 @@ function PhotoCard() {
         {/* Foto */}
         <Image
           src="/marllon.jpeg"
-          alt="Marllon Diniz"
+          alt={`Perfil — ${SITE_HOST}`}
           width={340}
           height={420}
           priority
@@ -89,7 +92,7 @@ function PhotoCard() {
 
         {/* Badge ID na parte inferior */}
         <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
-          <span className="hex-badge flicker text-[10px]">ID://MARLLON_DINIZ</span>
+          <span className="hex-badge flicker text-[10px]">ID://{SITE_HOST.toUpperCase()}</span>
         </div>
       </div>
 
@@ -190,7 +193,7 @@ function PillarsRotate() {
 export default function About() {
   return (
     <section
-      id="sobre"
+      id="quem-sou"
       className="cyber-section data-stream relative border-t border-zinc-800/50 overflow-hidden section-padding"
     >
       {/* Background: efeito Hyperspeed (estrada/luzes) — deslocado para cima, perto da foto */}
@@ -216,11 +219,11 @@ export default function About() {
               viewport={{ once: true }}
               className="mb-4 flex items-center gap-3"
             >
-              <span className="hex-badge flicker">ID://MARLLON_DINIZ</span>
+              <span className="hex-badge flicker">ID://{SITE_HOST.toUpperCase()}</span>
             </motion.div>
 
             <BlurText
-              text="Quem é Marllon Diniz?"
+              text={aboutTitle}
               as="h2"
               animateBy="words"
               delay={130}
@@ -237,7 +240,7 @@ export default function About() {
               className="rounded-xl border-l-2 border-[#22c55e]/50 bg-[#0d0d0f] pl-6 pr-4 py-5"
             >
               <p className="mb-4 text-lg leading-relaxed text-zinc-300">
-                Sou <strong className="text-white">Marllon Diniz</strong>, desenvolvedor desde <strong className="text-white">2022</strong>.{" "}
+                No <strong className="text-white">{SITE_HOST}</strong>, desenvolvimento desde <strong className="text-white">2022</strong>.{" "}
                 Construo o que roda por trás da tela: <span className="text-zinc-200">APIs</span>,{" "}
                 <span className="text-zinc-200">integrações</span>, <span className="text-zinc-200">automações</span> e soluções em que{" "}
                 <span className="text-[#22c55e]">dados</span> viram decisão e entrega.

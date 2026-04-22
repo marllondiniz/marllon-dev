@@ -248,7 +248,7 @@ export function getMetaTrafficExportFilename(
 
 /** Assinatura exibida ao final das exportações MD/PDF */
 const REPORT_SIGNATURE = {
-  name: "Marllon Diniz",
+  name: "zinid.tech",
   line: "zinid.tech · marllonzinid@gmail.com",
 } as const;
 

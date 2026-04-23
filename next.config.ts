@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      { protocol: "https", hostname: "**.fbcdn.net", pathname: "/**" },
+      { protocol: "https", hostname: "**.cdninstagram.com", pathname: "/**" },
+      { protocol: "https", hostname: "lookaside.fbsbx.com", pathname: "/**" },
+      { protocol: "https", hostname: "platform-lookaside.fbsbx.com", pathname: "/**" },
+    ],
   },
 
   // Headers de segurança e SEO

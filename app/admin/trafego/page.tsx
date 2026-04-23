@@ -22,6 +22,7 @@ import {
   downloadMetaTrafficPdf,
   type MetaTrafficExportInput,
 } from "@/lib/export-meta-traffic-report";
+import type { AdCreativePreview } from "@/lib/meta-traffic";
 
 const PRESETS = [...TRAFFIC_DATE_PRESETS, ...TRAFFIC_LEGACY_PRESETS];
 
@@ -56,6 +57,7 @@ type AdSetRow = CampaignRow & {
 type AdRow = AdSetRow & {
   adId: string;
   adName: string;
+  creative?: AdCreativePreview;
 };
 
 type ClientItem = { slug: string; name: string };

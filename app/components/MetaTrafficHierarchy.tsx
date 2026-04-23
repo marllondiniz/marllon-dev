@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ImageOff, Video, X } from "lucide-react";
+import type { AdCreativePreview } from "@/lib/meta-traffic";
 
 export type HierarchyMetrics = {
   impressions: number;
@@ -30,6 +33,7 @@ export type Ad = HierarchyMetrics & {
   adSetId: string;
   adSetName: string;
   campaignName: string;
+  creative?: AdCreativePreview;
 };
 
 type Props = {
@@ -50,10 +54,146 @@ function pct(n: number) {
   return `${n.toFixed(2)}%`;
 }
 
+function creativeDisplayUrl(c?: AdCreativePreview): string | undefined {
+  if (!c) return undefined;
+  if (c.kind === "image") return c.imageUrl || c.thumbnailUrl;
+  return c.thumbnailUrl || c.imageUrl;
+}
+
+function CreativeThumb({ creative }: { creative?: AdCreativePreview }) {
+  const url = creativeDisplayUrl(creative);
+  if (!url) {
+    return (
+      <div
+        className="flex h-11 w-11 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-600"
+        aria-hidden
+      >
+        <ImageOff className="h-4 w-4" />
+      </div>
+    );
+  }
+  return (
+    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md border border-zinc-700 bg-zinc-900">
+      <Image src={url} alt="" fill className="object-cover" sizes="44px" />
+      {creative?.kind === "video" && (
+        <span
+          className="absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded bg-black/75 text-white"
+          aria-hidden
+        >
+          <Video className="h-2.5 w-2.5" strokeWidth={2.5} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function AdCreativeModal({ ad, onClose }: { ad: Ad | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!ad) return;
+    document.body.style.overflow = "hidden";
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => {
+      window.removeEventListener("keydown", onEscape);
+      document.body.style.overflow = "";
+    };
+  }, [ad, onClose]);
+
+  const c = ad?.creative;
+  const imgUrl = c ? creativeDisplayUrl(c) : undefined;
+
+  return (
+    <AnimatePresence>
+      {ad && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-zinc-700 bg-[#0d0d0f] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ad-preview-title"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-zinc-800 px-4 py-3">
+              <h2 id="ad-preview-title" className="min-w-0 truncate text-sm font-medium text-white">
+                {ad.adName}
+              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="shrink-0 rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
+                aria-label="Fechar prévia"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[calc(90vh-3.5rem)] overflow-y-auto p-4">
+              {c?.kind === "video" && c.videoSourceUrl ? (
+                <video
+                  src={c.videoSourceUrl}
+                  controls
+                  className="mx-auto max-h-[70vh] w-full rounded-lg bg-black"
+                  playsInline
+                />
+              ) : c?.kind === "video" && imgUrl ? (
+                <>
+                  <div className="flex justify-center">
+                    <Image
+                      src={imgUrl}
+                      alt=""
+                      width={900}
+                      height={900}
+                      className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+                      unoptimized
+                    />
+                  </div>
+                  <p className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
+                    Só a capa do vídeo pôde ser carregada. Para assistir ao anúncio completo, abra-o no Gerenciador de
+                    Anúncios da Meta.
+                  </p>
+                </>
+              ) : imgUrl ? (
+                <div className="flex justify-center">
+                  <Image
+                    src={imgUrl}
+                    alt=""
+                    width={900}
+                    height={900}
+                    className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <p className="text-center text-sm text-zinc-500">
+                  Nenhuma imagem ou vídeo disponível para este anúncio.
+                </p>
+              )}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function MetricHeaderRow() {
   return (
     <tr className="border-b border-zinc-800/90 bg-zinc-900/95 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-      <th className="px-2 py-2 text-left font-medium">Nome</th>
+      <th className="px-2 py-2 text-left font-medium">Nome / prévia</th>
       <th className="px-2 py-2 text-right font-medium">Impr.</th>
       <th className="px-2 py-2 text-right font-medium">Cliq.</th>
       <th className="px-2 py-2 text-right font-medium">Link</th>
@@ -80,6 +220,7 @@ function MetricCells({ m }: { m: HierarchyMetrics }) {
 export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
   const [openCampaigns, setOpenCampaigns] = useState<Set<string>>(() => new Set());
   const [openAdSets, setOpenAdSets] = useState<Set<string>>(() => new Set());
+  const [previewAd, setPreviewAd] = useState<Ad | null>(null);
 
   const toggleCampaign = useCallback((id: string) => {
     setOpenCampaigns((prev) => {
@@ -108,6 +249,7 @@ export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
   }
 
   return (
+    <>
     <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
       {campaigns.map((c) => {
         const cid = c.campaignId || c.campaignName;
@@ -142,7 +284,7 @@ export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
 
             {open && (
               <div className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-                <table className="w-full min-w-[560px] border-collapse text-left text-sm sm:min-w-[620px]">
+                <table className="w-full min-w-[600px] border-collapse text-left text-sm sm:min-w-[680px]">
                   <thead>
                     <MetricHeaderRow />
                   </thead>
@@ -163,6 +305,7 @@ export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
                           adRows={adRows}
                           open={adSetOpen}
                           onToggle={() => toggleAdSet(sid)}
+                          onOpenCreative={setPreviewAd}
                         />
                       );
                     })}
@@ -174,6 +317,8 @@ export function MetaTrafficHierarchy({ campaigns, adsets, ads }: Props) {
         );
       })}
     </div>
+    <AdCreativeModal ad={previewAd} onClose={() => setPreviewAd(null)} />
+    </>
   );
 }
 
@@ -182,11 +327,13 @@ function FragmentAdSetRows({
   adRows,
   open,
   onToggle,
+  onOpenCreative,
 }: {
   adset: AdSet;
   adRows: Ad[];
   open: boolean;
   onToggle: () => void;
+  onOpenCreative: (ad: Ad) => void;
 }) {
   return (
     <>
@@ -225,8 +372,20 @@ function FragmentAdSetRows({
           ) : (
             adRows.map((ad) => (
               <tr key={ad.adId || ad.adName} className="border-b border-zinc-800/40 hover:bg-zinc-900/30">
-                <td className="max-w-[220px] truncate px-3 py-1.5 pl-10 text-xs text-zinc-300" title={ad.adName}>
-                  {ad.adName}
+                <td className="max-w-[280px] px-3 py-1.5 pl-10">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpenCreative(ad)}
+                      className="shrink-0 rounded-md outline-none ring-sky-400/0 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-sky-400/80"
+                      aria-label={`Abrir prévia do anúncio: ${ad.adName}`}
+                    >
+                      <CreativeThumb creative={ad.creative} />
+                    </button>
+                    <span className="truncate text-xs text-zinc-300" title={ad.adName}>
+                      {ad.adName}
+                    </span>
+                  </div>
                 </td>
                 <MetricCells m={ad} />
               </tr>

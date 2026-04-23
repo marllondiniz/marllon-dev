@@ -395,6 +395,16 @@ export type AdSetInsightRow = {
   cpc: number;
 };
 
+/** Prévia do criativo (Graph API `Ad` → `creative`) para exibir imagem ou vídeo no painel. */
+export type AdCreativePreview = {
+  kind: "image" | "video" | "unknown";
+  thumbnailUrl?: string;
+  imageUrl?: string;
+  videoId?: string;
+  /** URL direta do MP4 quando a Meta expõe `Video.source` (pode falhar em alguns criativos). */
+  videoSourceUrl?: string;
+};
+
 export type AdInsightRow = {
   adId: string;
   adName: string;
@@ -414,7 +424,99 @@ export type AdInsightRow = {
   cpm: number;
   ctr: number;
   cpc: number;
+  creative?: AdCreativePreview;
 };
+
+type FbAdCreativeFields = {
+  thumbnail_url?: string;
+  image_url?: string;
+  video_id?: string;
+};
+
+type FbAdNodeWithCreative = {
+  id?: string;
+  creative?: FbAdCreativeFields;
+};
+
+function previewFromCreative(c?: FbAdCreativeFields): AdCreativePreview {
+  if (!c) return { kind: "unknown" };
+  const videoId = c.video_id != null && String(c.video_id).length > 0 ? String(c.video_id) : undefined;
+  const thumb = typeof c.thumbnail_url === "string" && c.thumbnail_url ? c.thumbnail_url : undefined;
+  const img = typeof c.image_url === "string" && c.image_url ? c.image_url : undefined;
+  if (videoId) {
+    return { kind: "video", videoId, thumbnailUrl: thumb, imageUrl: img };
+  }
+  const url = img || thumb;
+  if (url) {
+    return { kind: "image", imageUrl: img || url, thumbnailUrl: thumb || img || url };
+  }
+  return { kind: "unknown" };
+}
+
+const AD_CREATIVE_IDS_CHUNK = 45;
+const VIDEO_SOURCE_CONCURRENCY = 8;
+
+/**
+ * Busca `creative{thumbnail_url,image_url,video_id}` para vários anúncios (batch `ids` na Graph API).
+ */
+async function fetchCreativesByAdIds(
+  token: string,
+  adIds: string[]
+): Promise<{ map: Map<string, AdCreativePreview>; error?: string }> {
+  const unique = [...new Set(adIds.filter((id) => typeof id === "string" && id.length > 0))];
+  const map = new Map<string, AdCreativePreview>();
+  if (unique.length === 0) return { map };
+
+  const v = getMetaApiVersion();
+  const fields = "id,creative{thumbnail_url,image_url,video_id}";
+
+  for (let i = 0; i < unique.length; i += AD_CREATIVE_IDS_CHUNK) {
+    const chunk = unique.slice(i, i + AD_CREATIVE_IDS_CHUNK);
+    const url = new URL(`https://graph.facebook.com/${v}/`);
+    url.searchParams.set("ids", chunk.join(","));
+    url.searchParams.set("fields", fields);
+    url.searchParams.set("access_token", token);
+
+    const res = await fetch(url.toString(), { cache: "no-store" });
+    const json = (await res.json()) as Record<string, unknown> & { error?: { message?: string } };
+
+    if (json.error?.message) {
+      return { map, error: json.error.message };
+    }
+
+    for (const id of chunk) {
+      const node = json[id] as FbAdNodeWithCreative | undefined;
+      if (!node) continue;
+      map.set(id, previewFromCreative(node.creative));
+    }
+  }
+
+  return { map };
+}
+
+async function fetchVideoSourcesForIds(token: string, videoIds: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const unique = [...new Set(videoIds.filter((id) => id && id.length > 0))];
+  const v = getMetaApiVersion();
+
+  for (let i = 0; i < unique.length; i += VIDEO_SOURCE_CONCURRENCY) {
+    const batch = unique.slice(i, i + VIDEO_SOURCE_CONCURRENCY);
+    await Promise.all(
+      batch.map(async (vid) => {
+        const url = new URL(`https://graph.facebook.com/${v}/${vid}`);
+        url.searchParams.set("fields", "source");
+        url.searchParams.set("access_token", token);
+        const res = await fetch(url.toString(), { cache: "no-store" });
+        const data = (await res.json()) as { source?: string; error?: { message?: string } };
+        if (typeof data.source === "string" && data.source.length > 0) {
+          out.set(vid, data.source);
+        }
+      })
+    );
+  }
+
+  return out;
+}
 
 /**
  * Texto extra quando a Meta retorna erro (permissão, token expirado, etc.).
@@ -903,6 +1005,31 @@ export async function fetchMetaInsights(
       };
     });
     ads.sort((a, b) => b.spend - a.spend);
+  }
+
+  if (ads.length > 0) {
+    const { map: creativeMap, error: creativeErr } = await fetchCreativesByAdIds(
+      token,
+      ads.map((a) => a.adId)
+    );
+    if (creativeErr) {
+      warnings.push(`Prévia do criativo: ${creativeErr}`);
+    } else {
+      const videoIds = [...creativeMap.values()]
+        .filter((c) => c.kind === "video" && c.videoId)
+        .map((c) => c.videoId as string);
+      const videoSources =
+        videoIds.length > 0 ? await fetchVideoSourcesForIds(token, videoIds) : new Map<string, string>();
+      ads = ads.map((row) => {
+        const c = creativeMap.get(row.adId);
+        if (!c) return row;
+        if (c.kind === "video" && c.videoId) {
+          const videoSourceUrl = videoSources.get(c.videoId);
+          return { ...row, creative: { ...c, ...(videoSourceUrl ? { videoSourceUrl } : {}) } };
+        }
+        return { ...row, creative: c };
+      });
+    }
   }
 
   return {

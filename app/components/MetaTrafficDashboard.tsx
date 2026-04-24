@@ -80,6 +80,71 @@ function brandAccent(variant: DashboardBrandVariant): BrandAccent {
   };
 }
 
+/** Cores do bloco “Investimento em tráfego” no admin, alinhadas à marca do cliente. */
+export type TrafficInvestPanelAccent = {
+  iconWrap: string;
+  icon: string;
+  titleName: string;
+  refreshBtn: string;
+  formWrap: string;
+  inputFocus: string;
+  addBtn: string;
+  tableWrap: string;
+  tableHead: string;
+  investCell: string;
+  saveBtn: string;
+  editHover: string;
+};
+
+export function trafficInvestPanelAccent(variant: DashboardBrandVariant): TrafficInvestPanelAccent {
+  if (variant === "easybee") {
+    return {
+      iconWrap: "bg-amber-500/20",
+      icon: "text-amber-200",
+      titleName: "text-amber-50",
+      refreshBtn: "hover:border-amber-500/45 hover:text-amber-200",
+      formWrap: "border-amber-500/25 bg-amber-950/25",
+      inputFocus: "focus:border-amber-500/55 focus:ring-amber-500/25",
+      addBtn: "bg-amber-600 hover:bg-amber-500",
+      tableWrap: "border-amber-500/20",
+      tableHead: "border-b border-amber-500/20 bg-amber-950/35 text-amber-200/85",
+      investCell: "text-amber-50",
+      saveBtn: "bg-amber-600/90 hover:bg-amber-500",
+      editHover: "hover:border-amber-500/45 hover:text-amber-200",
+    };
+  }
+  if (variant === "luzdoluar") {
+    return {
+      iconWrap: "bg-[#c5a47e]/18",
+      icon: "text-[#e8dcc8]",
+      titleName: "text-[#f0e6d8]",
+      refreshBtn: "hover:border-[#c5a47e]/45 hover:text-[#e8dcc8]",
+      formWrap: "border-[#c5a47e]/28 bg-[#141a18]/50",
+      inputFocus: "focus:border-[#c5a47e]/55 focus:ring-[#c5a47e]/22",
+      addBtn: "bg-[#8b7355] hover:bg-[#9d8462]",
+      tableWrap: "border-[#c5a47e]/22",
+      tableHead: "border-b border-[#c5a47e]/22 bg-[#1a1f2c]/90 text-[#c5a47e]/90",
+      investCell: "text-[#f0e6d8]",
+      saveBtn: "bg-[#8b7355]/95 hover:bg-[#9d8462]",
+      editHover: "hover:border-[#c5a47e]/45 hover:text-[#e8dcc8]",
+    };
+  }
+  return {
+    iconWrap: "bg-emerald-500/15",
+    icon: "text-emerald-400",
+    titleName: "text-emerald-200/95",
+    refreshBtn: "hover:border-emerald-500/40 hover:text-emerald-300",
+    formWrap: "border-zinc-800/80 bg-zinc-950/40",
+    inputFocus: "focus:border-emerald-500/50 focus:ring-emerald-500/20",
+    addBtn: "bg-emerald-600 hover:bg-emerald-500",
+    tableWrap: "border-zinc-800/80",
+      tableHead: "border-b border-zinc-800/80 bg-zinc-950/50 text-emerald-200/75",
+    investCell: "text-emerald-200/95",
+    saveBtn: "bg-emerald-600/90 hover:bg-emerald-500",
+    editHover: "hover:border-emerald-500/40 hover:text-emerald-300",
+  };
+}
+
 export type DashboardAccount = {
   accountName: string;
   impressions: number;
@@ -131,6 +196,8 @@ export type MetaTrafficDashboardProps = {
   brandVariant?: DashboardBrandVariant;
   /** Faixa de marca acima dos controles (ex.: logo). */
   brandSlot?: ReactNode;
+  /** Bloco extra no card de controles, abaixo do período / conta (ex.: investimentos por cliente no admin). */
+  belowControlsSlot?: ReactNode;
 };
 
 function brl(n: number) {
@@ -172,6 +239,7 @@ export function MetaTrafficDashboard(props: MetaTrafficDashboardProps) {
     rightExtras,
     brandVariant = "default",
     brandSlot,
+    belowControlsSlot,
   } = props;
 
   const ac = brandAccent(brandVariant);
@@ -299,6 +367,9 @@ export function MetaTrafficDashboard(props: MetaTrafficDashboardProps) {
         {controlsHint && (
           <p className="mt-2 text-xs leading-snug text-amber-200/90">{controlsHint}</p>
         )}
+        {belowControlsSlot ? (
+          <div className="mt-4 border-t border-zinc-800/50 pt-4">{belowControlsSlot}</div>
+        ) : null}
       </div>
 
       {error && (

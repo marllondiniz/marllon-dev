@@ -2,14 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Lock, LogOut, RefreshCw } from "lucide-react";
+import { ArrowLeft, Banknote, Lock, LogOut, RefreshCw } from "lucide-react";
 import { EasyBeeBrandBanner } from "@/app/components/EasyBeeBrandBanner";
 import { LuzDoLuarBrandBanner } from "@/app/components/LuzDoLuarBrandBanner";
-import {
-  MetaTrafficDashboard,
-  type DashboardAccount,
-  type DashboardBrandVariant,
-} from "@/app/components/MetaTrafficDashboard";
+import { MetaTrafficDashboard, type DashboardAccount, type DashboardBrandVariant } from "@/app/components/MetaTrafficDashboard";
 import {
   getTrafficPresetLabel,
   TRAFFIC_DATE_PRESETS,
@@ -23,6 +19,11 @@ import {
   type MetaTrafficExportInput,
 } from "@/lib/export-meta-traffic-report";
 import type { AdCreativePreview } from "@/lib/meta-traffic";
+import {
+  clearAdminTrafficSession,
+  readAdminTrafficSession,
+  saveAdminTrafficSession,
+} from "@/lib/admin-traffic-session";
 
 const PRESETS = [...TRAFFIC_DATE_PRESETS, ...TRAFFIC_LEGACY_PRESETS];
 
@@ -81,6 +82,7 @@ type ApiPayload = {
 export default function AdminTrafegoPage() {
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState<string | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState("");
@@ -91,6 +93,24 @@ export default function AdminTrafegoPage() {
   const portal = trafficPortalKind(slug);
   const dashboardBrand: DashboardBrandVariant =
     portal === "easybee" ? "easybee" : portal === "luzdoluar" ? "luzdoluar" : "default";
+
+  useEffect(() => {
+    const s = readAdminTrafficSession();
+    if (s) setSecret(s);
+    setSessionReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (secret) saveAdminTrafficSession(secret);
+  }, [secret]);
+
+  useEffect(() => {
+    const list = data?.clients;
+    if (!list?.length) return;
+    if (!list.some((c) => c.slug === slug)) {
+      setSlug(list[0]!.slug);
+    }
+  }, [data?.clients, slug]);
 
   const load = useCallback(
     async (s: string, p: string, clientSlug?: string) => {
@@ -104,6 +124,7 @@ export default function AdminTrafegoPage() {
         const res = await fetch(url.toString(), { headers: { "x-admin-secret": s } });
         const json = (await res.json()) as ApiPayload & { error?: string; hint?: string };
         if (res.status === 401) {
+          clearAdminTrafficSession();
           setSecret(null);
           setError("Senha incorreta ou sessão expirada.");
           return;
@@ -187,6 +208,14 @@ export default function AdminTrafegoPage() {
     };
   }
 
+  if (!sessionReady) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        <p className="text-sm text-zinc-500">Carregando…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-6 sm:py-6">
@@ -256,6 +285,21 @@ export default function AdminTrafegoPage() {
             }
             rightExtras={
               <>
+                <Link
+                  href="/admin/trafego/financeiro"
+                  className={
+                    "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-900/60 px-3 text-xs text-zinc-300 transition " +
+                    (portal === "easybee"
+                      ? "hover:border-amber-500/45 hover:text-amber-200"
+                      : portal === "luzdoluar"
+                        ? "hover:border-[#c5a47e]/45 hover:text-[#e8dcc8]"
+                        : "hover:border-emerald-500/40 hover:text-emerald-300")
+                  }
+                  title="Financeiro · tráfego"
+                >
+                  <Banknote className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Financeiro</span>
+                </Link>
                 <button
                   type="button"
                   onClick={() => secret && load(secret, preset, slug || undefined)}
@@ -276,6 +320,7 @@ export default function AdminTrafegoPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    clearAdminTrafficSession();
                     setSecret(null);
                     setPassword("");
                     setData(null);
@@ -332,6 +377,11 @@ export default function AdminTrafegoPage() {
                     {loading ? "Entrando..." : "Entrar"}
                   </button>
                 </form>
+                <p className="mt-4 text-center text-[11px] text-zinc-600">
+                  <Link href="/admin/trafego/financeiro" className="text-zinc-500 underline-offset-2 hover:text-zinc-400 hover:underline">
+                    Abrir tela Financeiro (tráfego)
+                  </Link>
+                </p>
               </div>
             </div>
           </div>

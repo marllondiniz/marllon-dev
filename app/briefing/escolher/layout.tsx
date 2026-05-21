@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
-const title = "Escolher briefing — zinid.tech";
+const title = "Escolha o serviço — zinid.tech";
 const description =
-  "Selecione o serviço (tráfego, dashboards ou site) e preencha o formulário guiado no próximo passo.";
+  "Selecione tráfego, dashboards ou site. No próximo passo abrimos o briefing guiado com as perguntas certas para o serviço que você escolheu.";
 
 export const metadata: Metadata = {
   title,

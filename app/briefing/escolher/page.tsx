@@ -60,7 +60,7 @@ export default function EscolherBriefingPage() {
             className="flex justify-center text-center font-[family-name:var(--font-space)] text-2xl font-bold text-white sm:text-3xl [&>span:nth-child(n+2)]:text-[#22c55e]"
           />
           <p className="mt-3 text-center text-sm text-zinc-500">
-            Escolha abaixo. No próximo passo abrimos o briefing certo para o seu caso.
+            Escolha uma das opções abaixo — em seguida abrimos o briefing guiado já no formato daquele serviço.
           </p>
         </div>
       </section>

@@ -37,7 +37,7 @@ export default function CTA() {
           viewport={{ once: true }}
           className="mt-4 font-mono text-sm text-zinc-400 terminal-cursor"
         >
-          Escolha o serviço e preencha o briefing — respondo com a melhor forma de avançar.
+          Primeiro você escolhe o serviço (tráfego, painéis ou site); no briefing seguinte você detalha o cenário — e eu volto com o próximo passo.
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 8 }}
@@ -73,11 +73,11 @@ export default function CTA() {
               className="inline-flex items-center gap-2 rounded-xl bg-[#22c55e] px-8 py-3.5 font-semibold text-black shadow-[0_0_24px_rgba(34,197,94,0.35)] transition hover:bg-[#16a34a] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)]"
             >
               <ClipboardList className="h-5 w-5" />
-              Escolher briefing
+              Escolha o serviço
             </Link>
           </Magnet>
           <p className="max-w-sm font-mono text-[10px] leading-relaxed text-zinc-600">
-            No próximo passo você escolhe o serviço (tráfego, painéis ou site) e abre o formulário certo.
+            Na próxima tela você escolhe entre tráfego, dashboards ou site; em seguida abrimos o formulário guiado daquele serviço.
           </p>
         </motion.div>
 

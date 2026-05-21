@@ -531,6 +531,12 @@ body.no-global-overlay::after {
   100% { background-position: 200% center; }
 }
 .shiny-text {
+  /* Inline + multi-line wrapping quebra pseudo ::before absoluto em mobile (“texto fantasma”).
+     Bloco inline-block com largura total alinha camada-base e texto real nas quebras de linha. */
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
+  vertical-align: top;
   background: linear-gradient(
     120deg,
     rgba(255,255,255,0) 30%,
@@ -543,15 +549,20 @@ body.no-global-overlay::after {
   -webkit-text-fill-color: transparent;
   animation: shiny-slide 4s linear infinite;
   position: relative;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 .shiny-text::before {
   content: attr(data-text);
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(to right, #22c55e, #4ade80, #22c55e);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  white-space: normal;
+  overflow-wrap: break-word;
   z-index: -1;
 }
 
